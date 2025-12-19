@@ -1,0 +1,237 @@
+# Project Notes
+
+## Architecture: Direct Frontend API Calls (No Proxy) + Supabase Storage for Avatars
+
+### Frontend-Only Approach:
+- **Direct API Calls**: Frontend makes requests directly to external API (`divination.uubb.top`)
+- **No Backend Proxy**: Removed all Next.js API route proxies for cleaner architecture
+- **Avatars via Supabase Storage**: All avatar uploads/read now use Supabase Storage bucket `avatars`. We store the storage object path as `avatar_id` and render via Supabase public URLs.
+- **JWT Authentication**: Frontend directly attaches Supabase JWT tokens to requests
+- **CORS Handling**: External API must handle CORS or use appropriate browser policies
+- **Simplified Debugging**: Raw HTTP packet dumps show direct frontend→backend communication
+
+### Benefits:
+- **Simplified Architecture**: No need to maintain proxy routes for each API endpoint
+- **Better Performance**: Eliminates unnecessary proxy layer and double-hop requests
+- **Easier Scaling**: Adding new API endpoints doesn't require new proxy routes
+- **Direct Error Handling**: Frontend receives errors directly from external API
+- **Raw HTTP Logging**: Complete request/response packet dumps for debugging
+
+### Files Removed/Disabled:
+- app/api/bazi/v1/character/route.ts - Character creation proxy (deleted)
+- app/api/health/external/route.ts - Health check proxy (deleted)
+- app/api/users/v1/avatar/route.ts - Avatar proxy disabled; returns 410 Gone
+
+### Files Updated:
+- lib/api/client.ts - Updated createCharacter to call external API directly with raw HTTP logging; avatar API no longer used
+- lib/supabase/storage.ts - New helpers `uploadAvatarToStorage`, `getAvatarPublicUrl`
+- components and pages - Replaced `/api/avatar/:id` with Supabase public URLs
+
+### HTTP Packet Format:
+```
+POST  HTTP/2
+Host: divination.uubb.top
+Content-Type: application/json
+Accept: application/json
+User-Agent: NextJS-Client/1.0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+Content-Length: 320
+
+{"name":"Test","gender":"female","birthday_utc8":"2025-01-27T12:00:00.000Z",...}
+\00
+```
+
+Last updated: Current session - Switched from proxy architecture to direct frontend API calls and Supabase Storage for all avatars
+
+## Database Field Mappings - CRITICAL
+
+### Characters Table Field Names:
+- **auth_id** (NOT creator_id) - User ID who created the character
+- **disabled** - Boolean flag for soft deletion (always filter with .eq("disabled", false))
+- **visibility** - "public" or "private"
+- **data_type** - "virtual" or "real"
+- **birthday_utc8** - Character birth timestamp
+- **birthplace** - Character birth location string
+- **paipan** - JSONB astrology data
+
+### Common Mistakes to Avoid:
+1. DO NOT use `creator_id` - use `auth_id`
+2. Always filter by `disabled: false` when querying characters
+3. Ensure TypeScript types match actual database schema
+
+### Updated Files:
+- lib/supabase/types.ts - Updated to match actual schema
+- lib/supabase/database.ts - Fixed field names
+- components/character/character-card.tsx - Using correct field names
+- .definitionrc - Added field mapping documentation
+
+## UI Consistency Updates
+
+### Database Page Improvements:
+- **Background Consistency**: All sections now use `bg-content1` to match navbar
+- **Center Alignment**: Left section content is now center-aligned instead of left-aligned
+- **SVG Placeholders**: Added `/placeholder.svg` image placeholders throughout
+- **Optimized Empty States**: Removed duplicate "no characters found" notifications
+  - Main page shows "No characters found" for truly empty database
+  - CharacterList shows "No matching characters" for filtered results
+- **Error State**: Added SVG placeholder and improved styling
+- **Mobile Responsive**: Proper mobile layout with scaled content
+
+### Files Updated:
+- app/(base)/database/page.tsx - Main database page overhaul
+- components/database/character-list.tsx - Optimized empty state
+- Removed dependency on components/database/database-header.tsx
+
+## Character Info Page Complete Redesign
+
+### New Modern Design Features:
+- **Hero Section**: Beautiful gradient background with subtle pattern overlay
+- **Large Avatar Display**: 160-192px avatar with glow effect and status indicator
+- **Premium Typography**: Large, bold character name with tracking adjustments
+- **Visual Hierarchy**: Clear information flow from hero to details to community
+- **Glassmorphism Cards**: Semi-transparent cards with backdrop blur effects
+- **Color-Coded Sections**: Primary for personal, secondary for technical info
+- **Interactive Elements**: Hover effects on information items with smooth transitions
+- **Status Chips**: Visibility and data type displayed as modern chips in navigation
+- **Quick Stats**: Key information displayed as attractive stat cards in hero
+- **Hashtag Tags**: Tags displayed with # prefix and bordered style
+- **Animated Elements**: Pulsing status indicator and smooth hover transitions
+
+### Layout Architecture:
+- **Hero Section**: Full-width character showcase with avatar, name, description, stats, and tags
+- **Two-Column Content**: Left sidebar for actions and details, right column for community discussion
+- **Responsive Grid**: 1 column on mobile, 3-column grid on desktop (1+2 split)
+- **Fixed Comments Height**: 500px scrollable comments area with dedicated header
+- **Elevated Design**: Cards float above background with shadows and backdrop blur
+- **Consistent Spacing**: 24px gaps between sections with proper padding
+- **Container Max-Width**: 7xl container (1280px) for optimal desktop viewing
+
+### Visual Enhancements:
+- **Gradient Backgrounds**: Subtle content1 to content2 gradient on page background
+- **SVG Pattern Overlay**: Geometric circle pattern at 5% opacity for texture
+- **Avatar Glow Effect**: Radial gradient glow behind character avatar
+- **Border Treatments**: Semi-transparent borders on all cards
+- **Shadow System**: Multiple shadow layers for depth and hierarchy
+- **Color System**: Primary blue for personal info, secondary for technical details
+- **Icon Integration**: Consistent iconography with proper sizing and spacing
+
+### Information Architecture:
+- **Hero Priority**: Character name, description, and key stats prominently displayed
+- **Sidebar Details**: Personal and technical information in separate, focused cards  
+- **Community Focus**: Large, dedicated space for comments and discussion
+- **Progressive Disclosure**: Most important info first, technical details secondary
+- **Visual Scanning**: Easy-to-scan layout with clear section separation
+
+### Files Updated:
+- app/(base)/character/info/page.tsx - Complete modern redesign from scratch
+
+Last updated: Current session - Created beautiful modern character info page design
+
+## Chat Layout Modernization
+
+### Color Scheme Fixes:
+- **Consistent Background**: Changed from `bg-background`/`bg-height0` to `bg-content1` throughout
+- **Proper Text Colors**: Replaced hardcoded `text-white` with `text-foreground` for better theme support
+- **Modern Borders**: Updated from `border-white/5` to `border-foreground/10` for consistent theming
+- **Message Bubbles**: Character messages now use `bg-content2/80` with backdrop blur for glassmorphism effect
+- **Input Styling**: Updated textarea to use `bg-content2` with proper focus states and hover effects
+
+### Left Toolbar Improvements:
+- **Background Consistency**: Unified sidebar background to `bg-content1`
+- **Better Borders**: Updated border colors to `border-foreground/10`
+- **Hover States**: Added proper hover effects with `hover:bg-content2` for interactive elements
+- **Mobile Overlay**: Fixed mobile sidebar overlay styling with correct z-index and transitions
+
+### Visual Enhancements:
+- **Glassmorphism Effects**: Added `backdrop-blur-sm` to message bubbles and input areas
+- **Avatar Fallbacks**: Added gradient fallback backgrounds for character avatars with SVG placeholders
+- **Status Indicators**: Enhanced online status with `animate-pulse` effect and proper colors
+- **Button Styling**: Improved button hover states and color consistency
+- **Gradient Backgrounds**: Added subtle gradients in message area for visual depth
+
+### Right Sidebar:
+- **Preserved As-Is**: Left unchanged per user request to maintain existing functionality
+- **Consistent Integration**: Ensured proper border matching with the updated color scheme
+
+### Files Updated:
+- app/(chat)/layout.tsx - Updated root background color
+- app/(chat)/chat/[id]/page.tsx - Complete color scheme modernization
+
+Last updated: Current session - Fixed chat layout color scheme and left toolbar styling
+
+## Chat Layout Height & Sidebar Fixes
+
+### Height Issues Fixed:
+- **Dynamic Height**: Removed fixed `h-screen` classes that were causing layout problems
+- **Flexible Layout**: Changed to `flex w-full bg-content1 overflow-hidden min-h-0 flex-1` for proper container sizing
+- **Responsive Containers**: Main chat area now uses `min-h-0` to ensure proper height calculation
+- **Input Area**: Removed fixed `min-h-20` and `h-full` constraints for better dynamic sizing
+- **Message Area**: Cleaned up height constraints (`max-h-full` removed) for proper scrolling
+
+### Sidebar Character Cards Fixed:
+- **Color Scheme**: Updated all `bg-height0`/`bg-height1`/`text-white` to modern design system colors
+- **Card Expansion**: Added `w-full` classes to ensure cards fill container width properly
+- **Better Layout**: Character cards now use `p-4` padding and proper flex layouts
+- **Enhanced Styling**: Added glassmorphism effects with `backdrop-blur-sm` and `bg-content2/80`
+- **Improved Typography**: Better text hierarchy with `font-semibold`, proper spacing, and color consistency
+- **Avatar Fallbacks**: Added gradient fallback backgrounds for all avatars with SVG placeholders
+- **Type Chips**: Character types now display as modern chips with `bg-primary/10` styling
+- **Status Indicators**: Online status now uses `bg-success` with pulse animation
+- **Hover Effects**: Added smooth transitions with `hover:bg-content2` and `hover:border-foreground/20`
+
+### Visual Enhancements:
+- **Unified Colors**: All components now use `text-foreground`, `border-foreground/10`, `bg-content1/2`
+- **Consistent Icons**: All icons properly sized and colored with hover states
+- **Better Spacing**: Improved padding and margins throughout the sidebar
+- **Search Input**: Updated with proper focus states and modern styling
+- **Navigation Tabs**: Smaller icons (`w-3 h-3`) and text (`text-xs`) for better mobile fit
+- **Settings Cards**: Enhanced with icon containers and better visual hierarchy
+
+### Files Updated:
+- app/(chat)/chat/[id]/page.tsx - Fixed height layout issues
+- components/sidebar/multi-layout-sidebar.tsx - Complete character card redesign
+
+Last updated: Current session - Fixed chat dynamic height and sidebar character card layout
+
+## Chat Page Complete Rebuild
+
+### Complete Reconstruction:
+- **Ground-Up Rebuild**: Completely rewrote the entire chat page file from scratch
+- **Proper Height Management**: Fixed all height issues with clean flex layouts
+- **Preserved Components**: Maintained all original components and functionality
+- **Modern Structure**: Implemented clean, semantic HTML structure with proper nesting
+
+### Height System Fixed:
+- **Root Container**: `flex h-full w-full` for proper full-height layout
+- **Sidebar**: `w-80 h-full` with clean component integration
+- **Main Chat**: `flex-1 flex flex-col h-full min-w-0` for proper flex growth
+- **Header**: `flex-shrink-0` to prevent compression
+- **Messages**: `flex-1 overflow-y-auto` for proper scrollable content area
+- **Input**: `flex-shrink-0` to maintain fixed position at bottom
+- **Right Sidebar**: `h-full` with `overflow-hidden` and proper scroll container
+
+### Layout Improvements:
+- **Simplified Structure**: Removed unnecessary wrapper divs and conflicting height classes
+- **Clean Flex Chain**: Proper parent-child flex relationships throughout
+- **No Fixed Heights**: Eliminated problematic fixed height constraints
+- **Proper Overflow**: Correct overflow handling at each level
+- **Mobile Responsive**: Maintained mobile sidebar functionality with cleaner implementation
+
+### Visual Consistency:
+- **Modern Colors**: All components use unified `bg-content1/2`, `text-foreground`, `border-foreground/10`
+- **Right Sidebar Update**: Modernized with glassmorphism cards and proper icon containers
+- **Avatar Fallbacks**: Added consistent gradient fallbacks throughout
+- **Better Spacing**: Cleaned up padding and margins for visual consistency
+- **Enhanced Cards**: Right sidebar now uses proper Card components with backdrop blur
+
+### Code Quality:
+- **Cleaner Imports**: Removed unused imports and type declarations
+- **Simplified Logic**: Streamlined component structure and prop handling
+- **Better Organization**: Logical grouping of related functionality
+- **Consistent Styling**: Unified approach to classes and component props
+- **Maintainable Structure**: Clear separation of concerns and readable code
+
+### Files Updated:
+- app/(chat)/chat/[id]/page.tsx - Complete file reconstruction from scratch
+
+Last updated: Current session - Complete chat page rebuild with proper height management 
