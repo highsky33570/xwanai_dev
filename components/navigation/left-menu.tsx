@@ -111,10 +111,12 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
   }, [])
 
   useEffect(() => {
+    if (!categoryParam) return;
     setSelectedTopic(categoryParam);
   }, [categoryParam])
 
   useEffect(() => {
+    if (!modeParam) return;
     setSelectedParentId(modeParam);
   }, [modeParam])
 

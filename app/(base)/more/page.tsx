@@ -109,15 +109,24 @@ export default function PersonalCharacterDatabase() {
   );
 
   const activeMainCategory: Category = useMemo(() => {
-    const categories =
-      mainCategories.find((c: Category) => c.id === modeParam)?.children ?? [];
-    return categories.find((c: Category) => c.id === categoryParam) ?? null;
+    let categories;
+    if (!modeParam) {
+      categories = mainCategories[0]?.children ?? [];
+    } else {
+      categories = mainCategories.find((c: Category) => c.id === modeParam)?.children ?? [];
+    }
+    if (!categoryParam) {
+      return categories[0] ?? null;
+    } else return categories.find((c: Category) => c.id === categoryParam) ?? null;
   }, [modeParam, categoryParam, mainCategories]);
 
   const dimensions: Category[] = useMemo(() => {
-    const dims =
-      dimensionCategories.find((c: Category) => c.id === modeParam)
-        ?.children ?? [];
+    let dims;
+    if (!modeParam) {
+      dims = dimensionCategories[0]?.children ?? [];
+    } else {
+      dims = dimensionCategories.find((c: Category) => c.id === modeParam)?.children ?? [];
+    }
     return dims;
   }, [modeParam, dimensionCategories]);
 

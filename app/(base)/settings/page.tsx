@@ -24,6 +24,7 @@ import {
   useDisclosure,
   Spinner,
   Chip,
+  Skeleton,
 } from "@heroui/react";
 import {
   ArrowLeft,
@@ -70,6 +71,93 @@ interface FormData {
   public_profile: boolean;
   show_email: boolean;
   email_notifications: boolean;
+}
+
+function ProfileSkeleton() {
+  return (
+    <div className="min-h-screen">
+      <div className="max-w-3xl mx-auto p-6 space-y-8">
+
+        {/* Header */}
+        <div className="flex items-center gap-4 my-8 justify-between">
+          <Button isIconOnly variant="light" onClick={() => router.back()}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div className="flex-grow flex items-center justify-center gap-2 ">
+            <User className="w-4 h-4 text-foreground-400" />
+            <h1 className="text-2xl font-bold">Profile Infomation</h1>
+            {/* <p className="text-foreground-600">
+              Manage your account and preferences
+            </p> */}
+          </div>
+        </div>
+
+        {/* Avatar */}
+        <div className="flex items-center justify-center gap-4">
+          <Skeleton className="rounded-full w-20 h-20" />
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-28 rounded-full" />
+            <Skeleton className="h-4 w-36 rounded-md" />
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="space-y-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="space-y-2">
+              {/* <Skeleton className="h-4 w-28 rounded-md" /> */}
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </div>
+          ))}
+
+          {/* Bio textarea */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20 rounded-md" />
+            <Skeleton className="h-24 w-full rounded-xl" />
+          </div>
+        </div>
+
+        {/* Account Info */}
+        <Card>
+          <CardBody className="space-y-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between"
+              >
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32 rounded-md" />
+                  <Skeleton className="h-3 w-24 rounded-md" />
+                </div>
+                <Skeleton className="h-8 w-20 rounded-full" />
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+
+        {/* Preferences */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24 rounded-md" />
+            <Skeleton className="h-3 w-48 rounded-md" />
+          </div>
+          <Skeleton className="h-6 w-12 rounded-full" />
+        </div>
+
+        {/* Danger Zone */}
+        <div className="space-y-3">
+          <Skeleton className="h-5 w-32 rounded-md" />
+          <Skeleton className="h-4 w-full rounded-md" />
+          <Skeleton className="h-10 w-full rounded-xl" />
+        </div>
+
+        {/* Sticky Save Button */}
+        <div className="sticky bottom-0 bg-content1 pt-6">
+          <Skeleton className="h-12 w-full rounded-xl" />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function SettingsPage() {
@@ -467,14 +555,15 @@ export default function SettingsPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-content1 flex items-center justify-center">
-        <div className="text-center">
-          <Spinner size="lg" />
-          <p className="mt-4 text-foreground-600">Loading your profile...</p>
-        </div>
-      </div>
-    );
+    return (<ProfileSkeleton />)
+    // return (
+    //   <div className="min-h-screen bg-content1 flex items-center justify-center">
+    //     <div className="text-center">
+    //       <Spinner size="lg" />
+    //       <p className="mt-4 text-foreground-600">Loading your profile...</p>
+    //     </div>
+    //   </div>
+    // );
   }
 
   if (!user) {

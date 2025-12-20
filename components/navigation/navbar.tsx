@@ -63,7 +63,7 @@ const NavigationNavbar = observer(() => {
   const { user } = useAppGlobal();
   // const [isLoading, setIsLoading] = useState(true);
   const welcomeName = ((user?.user_metadata?.username || user?.email || "Guest") as string).toUpperCase();
-  const isSettingPage = pathname.startsWith("/settings");
+  // const isSettingPage = pathname.startsWith("/settings");
 
   const {
     isOpen: isLoginOpen,
@@ -323,26 +323,20 @@ const NavigationNavbar = observer(() => {
         maxWidth="full"
       >
         {
-          
-          !isSettingPage ?
-            (<NavbarContent className="flex-shrink-0">
-              <NavbarMenuToggle
-                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-                className="hidden"
-              />
-              <button
-                aria-label="Open sidebar"
-                className="flex lg:hidden p-1 rounded hover:bg-black/5 w-10"
-                onClick={handleOpenLeftOverlay}
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-            </NavbarContent>) :
-            (<NavbarContent className="flex-shrink-0">
-              <Logo />
-            </NavbarContent>)
+          (<NavbarContent className="flex-shrink-0">
+            <NavbarMenuToggle
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              className="hidden"
+            />
+            <button
+              aria-label="Open sidebar"
+              className="flex lg:hidden p-1 rounded hover:bg-black/5 w-10"
+              onClick={handleOpenLeftOverlay}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </NavbarContent>)
         }
-
 
         {/* Right side */}
         <NavbarContent justify="end" className="gap-2 text-black">
@@ -377,7 +371,7 @@ const NavigationNavbar = observer(() => {
               variant="bordered"
               placeholder="SEARCH"
               startContent={<Search className="w-3 h-3 text-gray-500" />}
-              classNames={{ input: "text-black bg-gray-200 placeholder:text-black placeholder:opacity-100 rounded-full", inputWrapper: "text-black bg-gray-200 border-gray-300 rounded-full" }}
+              classNames={{ input: "text-black bg-gray-200 placeholder:text-black placeholder:opacity-100 rounded-full focus:outline-none focus-visible:outline-none", inputWrapper: "text-black bg-gray-200 border-gray-300 rounded-full focus:outline-none focus-within:outline-none" }}
             />
           </div>
           {/* 语言切换 */}

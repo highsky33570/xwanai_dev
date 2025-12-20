@@ -97,6 +97,14 @@ body {
   body {
     color: var(--foreground);
   }
+
+  /* Remove outline from all input elements */
+  input:focus,
+  input:focus-visible,
+  textarea:focus,
+  textarea:focus-visible {
+    outline: none !important;
+  }
 }
 
 [data-slot="label"] {
@@ -111,10 +119,35 @@ body {
   opacity: 1;
 }
 
+/* Remove outline from HeroUI Input wrapper */
+[data-slot="inputWrapper"] {
+  outline: none !important;
+}
+
+[data-slot="inputWrapper"]:focus,
+[data-slot="inputWrapper"]:focus-within,
+[data-slot="inputWrapper"]:focus-visible {
+  outline: none !important;
+}
+
+/* Remove outline from input elements inside HeroUI components */
+[data-slot="input"] input,
+[data-slot="input"] textarea {
+  outline: none !important;
+}
+
+[data-slot="input"] input:focus,
+[data-slot="input"] input:focus-visible,
+[data-slot="input"] textarea:focus,
+[data-slot="input"] textarea:focus-visible {
+  outline: none !important;
+}
+
 :root {
   --input-label-color: rgba(0, 0, 0, 0.6);
   --input-placeholder-color: rgba(0, 0, 0, 0.4);
 }
+
 .dark {
   --input-label-color: rgba(255, 255, 255, 0.6);
   --input-placeholder-color: rgba(255, 255, 255, 0.4);
