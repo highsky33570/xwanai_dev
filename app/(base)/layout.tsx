@@ -19,12 +19,13 @@ export default function BaseLayout({
   // const inVisibleLeft = pathname?.startsWith("/settings");
   const showInfoLeftImage = pathname?.startsWith("/character/info") || pathname?.startsWith("/database") || pathname?.startsWith("/settings");
   const leftWidth = showInfoLeftImage ? '400px' : '400px';
+  const showBackground = pathname?.startsWith("/database");
   // const [leftImageUrl, setLeftImageUrl] = useState<string>("/info-leftbackground.png");
   // const fileInputRef = useRef<HTMLInputElement | null>(null);
   return (
     <div className="flex w-full h-full max-h-screen overflow-hidden" style={{ "--left-width": leftWidth } as React.CSSProperties}>
-      <aside className={`relative hidden flex-none flex-col shrink-0 max-h-screen min-h-screen lg:flex w-[var(--left-width)]`} style={{ backgroundImage: 'url(/left-background.png)', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/25 to-white z-0" />
+      <aside className={`relative hidden flex-none flex-col mx-3 shrink-0 max-h-screen min-h-screen lg:flex w-[var(--left-width)] ` } style={{ backgroundImage: showBackground ? 'url(/left-background.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        {showBackground ? (<div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/25 to-white z-0" />) : null}
         {showInfoLeftImage ? (
           <>
             {/* <div className="relative z-10 flex space-y-1 items-center max-h-24 ml-8 cursor-pointer py-6" onClick={() => router.push("/")}>
@@ -37,14 +38,14 @@ export default function BaseLayout({
                 XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>IO</span>
               </div>
             </div> */}
-            <div className="flex flex-col h-full justify-between lg:px-8 py-6  z-10" >
+            <div className="flex flex-col h-full justify-between lg:px-8 py-6 z-10" >
               <div className="flex-1">
                 <LogoLeft />
               </div>
               <FooterLeft />
             </div>
 
-            <div className="relative z-10">
+            {/* <div className="relative z-10"> */}
               {/* <img
                 src={leftImageUrl}
                 alt=""
@@ -75,7 +76,7 @@ export default function BaseLayout({
                 />
               </div> */}
 
-            </div>
+            {/* </div> */}
           </>
         ) : (<>
 
@@ -85,7 +86,6 @@ export default function BaseLayout({
       <div className="flex flex-1 flex-col min-w-0 lg:max-w-[calc(100%-var(--left-width))]" >
         <Navbar />
         <div className="overflow-y-auto">
-
           {children}
         </div>
       </div>

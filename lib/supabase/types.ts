@@ -182,8 +182,10 @@ export type Database = {
         Row: {
           id: string
           username: string | null
+          full_name: string | null
           avatar_url: string | null
           updated_at: string | null
+          email: string | null
           subscription_status: "free" | "active" | "cancelled" | "expired"
           subscription_tier: "free" | "monthly" | "yearly" | "premium"
           subscription_start_date: string | null
@@ -211,6 +213,8 @@ export type Database = {
           username?: string | null
           avatar_url?: string | null
           updated_at?: string | null
+          full_name: string | null
+          email: string | null
           subscription_status?: "free" | "active" | "cancelled" | "expired"
           subscription_tier?: "free" | "monthly" | "yearly" | "premium"
           subscription_start_date?: string | null

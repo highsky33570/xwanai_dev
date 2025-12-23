@@ -83,7 +83,6 @@ export default function ChatIdlePage() {
       <div className="flex-1 flex items-center justify-center px-4">
         <Card className="max-w-xl w-full bg-content2/80 backdrop-blur-sm border border-foreground/10 shadow-xl relative">
           
-
           <CardBody className="p-10 text-center space-y-4">
             <MessageCircle className="w-12 h-12 text-primary mx-auto" />
             <h2 className="text-2xl font-semibold text-foreground">

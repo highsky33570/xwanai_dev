@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -63,7 +63,7 @@ type Profile = Tables<"profiles">;
 
 interface FormData {
   username: string;
-  full_name: string;
+  full_name?: string;
   bio: string;
   location: string;
   birth_date: string;
@@ -74,6 +74,8 @@ interface FormData {
 }
 
 function ProfileSkeleton() {
+  const router = useRouter();
+
   return (
     <div className="min-h-screen">
       <div className="max-w-3xl mx-auto p-6 space-y-8">
@@ -208,6 +210,10 @@ export default function SettingsPage() {
     email_notifications: true,
   });
 
+  // Store initial form data to detect changes
+  const [initialFormData, setInitialFormData] = useState<FormData | null>(null);
+  const [initialAvatarPreview, setInitialAvatarPreview] = useState<string | null>(null);
+
   useEffect(() => {
     loadUserProfile();
   }, [user]);
@@ -298,10 +304,15 @@ export default function SettingsPage() {
       };
 
       setFormData(populatedFormData);
+      // Store initial form data for change detection
+      setInitialFormData({ ...populatedFormData });
 
       // Set avatar preview if available
       if (userProfile.avatar_url) {
         setAvatarPreview(userProfile.avatar_url);
+        setInitialAvatarPreview(userProfile.avatar_url);
+      } else {
+        setInitialAvatarPreview(null);
       }
     } catch (error) {
       logger.error(
@@ -317,6 +328,28 @@ export default function SettingsPage() {
       setIsLoading(false);
     }
   };
+
+  // Check if form has been modified
+  const hasChanges = useMemo(() => {
+    if (!initialFormData) return false;
+
+    // Check if form data has changed
+    const formChanged = 
+      formData.username !== initialFormData.username ||
+      formData.full_name !== initialFormData.full_name ||
+      formData.bio !== initialFormData.bio ||
+      formData.location !== initialFormData.location ||
+      formData.birth_date !== initialFormData.birth_date ||
+      formData.theme !== initialFormData.theme ||
+      formData.public_profile !== initialFormData.public_profile ||
+      formData.show_email !== initialFormData.show_email ||
+      formData.email_notifications !== initialFormData.email_notifications;
+
+    // Check if avatar has changed
+    const avatarChanged = avatarFile !== null || avatarPreview !== initialAvatarPreview;
+
+    return formChanged || avatarChanged;
+  }, [formData, initialFormData, avatarFile, avatarPreview, initialAvatarPreview]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -875,20 +908,22 @@ export default function SettingsPage() {
             </Button>
           </div>
 
-          {/* Save Button */}
-          <div className="w-full px-32 border-1 border-solid border-t-[#cccccc] py-8 sticky bottom-0 z-10 bg-content1 shadow-lg">
-            <Button
-              color="primary"
-              className="w-full"
-              onPress={handleSave}
-              isLoading={isSaving}
-              startContent={
-                !isSaving ? <Save className="w-4 h-4" /> : undefined
-              }
-            >
-              {isSaving ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
+          {/* Save Button - Only show when there are changes */}
+          {hasChanges && (
+            <div className="w-full px-32 border-1 border-solid border-t-[#cccccc] py-8 sticky bottom-0 z-10 bg-content1 shadow-lg">
+              <Button
+                color="primary"
+                className="w-full"
+                onPress={handleSave}
+                isLoading={isSaving}
+                startContent={
+                  !isSaving ? <Save className="w-4 h-4" /> : undefined
+                }
+              >
+                {isSaving ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 

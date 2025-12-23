@@ -22,22 +22,20 @@ export function CategorySkeleton() {
     <div className="space-y-3">
       {/* Select skeleton */}
       <Skeleton className="h-10 w-full rounded-xl" />
+      <Skeleton className="h-10 w-full rounded-xl" />
 
       {/* Children list skeleton */}
-      <div className="mt-3 rounded-xl border border-gray-300 bg-white p-3 space-y-3">
+      {/* <div className="mt-3 rounded-xl border border-gray-300 bg-white p-3 space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
             className="flex items-center gap-2"
           >
-            {/* Icon */}
             <Skeleton className="w-6 h-6 rounded" />
-
-            {/* Text */}
             <Skeleton className="h-6 w-full rounded-full" />
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -280,51 +278,44 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
             )}
           </Select>
 
-          {selectedParent?.children && (
-
-            <div className="mt-3 rounded-xl border border-gray-300 bg-white text-black p-3 space-y-2">
-              {selectedParent.children.map((child: Category) => {
-                const iconUrl = getCategoryIconUrl(child.icon_url)
-                const isActive = selectedTopic === String(child.id)
-                const baseClass = (isActive ? 'w-full inline-flex items-center gap-2 px-2 py-1 rounded bg-[#EB7020]/20 text-[#EB7020] font-semibold' : 'w-full inline-flex items-center gap-2 px-2 py-1 rounded text-gray-700 hover:text-gray-900')
-                return (
-                  <button
-                    key={child.id}
-                    className={baseClass}
-                    // className="w-full inline-flex items-center gap-2 px-2 py-1 rounded text-gray-700 hover:text-gray-900"
-                    onClick={() => {
-                      setSelectedTopic(String(child.id))
+          {selectedParent?.children ? (
+            selectedParent.children.length > 0 ? (
+              <Select
+                aria-label="Select a subcategory"
+                placeholder="Select a subcategory"
+                variant="bordered"
+                items={selectedParent.children}
+                selectedKeys={selectedTopic ? new Set([selectedTopic]) : new Set()}
+                classNames={{
+                  trigger: "data-[focus=true]:border-[#EB7020]",
+                  value: "text-[#EB7020]",
+                }}
+                onSelectionChange={(keys) => {
+                  const selectedKey = Array.from(keys)[0] as string;
+                  if (selectedKey) {
+                    const selectedChild = selectedParent.children?.find(
+                      (c: Category) => String(c.id) === selectedKey
+                    );
+                    if (selectedChild) {
+                      setSelectedTopic(selectedKey);
                       router.push(
-                        `/more?mode=${child.mode_id}&category=${child.id}`
-                      )
-                    }}
-                  >
-                    {iconUrl ? (
-                      <span
-                        className="inline-block w-4 h-4"
-                        style={{
-                          WebkitMaskImage: `url(${iconUrl})`,
-                          maskImage: `url(${iconUrl})`,
-                          WebkitMaskSize: "contain",
-                          maskSize: "contain",
-                          WebkitMaskRepeat: "no-repeat",
-                          maskRepeat: "no-repeat",
-                          WebkitMaskPosition: "center",
-                          maskPosition: "center",
-                          backgroundColor: isActive ? '#EB7020' : '#6b7280',
-                        }}
-                      />
-                    ) : (
-                      <span className="w-4 h-4 bg-gray-400 rounded-full" />
-                    )}
-                    {child.name}
-                  </button>
-                )
-              })}
-            </div>
+                        `/more?mode=${selectedChild.mode_id}&category=${selectedChild.id}`
+                      );
+                    }
+                  }
+                }}
+              >
+                {(item: Category) => (
+                  <SelectItem key={String(item.id)} textValue={item.display_name || item.name}>
+                    {item.display_name || item.name}
+                  </SelectItem>
+                )}
+              </Select>
+            ) : null
+          ) : (
+            <Skeleton className="h-10 w-full rounded-xl mt-3" />
           )}
         </>)}
-
       </div>
     </>
   )
@@ -332,7 +323,7 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
 
   return (
     <div className="relative lg:px-8 h-full flex flex-col py-6">
-      <div className={inlineHidden ? 'hidden' : 'h-full flex flex-col min-h-0 relative z-10'}>
+      <div className={inlineHidden ? 'hidden' : 'flex flex-col h-full min-h-0 relative z-10'}>
         <div className="flex-1 min-h-0 overflow-y-auto">
           {renderContent()}
         </div>

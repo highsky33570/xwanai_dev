@@ -1430,8 +1430,8 @@ const ChatPage = observer(() => {
   // Show loading state while checking session
   if (isLoadingSession) {
     return (
-      <div className="flex flex-col h-full w-full">
-        <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-center opacity-10 pointer-events-none" />
+      <div className="flex flex-col h-full w-full mx-15">
+        <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-10 pointer-events-none" />
         {/* Permanent Loading Bar for /chat/new */}
         {chatId === "new" && (
           <div className="fixed top-0 left-0 right-0 z-50 w-full bg-gradient-to-r from-primary/20 to-secondary/20 border-b border-primary/30">
@@ -1449,7 +1449,7 @@ const ChatPage = observer(() => {
 
         {/* Main Chat Area with Skeleton */}
         <div className="flex h-full">
-          <div className="flex-1 flex flex-col h-full">
+          <div className="flex-1 flex flex-col h-full px-24 md:px-28 ">
             <div className="w-full h-full flex flex-col px-3 md:px-6">
               {/* Chat Header Skeleton */}
               <ChatHeaderSkeleton />
@@ -1496,8 +1496,8 @@ const ChatPage = observer(() => {
   // Show chat interface for existing sessions
   if (sessionExists === true) {
     return (
-      <div ref={messagesContainerRef} className="flex w-full overflow-y-auto">
-        <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-center opacity-10 pointer-events-none" />
+      <div ref={messagesContainerRef} className="flex flex-col w-full h-full overflow-y-auto">
+        <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-10 pointer-events-none" />
         {/* Permanent Loading Bar for /chat/new */}
         {chatId === "new" && (
           <div className="fixed top-0 left-0 right-0 z-50 w-full bg-gradient-to-r from-primary/20 to-secondary/20 border-b border-primary/30">
@@ -1516,7 +1516,7 @@ const ChatPage = observer(() => {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col">
           {/* 内容容器 - 大屏模式下充分利用空间，移动端取消padding */}
-          <div className="w-full flex flex-col px-3 md:px-6 max-w-full">
+          <div className="w-full flex flex-col px-24 md:px-28 max-w-full h-full">
             {/* Chat Header */}
             {isLoadingSession ? (
               <ChatHeaderSkeleton />
