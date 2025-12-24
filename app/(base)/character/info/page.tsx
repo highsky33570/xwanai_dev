@@ -287,13 +287,13 @@ export default function CharacterInfoPage() {
     try {
       const currentUser = await authOperations.getCurrentUser();
       if (!currentUser) {
-        toast.error(t("characterInfo.pleaseLogin"));
+        sonnerToast.error(t("characterInfo.pleaseLogin"));
         return;
       }
 
       setShowAddToLibraryModal(false);
       setIsAddingToLibrary(true);
-      toast.info(t("characterInfo.addingToLibrary"));
+      sonnerToast.info(t("characterInfo.addingToLibrary"));
 
       const { data, error } = await db.favoriteCharacter(
         character.id,
@@ -302,27 +302,27 @@ export default function CharacterInfoPage() {
 
       if (error) {
         if (error.message?.includes("not public")) {
-          toast.error(t("characterInfo.characterNotPublic"));
+          sonnerToast.error(t("characterInfo.characterNotPublic"));
         } else if (
           error.message?.includes("already added") ||
           error.code === "ALREADY_FAVORITED"
         ) {
-          toast.info(t("characterInfo.alreadyFavorited"));
+          sonnerToast.info(t("characterInfo.alreadyFavorited"));
           setIsAlreadyInLibrary(true);
         } else {
-          toast.error(t("characterInfo.addFailed"));
+          sonnerToast.error(t("characterInfo.addFailed"));
         }
         setIsAddingToLibrary(false);
         return;
       }
 
-      toast.success(`"${character.name}" ${t("characterInfo.addSuccess")}`);
+      sonnerToast.success(`"${character.name}" ${t("characterInfo.addSuccess")}`);
       setIsAlreadyInLibrary(true);
 
       // 使用新创建的角色ID来创建对话
       const newCharacterId = data?.new_character_id;
       if (!newCharacterId) {
-        toast.error(t("characterInfo.addFailed"));
+        sonnerToast.error(t("characterInfo.addFailed"));
         setIsAddingToLibrary(false);
         return;
       }
@@ -339,7 +339,7 @@ export default function CharacterInfoPage() {
       });
     } catch (e) {
       console.error("Failed to add to library:", e);
-      toast.error(t("characterInfo.addFailed"));
+      sonnerToast.error(t("characterInfo.addFailed"));
       setIsAddingToLibrary(false);
     }
   };
@@ -803,7 +803,7 @@ export default function CharacterInfoPage() {
 
                             if (error) {
                               console.error("Failed to toggle access level:", error);
-                              toast.error(t("characterInfo.failedToToggleAccess"));
+                              sonnerToast.error(t("characterInfo.failedToToggleAccess"));
                               return;
                             }
 
@@ -824,7 +824,7 @@ export default function CharacterInfoPage() {
                             }
                           } catch (e) {
                             console.error("Failed to toggle access level:", e);
-                            toast.error(t("characterInfo.failedToToggleAccess"));
+                            sonnerToast.error(t("characterInfo.failedToToggleAccess"));
                           } finally {
                             setIsTogglingAccess(false); // 🔄 结束 loading
                           }

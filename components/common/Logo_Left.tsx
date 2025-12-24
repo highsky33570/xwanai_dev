@@ -12,7 +12,7 @@ export default function LogoLeft() {
         className="h-12 w-auto rounded-md"
       />
       <div className="text-6xl font-bold" style={{ fontFamily: '"Novecento WideBold", sans-serif' }}>
-        XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>IO</span>
+        XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>AI</span>
       </div>
       <div className="text-black text-3xl">玄</div>
     </div>

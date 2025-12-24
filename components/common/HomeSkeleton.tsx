@@ -63,8 +63,8 @@ export default function HomeSkeleton() {
 
 function CharacterCardSkeleton() {
   return (
-    <div className="rounded-xl border border-divider p-3">
-      <Skeleton className="h-64 w-full rounded-lg mb-3" />
+    <div className="rounded-xl border-divider p-3">
+      <Skeleton className="h-64 w-full rounded-lg mb-3 !mx-0"/>
       {/* <Skeleton className="h-4 w-3/4 rounded-full mb-2" /> */}
       {/* <Skeleton className="h-3 w-1/2 rounded-full" /> */}
     </div>
@@ -73,7 +73,7 @@ function CharacterCardSkeleton() {
 
 function FeaturedCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-divider p-4">
+    <div className="rounded-2xl p-4">
       <Skeleton className="h-40 w-full rounded-xl mb-4" />
       {/* <Skeleton className="h-5 w-4/5 rounded-full mb-2" /> */}
       {/* <Skeleton className="h-4 w-2/3 rounded-full" /> */}

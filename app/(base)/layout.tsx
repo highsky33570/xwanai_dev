@@ -24,7 +24,7 @@ export default function BaseLayout({
   // const fileInputRef = useRef<HTMLInputElement | null>(null);
   return (
     <div className="flex w-full h-full max-h-screen overflow-hidden" style={{ "--left-width": leftWidth } as React.CSSProperties}>
-      <aside className={`relative hidden flex-none flex-col mx-3 shrink-0 max-h-screen min-h-screen lg:flex w-[var(--left-width)] ` } style={{ backgroundImage: showBackground ? 'url(/left-background.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <aside className={`relative hidden flex-none flex-col px-3 shrink-0 max-h-screen min-h-screen lg:flex w-[var(--left-width)] ` } style={{ backgroundImage: showBackground ? 'url(/left-background.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {showBackground ? (<div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/25 to-white z-0" />) : null}
         {showInfoLeftImage ? (
           <>
@@ -35,7 +35,7 @@ export default function BaseLayout({
                 className="h-12 w-auto rounded-md"
               />
               <div className="text-6xl font-bold hidden lg:block pl-3" style={{ fontFamily: '"Novecento WideBold", sans-serif' }}>
-                XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>IO</span>
+                XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>AI</span>
               </div>
             </div> */}
             <div className="flex flex-col h-full justify-between lg:px-8 py-6 z-10" >

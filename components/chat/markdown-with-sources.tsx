@@ -46,6 +46,7 @@ if (
 
 interface MarkdownWithSourcesProps {
   content: string;
+  timestamp: string;
   isStreaming?: boolean;
   className?: string;
   isUserMessage?: boolean; // 🎨 是否为用户消息
@@ -55,7 +56,7 @@ interface MarkdownWithSourcesProps {
 
 // Paipan渲染组件 - 处理JSON格式的八字排盘数据
 const PaipanRenderer: FC<{
-  jsonContent: string;
+  jsonContent: string; 
   isStreaming: boolean;
   isUserMessage?: boolean; // 🎨 是否为用户消息
 }> = ({ jsonContent, isStreaming, isUserMessage = false }) => {
@@ -814,6 +815,7 @@ const SourcesRenderer: FC<{ jsonContent: string; isStreaming: boolean }> = ({
 
 const MarkdownWithSources: FC<MarkdownWithSourcesProps> = ({
   content,
+  timestamp,
   isStreaming = false,
   className,
   isUserMessage = false, // 🎨 接收 isUserMessage
@@ -1035,6 +1037,7 @@ const MarkdownWithSources: FC<MarkdownWithSourcesProps> = ({
       >
         {renderedContent}
       </ReactMarkdown>
+      <div className={`text-xs opacity-60 ${isUserMessage ? `text-right` : `text-left`}`}>{timestamp}</div>
     </div>
   );
 };

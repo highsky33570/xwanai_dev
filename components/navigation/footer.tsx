@@ -34,7 +34,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-gray-300 mt-8 pt-4">
-          <p className="text-gray-500 text-sm text-center">© 2025 XWAN.IO. All rights reserved.</p>
+          <p className="text-gray-500 text-sm text-center">© 2025 XWAN.AI. All rights reserved.</p>
         </div>
       </div>
     </footer>

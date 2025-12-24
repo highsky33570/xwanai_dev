@@ -743,7 +743,30 @@ export default function PersonalCharacterDatabase() {
           <div className="rounded-3xl">
             <div className="p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
-                <div></div>
+              <div className="flex items-center gap-2">
+                  <Button
+                    variant="solid"
+                    className="bg-[#EB7020] text-white"
+                    onPress={() => {
+                      if (isSelectionMode) {
+                        setIsSelectionMode(false);
+                        setSelectedCharacters([]);
+                      } else {
+                        setIsSelectionMode(true);
+                      }
+                    }}
+                  >
+                    {isSelectionMode ? "Disable Selection Mode" : t("database.enterSelectionMode")}
+                  </Button>
+                  <Button
+                    variant="flat"
+                    startContent={<Plus className="w-4 h-4" />}
+                    onPress={() => setShowCreateModal(true)}
+                    className="bg-black/5 text-black"
+                  >
+                    {t("database.createCharacter")}
+                  </Button>
+                </div>
                 {/* <div className="flex flex-wrap items-center gap-2 md:gap-3">
                   <Dropdown>
                     <DropdownTrigger>
@@ -879,7 +902,8 @@ export default function PersonalCharacterDatabase() {
 
             <div className="px-6 pb-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
+                <div></div>
+                {/* <div className="flex items-center gap-2">
                   <Button
                     variant="solid"
                     className="bg-[#EB7020] text-white"
@@ -902,7 +926,7 @@ export default function PersonalCharacterDatabase() {
                   >
                     {t("database.createCharacter")}
                   </Button>
-                </div>
+                </div> */}
 
                 <div className="flex items-center gap-2">
                   {isSelectionMode && (
@@ -1229,7 +1253,7 @@ export function DatabaseSkeleton() {
             </div>
 
             {/* ===== Card grid ===== */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
               {Array.from({ length: 6 }).map((_, i) => (
                 <CharacterGridSkeleton key={i} />
               ))}
@@ -1245,10 +1269,10 @@ export function DatabaseSkeleton() {
 
 function CharacterGridSkeleton() {
   return (
-    <div className="rounded-2xl border border-divider p-4 space-y-3">
-      <Skeleton className="h-40 w-full rounded-xl" />
-      <Skeleton className="h-5 w-3/4 rounded-full" />
-      <Skeleton className="h-4 w-1/2 rounded-full" />
+    <div className="rounded-2xl  p-4 space-y-1">
+      <Skeleton className="h-32 w-full rounded-xl" />
+      {/* <Skeleton className="h-5 w-3/4 rounded-full" />
+      <Skeleton className="h-4 w-1/2 rounded-full" /> */}
     </div>
   );
 }

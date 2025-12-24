@@ -262,9 +262,9 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
             items={mainCategories}
             selectedKeys={new Set([selectedParentId ?? ''])}
             classNames={{
-              trigger: "data-[focus=true]:border-[#EB7020]",
-              value: "text-[#EB7020]",
-              // popoverContent: "text-[#EB7020]",
+              trigger: "data-[focus=true]:border-[#EB7020] data-[open=true]:border-[#EB7020]",
+              value: "text-[#EB7020] group[data-has-value=true] group-data-[has-value=true]:text-[#EB7020]",
+              popoverContent: "border-[#EB7020]/20",
             }}
             onSelectionChange={(keys) => {
               const selectedKey = Array.from(keys)[0] as string;
@@ -272,7 +272,13 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
             }}
           >
             {(item: Category) => (
-              <SelectItem key={String(item.id)} textValue={item.display_name}>
+              <SelectItem 
+                key={String(item.id)} 
+                textValue={item.display_name}
+                classNames={{
+                  base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
+                }}
+              >
                 {item.display_name}
               </SelectItem>
             )}
@@ -282,13 +288,14 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
             selectedParent.children.length > 0 ? (
               <Select
                 aria-label="Select a subcategory"
-                placeholder="Select a subcategory"
+                placeholder=""
                 variant="bordered"
                 items={selectedParent.children}
                 selectedKeys={selectedTopic ? new Set([selectedTopic]) : new Set()}
                 classNames={{
-                  trigger: "data-[focus=true]:border-[#EB7020]",
-                  value: "text-[#EB7020]",
+                  trigger: "data-[focus=true]:border-[#EB7020] data-[open=true]:border-[#EB7020]",
+                  value: "text-[#EB7020] group-data-[has-value=true]:text-[#EB7020]",
+                  popoverContent: "border-[#EB7020]/20",
                 }}
                 onSelectionChange={(keys) => {
                   const selectedKey = Array.from(keys)[0] as string;
@@ -306,7 +313,13 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
                 }}
               >
                 {(item: Category) => (
-                  <SelectItem key={String(item.id)} textValue={item.display_name || item.name}>
+                  <SelectItem 
+                    key={String(item.id)} 
+                    textValue={item.display_name || item.name}
+                    classNames={{
+                      base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
+                    }}
+                  >
                     {item.display_name || item.name}
                   </SelectItem>
                 )}

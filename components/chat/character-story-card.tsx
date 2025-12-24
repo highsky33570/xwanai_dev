@@ -419,7 +419,7 @@ const CharacterStoryCard: FC<CharacterStoryCardProps> = ({
               <div className="grid grid-cols-1 place-items-center gap-2">
                 {ai_extracted.roleplay_guidelines.do && (
                   <div className="relative p-4 rounded-xl bg-gray-500/20 text-center w-full">
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center">
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center justify-center m-6">
                       <svg viewBox="0 0 24 24" className="h-full w-auto" fill="none" strokeWidth="2" stroke="url(#guidelinesCheckGradient)">
                         <defs>
                           <linearGradient id="guidelinesCheckGradient" x1="0" y1="1" x2="1" y2="0">
@@ -447,7 +447,7 @@ const CharacterStoryCard: FC<CharacterStoryCardProps> = ({
                 )}
                 {ai_extracted.roleplay_guidelines.dont && (
                   <div className="relative p-4 rounded-xl bg-red-500/20 border border-rose-200 text-center w-full">
-                    <div className="pointer-events-none absolute inset-y-0 right-0 z-0 flex items-center justify-center">
+                    <div className="pointer-events-none absolute inset-y-0 right-0 z-0 flex items-center justify-center m-6">
                       <Ban className="h-full w-auto text-gray-600/50 scale-x-[-1]" />
                     </div>
                     <div className="pointer-events-none absolute inset-0 z-0 rounded-xl bg-[linear-gradient(to_right,rgba(255,255,255,0)_0%,rgba(255,255,255,1)_15%,rgba(255,255,255,1)_85%,rgba(255,255,255,0)_100%)]" />

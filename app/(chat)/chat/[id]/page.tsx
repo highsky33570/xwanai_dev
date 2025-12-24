@@ -1496,7 +1496,7 @@ const ChatPage = observer(() => {
   // Show chat interface for existing sessions
   if (sessionExists === true) {
     return (
-      <div ref={messagesContainerRef} className="flex flex-col w-full h-full overflow-y-auto">
+      <div ref={messagesContainerRef} className="flex flex-col w-full h-full">
         <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-10 pointer-events-none" />
         {/* Permanent Loading Bar for /chat/new */}
         {chatId === "new" && (
@@ -1512,153 +1512,152 @@ const ChatPage = observer(() => {
             </div>
           </div>
         )}
+        {isLoadingSession ? (
+          <ChatHeaderSkeleton />
+        ) : (
+          <div className="py-4 sticky top-1 z-10">
+            <div className="relative">
+              <div className="flex flex-col items-center gap-1">
+                <Avatar
+                  src={
+                    getAvatarPublicUrl(
+                      currentCharacter?.avatar_id,
+                      currentCharacter?.auth_id
+                    ) || "/placeholder-user.jpg"
+                  }
+                  name={currentCharacter?.name || "Assistant"}
+                  size="sm"
+                  className="w-12 h-12"
+                />
+                <h3 className="font-semibold text-foreground text-base">
+                  {sessionInfo?.mode === "hepan"
+                    ? t("sidebar.synastryExpert")
+                    : sessionInfo?.mode === "personal"
+                      ? t("sidebar.fortuneTellingExpert")
+                      : currentCharacter?.name || t("sidebar.unknown")}
+                </h3>
+                <p className="text-xs text-foreground-600">@XWAN.AI</p>
+              </div>
 
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <Dropdown placement="bottom-end" className="">
+                  <DropdownTrigger>
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="flat"
+                      className="rounded-2xl bg-gradient-to-r from-gray-100 to-[#EB7020]/20 shadow-sm hover:to-[#EB7020]/30 hover:shadow-md cursor-pointer text-foreground min-w-16"
+                    >
+                      <img src="/svg/排版reading.svg" alt="reading" className="w-4 h-4" />
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    aria-label="Character Sessions"
+                    className="max-h-80 overflow-y-auto"
+                    emptyContent={
+                      characterSessionsLoading ? "加载中..." : "暂无历史对话"
+                    }
+                  >
+                    <DropdownItem
+                      key="liunian"
+                      startContent={<Calendar className="w-4 h-4" />}
+                      onPress={() => setLiunianOpen(true)}
+                      className="border-b border-foreground/10"
+                    >
+                      大运流年
+                    </DropdownItem>
+                    {(sessionData?.state as any)?.character_cache?.paipan &&
+                      (sessionData?.state as any)?.character_cache?.birth_time && (
+                        <DropdownItem
+                          key="destiny"
+                          startContent={<Sparkles className="w-4 h-4" />}
+                          onPress={() => setDestinyPanelOpen(true)}
+                        >
+                          命运面板
+                        </DropdownItem>
+                      )}
+                    {messages.length > 0 && (
+                      <DropdownItem
+                        key="share"
+                        startContent={<Share2 className="w-4 h-4" />}
+                        onPress={handleToggleShareMode}
+                      >
+                        分享模式
+                      </DropdownItem>
+                    )}
+                    <DropdownSection title={`${currentCharacter?.name || "角色"} 的对话`}>
+                      {characterSessions.map((session: any) => (
+                        <DropdownItem
+                          key={session.id}
+                          description={new Date(session.update_time).toLocaleString("zh-CN", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                          startContent={
+                            session.id === chatId ? (
+                              <div className="w-2 h-2 bg-primary rounded-full" />
+                            ) : (
+                              <Clock className="w-4 h-4" />
+                            )
+                          }
+                          className={session.id === chatId ? "bg-primary/10" : ""}
+                          onPress={() => {
+                            if (session.id !== chatId) {
+                              router.push(`/chat/${session.id}`);
+                            }
+                          }}
+                        >
+                          {session.title || "未命名对话"}
+                        </DropdownItem>
+                      ))}
+                    </DropdownSection>
+                  </DropdownMenu>
+                </Dropdown>
+
+                <Modal isOpen={liunianOpen} onOpenChange={setLiunianOpen} size="5xl" scrollBehavior="inside">
+                  <ModalContent className="bg-content1/95 backdrop-blur-xl border border-foreground/10 h-[85vh]">
+                    {() => (
+                      <>
+                        <ModalHeader className="flex flex-col items-center gap-2 pt-8 pb-4">
+                          <h2 className="text-2xl font-serif tracking-wider text-black/80">命運時間線</h2>
+                          <div className="text-sm text-gray-500 font-serif tracking-wide">
+                            庚午 丁亥 己亥 戊辰 · 百年運勢一覽
+                          </div>
+                        </ModalHeader>
+                        <ModalBody className="p-0 overflow-hidden">
+                          {birthInfoForTimeline ? (
+                            <DestinyTimeline
+                              key={`${birthInfoForTimeline.year}-${birthInfoForTimeline.month}-${birthInfoForTimeline.day}`}
+                              birthInfo={birthInfoForTimeline}
+                              variant="flat"
+                            />
+                          ) : (
+                            <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+                              <Calendar className="w-12 h-12 text-foreground-400" />
+                              <p className="text-foreground-600">缺少出生信息</p>
+                              <p className="text-sm text-foreground-400">该角色没有出生时间数据</p>
+                            </div>
+                          )}
+                        </ModalBody>
+                        <ModalFooter>
+                          <Button variant="light" onPress={() => setLiunianOpen(false)}>关闭</Button>
+                        </ModalFooter>
+                      </>
+                    )}
+                  </ModalContent>
+                </Modal>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-y-auto">
           {/* 内容容器 - 大屏模式下充分利用空间，移动端取消padding */}
           <div className="w-full flex flex-col px-24 md:px-28 max-w-full h-full">
             {/* Chat Header */}
-            {isLoadingSession ? (
-              <ChatHeaderSkeleton />
-            ) : (
-              <div className="py-4 sticky top-1 z-10">
-                <div className="relative">
-                  <div className="flex flex-col items-center gap-1">
-                    <Avatar
-                      src={
-                        getAvatarPublicUrl(
-                          currentCharacter?.avatar_id,
-                          currentCharacter?.auth_id
-                        ) || "/placeholder-user.jpg"
-                      }
-                      name={currentCharacter?.name || "Assistant"}
-                      size="sm"
-                      className="w-12 h-12"
-                    />
-                    <h3 className="font-semibold text-foreground text-base">
-                      {sessionInfo?.mode === "hepan"
-                        ? t("sidebar.synastryExpert")
-                        : sessionInfo?.mode === "personal"
-                          ? t("sidebar.fortuneTellingExpert")
-                          : currentCharacter?.name || t("sidebar.unknown")}
-                    </h3>
-                    <p className="text-xs text-foreground-600">@XWAN.IO</p>
-                  </div>
-
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                    <Dropdown placement="bottom-end">
-                      <DropdownTrigger>
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          className="rounded-2xl bg-gradient-to-r from-gray-200 to-gray-300 text-foreground min-w-16"
-                        >
-                          <img src="/svg/排版reading.svg" alt="reading" className="w-4 h-4" />
-                        </Button>
-                      </DropdownTrigger>
-                      <DropdownMenu
-                        aria-label="Character Sessions"
-                        className="max-h-80 overflow-y-auto"
-                        emptyContent={
-                          characterSessionsLoading ? "加载中..." : "暂无历史对话"
-                        }
-                      >
-                        <DropdownItem
-                          key="liunian"
-                          startContent={<Calendar className="w-4 h-4" />}
-                          onPress={() => setLiunianOpen(true)}
-                          className="border-b border-foreground/10"
-                        >
-                          大运流年
-                        </DropdownItem>
-                        {(sessionData?.state as any)?.character_cache?.paipan &&
-                          (sessionData?.state as any)?.character_cache?.birth_time && (
-                            <DropdownItem
-                              key="destiny"
-                              startContent={<Sparkles className="w-4 h-4" />}
-                              onPress={() => setDestinyPanelOpen(true)}
-                            >
-                              命运面板
-                            </DropdownItem>
-                          )}
-                        {messages.length > 0 && (
-                          <DropdownItem
-                            key="share"
-                            startContent={<Share2 className="w-4 h-4" />}
-                            onPress={handleToggleShareMode}
-                          >
-                            分享模式
-                          </DropdownItem>
-                        )}
-                        <DropdownSection title={`${currentCharacter?.name || "角色"} 的对话`}>
-                          {characterSessions.map((session: any) => (
-                            <DropdownItem
-                              key={session.id}
-                              description={new Date(session.update_time).toLocaleString("zh-CN", {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                              startContent={
-                                session.id === chatId ? (
-                                  <div className="w-2 h-2 bg-primary rounded-full" />
-                                ) : (
-                                  <Clock className="w-4 h-4" />
-                                )
-                              }
-                              className={session.id === chatId ? "bg-primary/10" : ""}
-                              onPress={() => {
-                                if (session.id !== chatId) {
-                                  router.push(`/chat/${session.id}`);
-                                }
-                              }}
-                            >
-                              {session.title || "未命名对话"}
-                            </DropdownItem>
-                          ))}
-                        </DropdownSection>
-                      </DropdownMenu>
-                    </Dropdown>
-
-                    <Modal isOpen={liunianOpen} onOpenChange={setLiunianOpen} size="5xl" scrollBehavior="inside">
-                      <ModalContent className="bg-content1/95 backdrop-blur-xl border border-foreground/10 h-[85vh]">
-                        {() => (
-                          <>
-                            <ModalHeader className="flex flex-col items-center gap-2 pt-8 pb-4">
-                              <h2 className="text-2xl font-serif tracking-wider text-black/80">命運時間線</h2>
-                              <div className="text-sm text-gray-500 font-serif tracking-wide">
-                                庚午 丁亥 己亥 戊辰 · 百年運勢一覽
-                              </div>
-                            </ModalHeader>
-                            <ModalBody className="p-0 overflow-hidden">
-                              {birthInfoForTimeline ? (
-                                <DestinyTimeline
-                                  key={`${birthInfoForTimeline.year}-${birthInfoForTimeline.month}-${birthInfoForTimeline.day}`}
-                                  birthInfo={birthInfoForTimeline}
-                                  variant="flat"
-                                />
-                              ) : (
-                                <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
-                                  <Calendar className="w-12 h-12 text-foreground-400" />
-                                  <p className="text-foreground-600">缺少出生信息</p>
-                                  <p className="text-sm text-foreground-400">该角色没有出生时间数据</p>
-                                </div>
-                              )}
-                            </ModalBody>
-                            <ModalFooter>
-                              <Button variant="light" onPress={() => setLiunianOpen(false)}>关闭</Button>
-                            </ModalFooter>
-                          </>
-                        )}
-                      </ModalContent>
-                    </Modal>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Messages Area */}
             <div
@@ -1941,7 +1940,7 @@ const ChatPage = observer(() => {
                                 : sessionInfo?.mode === "personal"
                                   ? t("sidebar.fortuneTellingExpert")
                                   : currentCharacter?.name || t("chatEx.assistant")}
-                              <span className="ml-1 text-foreground-400">@XWAN.IO</span>
+                              <span className="ml-1 text-foreground-400">@XWAN.AI</span>
                             </>
                           ) : (
                             <>
@@ -1972,22 +1971,34 @@ const ChatPage = observer(() => {
                         className={`relative ${message.content?.includes("```vis-paipan")
                           ? "max-w-[95%] md:max-w-[85%]" // 🎨 命盘消息使用更大宽度
                           : "max-w-[85%] md:max-w-[75%]"
-                          } rounded-3xl px-4 md:px-5 py-3 md:py-4 break-words ${isShareMode && isSelectable ? "cursor-pointer transition-all hover:scale-[1.01]" : ""
+                          } rounded-3xl mx-6 px-4 md:px-5 py-3 md:py-4 break-words ${isShareMode && isSelectable ? "cursor-pointer transition-all hover:scale-[1.01]" : ""
                           } ${isShareMode && isSelected
                             ? message.sender === "user"
                               ? "bg-primary/60 ring-2 ring-primary shadow-xl scale-[1.02] text-primary-foreground backdrop-blur-sm"
                               : "bg-primary/10 ring-2 ring-primary shadow-xl scale-[1.02] border-primary text-foreground"
                             : message.sender === "user"
                               ? "bg-[#E8E8E8] text-primary-foreground"
-                              : "bg-[#F0F0F0] border border-foreground/10 text-foreground"
+                              : "bg-[#F0F0F0] text-foreground"
                           }`}
                       >
-                        {/* Bubble tail */}
-                        {/* {message.sender === "user" ? (
-                          <div className="absolute -right-2 top-4 w-4 h-4 bg-[#E8E8E8] rotate-45" />
+                        {/* Arrow tail pointing to sender */}
+                        {message.sender === "user" ? (
+                          <div 
+                            className={`absolute -right-5 top-4 w-0 h-0 border-t-[0px] border-b-[24px] border-l-[24px] ${
+                              isShareMode && isSelected
+                                ? "border-l-primary/60"
+                                : "border-l-[#E8E8E8]"
+                            } border-t-transparent border-b-transparent`}
+                          />
                         ) : (
-                          <div className="absolute -left-2 top-4 w-4 h-4 bg-[#F0F0F0] rotate-45" />
-                        )} */}
+                          <div 
+                            className={`absolute -left-5 top-4 w-0 h-0 border-t-[0px] border-b-[24px] border-r-[24px] ${
+                              isShareMode && isSelected
+                                ? "border-r-primary/10"
+                                : "border-r-[#F0F0F0]"
+                            } border-t-transparent border-b-transparent`}
+                          />
+                        )}
                         {/* 选中图标 - 右上角 */}
                         {isShareMode && isSelected && (
                           <div className="absolute -top-2 -right-2 bg-primary rounded-full p-1 shadow-lg z-10">
@@ -2061,17 +2072,18 @@ const ChatPage = observer(() => {
                         ) : (
                           <MarkdownWithSources
                             content={message.content || ""}
+                            timestamp={formatTime(message.timestamp)}
                             isStreaming={!message.isComplete}
                             className="prose prose-invert max-w-none text-sm leading-relaxed break-words"
                             isUserMessage={message.sender === "user"} // 🎨 区分用户消息和AI消息
                           />
                         )}
-                        <div
+                        {/* <div
                           className={`absolute bottom-2 text-xs opacity-60 ${message.sender === "user" ? "right-3" : "left-3"
                             }`}
                         >
                           {formatTime(message.timestamp)}
-                        </div>
+                        </div> */}
                       </div>
 
                     </div>
@@ -2095,7 +2107,9 @@ const ChatPage = observer(() => {
                       size="sm"
                       className="flex-shrink-0 mt-1 hidden md:block"
                     />
-                    <div className="max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-primary/20 shadow-md">
+                    <div className="relative max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-primary/20 shadow-md">
+                      {/* Arrow tail pointing left (assistant message) */}
+                      <div className="absolute -left-2 top-6 w-0 h-0 border-t-[8px] border-b-[8px] border-r-[12px] border-r-content2 border-t-transparent border-b-transparent" />
                       {/* Assistant Name */}
                       <div className="text-sm font-medium mb-1 text-foreground-600">
                         {currentCharacter?.name || t("chatEx.assistant")}
@@ -2128,7 +2142,9 @@ const ChatPage = observer(() => {
                     size="sm"
                     className="flex-shrink-0 mt-1 hidden md:block"
                   />
-                  <div className="max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
+                  <div className="relative max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
+                    {/* Arrow tail pointing left (assistant message) */}
+                    <div className="absolute -left-2 top-6 w-0 h-0 border-t-[8px] border-b-[8px] border-r-[12px] border-r-content2 border-t-transparent border-b-transparent" />
                     {/* Assistant Name */}
                     <div className="text-sm font-medium mb-1 text-foreground-600">
                       {sessionInfo?.mode === "hepan"

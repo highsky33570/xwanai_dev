@@ -656,12 +656,14 @@ export default function SettingsPage() {
         <div className="flex flex-col items-center justify-center gap-4">
           {/* avatar icon*/}
           <div className="flex items-center gap-4">
-            <Avatar
-              src={avatarPreview || undefined}
-              name={formData.username || formData.full_name || user.email}
-              size="lg"
-              className="w-20 h-20"
-            />
+            <div className="rounded-full border-2 border-yellow-500">
+              <Avatar
+                src={avatarPreview || undefined}
+                name={formData.username || formData.full_name || user.email}
+                size="lg"
+                className="w-20 h-20"
+              />
+            </div>
             <div className="flex-1">
               <input
                 type="file"

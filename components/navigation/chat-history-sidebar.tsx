@@ -70,7 +70,7 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
               className="h-12 w-auto rounded-md"
             />
             <div className="text-6xl font-bold hidden lg:block pl-3" style={{ fontFamily: '"Novecento WideBold", sans-serif' }}>
-              XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>IO</span>
+              XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>AI</span>
             </div>
           </div> */}
           <div className="relative z-10 flex flex-col gap-3 mt-5">
@@ -166,7 +166,7 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
               <div className="flex space-y-1 z-20 items-center max-h-24 mt-2" onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push("/"); }}>
                 <img src="/logo.svg" alt="Logo" className="h-12 w-auto rounded-md" />
                 <div className="text-6xl font-bold hidden lg:block" style={{ fontFamily: '"Novecento WideBold", sans-serif' }}>
-                  XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>IO</span>
+                  XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>AI</span>
                 </div>
               </div>
               <div className="flex flex-col gap-3 mt-5">
