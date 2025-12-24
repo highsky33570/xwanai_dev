@@ -273,30 +273,39 @@ export type Database = {
           }
         ]
       }
-      character_public_data: {
+      public_characters: {
         Row: {
           id: string
+          auth_id: string
           created_at: string
-          username: string
-          uuid: string
-          character_name: string
-          category_id: string
+          name: string
+          gender: string
+          birth_time: string
+          avatar_id: string
+          updated_at: string
+          is_report_ready: boolean
         }
         Insert: {
-          id?: string
-          created_at?: string
-          username: string
-          uuid: string
-          character_name: string
-          category_id: string
+          id: string
+          auth_id: string
+          created_at: string
+          name: string
+          gender: string
+          birth_time: string
+          avatar_id: string
+          updated_at: string
+          is_report_ready: boolean
         }
         Update: {
-          id?: string
-          created_at?: string
-          username?: string
-          uuid?: string
-          character_name?: string
-          category_id?: string
+          id: string
+          auth_id: string
+          created_at: string
+          name: string
+          gender: string
+          birth_time: string
+          avatar_id: string
+          updated_at: string
+          is_report_ready: boolean
         }
         Relationships: []
       }

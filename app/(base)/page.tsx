@@ -133,8 +133,8 @@ const HomePage = observer(() => {
       // We map 'character_name' to 'name'
       const transformedCharacters = (characters || []).map((char: any) => ({
         ...char,
-        id: char.uuid,
-        name: char.character_name,
+        id: char.id,
+        name: char.name,
         // Add default/missing fields that might be expected by UI components
         description: "",
         avatar_id: null,

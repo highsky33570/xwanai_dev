@@ -605,11 +605,11 @@ class DatabaseOperations {
     }
   }
 
-  async getPublicCharacterMetaDatas(): Promise<{ data: Tables<"character_public_data">[]; error: any }> {
+  async getPublicCharacterMetaDatas(): Promise<{ data: Tables<"public_characters">[]; error: any }> {
     try {
       const { result, duration } = await withTiming(async () => {
         return await supabase
-          .from("character_public_data")
+          .from("public_characters")
           .select("*")
           .order("created_at", { ascending: false })
           .limit(50)

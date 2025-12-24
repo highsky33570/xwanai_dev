@@ -1496,605 +1496,638 @@ const ChatPage = observer(() => {
   // Show chat interface for existing sessions
   if (sessionExists === true) {
     return (
-      <div ref={messagesContainerRef} className="flex flex-col w-full h-full">
-        <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-10 pointer-events-none" />
-        {/* Permanent Loading Bar for /chat/new */}
-        {chatId === "new" && (
-          <div className="fixed top-0 left-0 right-0 z-50 w-full bg-gradient-to-r from-primary/20 to-secondary/20 border-b border-primary/30">
-            <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3 text-primary-600">
-              <Spinner size="sm" className="animate-spin" />
-              <span className="text-sm font-medium">
-                {t("chatEx.initializing")}
-              </span>
-              <div className="ml-auto text-xs text-primary-500">
-                {t("chatEx.pleaseWait")}
-              </div>
+      <>
+        <div className="py-4 z-10">
+          <div className="relative">
+            <div className="flex flex-col items-center gap-1">
+              <Avatar
+                src={
+                  getAvatarPublicUrl(
+                    currentCharacter?.avatar_id,
+                    currentCharacter?.auth_id
+                  ) || "/placeholder-user.jpg"
+                }
+                name={currentCharacter?.name || "Assistant"}
+                size="sm"
+                className="w-12 h-12"
+              />
+              <h3 className="font-semibold text-foreground text-base">
+                {sessionInfo?.mode === "hepan"
+                  ? t("sidebar.synastryExpert")
+                  : sessionInfo?.mode === "personal"
+                    ? t("sidebar.fortuneTellingExpert")
+                    : currentCharacter?.name || t("sidebar.unknown")}
+              </h3>
+              <p className="text-xs text-foreground-600">@XWAN.AI</p>
             </div>
-          </div>
-        )}
-        {isLoadingSession ? (
-          <ChatHeaderSkeleton />
-        ) : (
-          <div className="py-4 sticky top-1 z-10">
-            <div className="relative">
-              <div className="flex flex-col items-center gap-1">
-                <Avatar
-                  src={
-                    getAvatarPublicUrl(
-                      currentCharacter?.avatar_id,
-                      currentCharacter?.auth_id
-                    ) || "/placeholder-user.jpg"
-                  }
-                  name={currentCharacter?.name || "Assistant"}
-                  size="sm"
-                  className="w-12 h-12"
-                />
-                <h3 className="font-semibold text-foreground text-base">
-                  {sessionInfo?.mode === "hepan"
-                    ? t("sidebar.synastryExpert")
-                    : sessionInfo?.mode === "personal"
-                      ? t("sidebar.fortuneTellingExpert")
-                      : currentCharacter?.name || t("sidebar.unknown")}
-                </h3>
-                <p className="text-xs text-foreground-600">@XWAN.AI</p>
-              </div>
 
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                <Dropdown placement="bottom-end" className="">
-                  <DropdownTrigger>
-                    <Button
-                      isIconOnly
-                      size="sm"
-                      variant="flat"
-                      className="rounded-2xl bg-gradient-to-r from-gray-100 to-[#EB7020]/20 shadow-sm hover:to-[#EB7020]/30 hover:shadow-md cursor-pointer text-foreground min-w-16"
-                    >
-                      <img src="/svg/排版reading.svg" alt="reading" className="w-4 h-4" />
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu
-                    aria-label="Character Sessions"
-                    className="max-h-80 overflow-y-auto"
-                    emptyContent={
-                      characterSessionsLoading ? "加载中..." : "暂无历史对话"
-                    }
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <Dropdown placement="bottom-end" className="">
+                <DropdownTrigger>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="flat"
+                    className="rounded-2xl bg-gradient-to-r from-gray-100 to-[#EB7020]/20 shadow-sm hover:to-[#EB7020]/30 hover:shadow-md cursor-pointer text-foreground min-w-16"
                   >
-                    <DropdownItem
-                      key="liunian"
-                      startContent={<Calendar className="w-4 h-4" />}
-                      onPress={() => setLiunianOpen(true)}
-                      className="border-b border-foreground/10"
-                    >
-                      大运流年
-                    </DropdownItem>
-                    {(sessionData?.state as any)?.character_cache?.paipan &&
-                      (sessionData?.state as any)?.character_cache?.birth_time && (
-                        <DropdownItem
-                          key="destiny"
-                          startContent={<Sparkles className="w-4 h-4" />}
-                          onPress={() => setDestinyPanelOpen(true)}
-                        >
-                          命运面板
-                        </DropdownItem>
-                      )}
-                    {messages.length > 0 && (
+                    <img src="/svg/排版reading.svg" alt="reading" className="w-4 h-4" />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  aria-label="Character Sessions"
+                  className="max-h-80 overflow-y-auto"
+                  emptyContent={
+                    characterSessionsLoading ? "加载中..." : "暂无历史对话"
+                  }
+                >
+                  <DropdownItem
+                    key="liunian"
+                    startContent={<Calendar className="w-4 h-4" />}
+                    onPress={() => setLiunianOpen(true)}
+                    className="border-b border-foreground/10"
+                  >
+                    大运流年
+                  </DropdownItem>
+                  {(sessionData?.state as any)?.character_cache?.paipan &&
+                    (sessionData?.state as any)?.character_cache?.birth_time && (
                       <DropdownItem
-                        key="share"
-                        startContent={<Share2 className="w-4 h-4" />}
-                        onPress={handleToggleShareMode}
+                        key="destiny"
+                        startContent={<Sparkles className="w-4 h-4" />}
+                        onPress={() => setDestinyPanelOpen(true)}
                       >
-                        分享模式
+                        命运面板
                       </DropdownItem>
                     )}
-                    <DropdownSection title={`${currentCharacter?.name || "角色"} 的对话`}>
-                      {characterSessions.map((session: any) => (
-                        <DropdownItem
-                          key={session.id}
-                          description={new Date(session.update_time).toLocaleString("zh-CN", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                          startContent={
-                            session.id === chatId ? (
-                              <div className="w-2 h-2 bg-primary rounded-full" />
-                            ) : (
-                              <Clock className="w-4 h-4" />
-                            )
-                          }
-                          className={session.id === chatId ? "bg-primary/10" : ""}
-                          onPress={() => {
-                            if (session.id !== chatId) {
-                              router.push(`/chat/${session.id}`);
-                            }
-                          }}
-                        >
-                          {session.title || "未命名对话"}
-                        </DropdownItem>
-                      ))}
-                    </DropdownSection>
-                  </DropdownMenu>
-                </Dropdown>
-
-                <Modal isOpen={liunianOpen} onOpenChange={setLiunianOpen} size="5xl" scrollBehavior="inside">
-                  <ModalContent className="bg-content1/95 backdrop-blur-xl border border-foreground/10 h-[85vh]">
-                    {() => (
-                      <>
-                        <ModalHeader className="flex flex-col items-center gap-2 pt-8 pb-4">
-                          <h2 className="text-2xl font-serif tracking-wider text-black/80">命運時間線</h2>
-                          <div className="text-sm text-gray-500 font-serif tracking-wide">
-                            庚午 丁亥 己亥 戊辰 · 百年運勢一覽
-                          </div>
-                        </ModalHeader>
-                        <ModalBody className="p-0 overflow-hidden">
-                          {birthInfoForTimeline ? (
-                            <DestinyTimeline
-                              key={`${birthInfoForTimeline.year}-${birthInfoForTimeline.month}-${birthInfoForTimeline.day}`}
-                              birthInfo={birthInfoForTimeline}
-                              variant="flat"
-                            />
+                  {messages.length > 0 && (
+                    <DropdownItem
+                      key="share"
+                      startContent={<Share2 className="w-4 h-4" />}
+                      onPress={handleToggleShareMode}
+                    >
+                      分享模式
+                    </DropdownItem>
+                  )}
+                  <DropdownSection title={`${currentCharacter?.name || "角色"} 的对话`}>
+                    {characterSessions.map((session: any) => (
+                      <DropdownItem
+                        key={session.id}
+                        description={new Date(session.update_time).toLocaleString("zh-CN", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                        startContent={
+                          session.id === chatId ? (
+                            <div className="w-2 h-2 bg-primary rounded-full" />
                           ) : (
-                            <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
-                              <Calendar className="w-12 h-12 text-foreground-400" />
-                              <p className="text-foreground-600">缺少出生信息</p>
-                              <p className="text-sm text-foreground-400">该角色没有出生时间数据</p>
-                            </div>
-                          )}
-                        </ModalBody>
-                        <ModalFooter>
-                          <Button variant="light" onPress={() => setLiunianOpen(false)}>关闭</Button>
-                        </ModalFooter>
-                      </>
-                    )}
-                  </ModalContent>
-                </Modal>
-              </div>
+                            <Clock className="w-4 h-4" />
+                          )
+                        }
+                        className={session.id === chatId ? "bg-primary/10" : ""}
+                        onPress={() => {
+                          if (session.id !== chatId) {
+                            router.push(`/chat/${session.id}`);
+                          }
+                        }}
+                      >
+                        {session.title || "未命名对话"}
+                      </DropdownItem>
+                    ))}
+                  </DropdownSection>
+                </DropdownMenu>
+              </Dropdown>
+
+              <Modal isOpen={liunianOpen} onOpenChange={setLiunianOpen} size="5xl" scrollBehavior="inside">
+                <ModalContent className="bg-content1/95 backdrop-blur-xl border border-foreground/10 h-[85vh]">
+                  {() => (
+                    <>
+                      <ModalHeader className="flex flex-col items-center gap-2 pt-8 pb-4">
+                        <h2 className="text-2xl font-serif tracking-wider text-black/80">命運時間線</h2>
+                        <div className="text-sm text-gray-500 font-serif tracking-wide">
+                          庚午 丁亥 己亥 戊辰 · 百年運勢一覽
+                        </div>
+                      </ModalHeader>
+                      <ModalBody className="p-0 overflow-hidden">
+                        {birthInfoForTimeline ? (
+                          <DestinyTimeline
+                            key={`${birthInfoForTimeline.year}-${birthInfoForTimeline.month}-${birthInfoForTimeline.day}`}
+                            birthInfo={birthInfoForTimeline}
+                            variant="flat"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+                            <Calendar className="w-12 h-12 text-foreground-400" />
+                            <p className="text-foreground-600">缺少出生信息</p>
+                            <p className="text-sm text-foreground-400">该角色没有出生时间数据</p>
+                          </div>
+                        )}
+                      </ModalBody>
+                      <ModalFooter>
+                        <Button variant="light" onPress={() => setLiunianOpen(false)}>关闭</Button>
+                      </ModalFooter>
+                    </>
+                  )}
+                </ModalContent>
+              </Modal>
             </div>
           </div>
-        )}
-        {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col overflow-y-auto">
-          {/* 内容容器 - 大屏模式下充分利用空间，移动端取消padding */}
-          <div className="w-full flex flex-col px-24 md:px-28 max-w-full h-full">
-            {/* Chat Header */}
-
-            {/* Messages Area */}
-            <div
-
-              className="flex-1 py-3 md:py-6 space-y-3 md:space-y-6"
-            >
-              {/* 显示打字机效果的打招呼语 */}
-              {showGreetingTypewriter && (
-                <div className="flex justify-start items-start gap-2 md:gap-3">
-                  <Avatar
-                    src={
-                      getAvatarPublicUrl(
-                        currentCharacter?.avatar_id,
-                        currentCharacter?.auth_id
-                      ) || "/placeholder-user.jpg"
-                    }
-                    name={currentCharacter?.name || "Assistant"}
-                    size="sm"
-                    className="flex-shrink-0 mt-1"
-                  />
-                  <div className="max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
-                    {/* Assistant Name */}
-                    <div className="text-sm font-medium mb-1 text-foreground-600">
-                      {sessionInfo?.mode === "hepan"
-                        ? t("sidebar.synastryExpert")
-                        : sessionInfo?.mode === "personal"
-                          ? t("sidebar.fortuneTellingExpert")
-                          : currentCharacter?.name || t("chatEx.assistant")}
-                    </div>
-
-                    {/* 打字机效果内容 */}
-                    <div className="prose prose-invert max-w-none text-sm leading-relaxed break-words">
-                      <MarkdownWithSources
-                        content={
-                          typewriter.isTyping
-                            ? `${typewriter.displayText}<typing-cursor></typing-cursor>`
-                            : typewriter.displayText
-                        }
-                        isStreaming={typewriter.isTyping}
-                        className="prose prose-invert max-w-none text-sm leading-relaxed break-words"
-                      />
-                    </div>
-
-                    {/* 打字机状态指示 */}
-                    {typewriter.isTyping && (
-                      <div className="flex items-center gap-2 mt-3 pt-2 border-t border-foreground/5">
-                        <div className="flex items-center gap-1">
-                          <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
-                          <div className="w-1 h-1 bg-primary/60 rounded-full animate-pulse [animation-delay:200ms]" />
-                          <div className="w-1 h-1 bg-primary/40 rounded-full animate-pulse [animation-delay:400ms]" />
-                        </div>
-                        <span className="text-xs text-primary font-medium">
-                          {t("chatEx.typing")}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* 完成时显示时间戳 */}
-                    {typewriter.isComplete && (
-                      <div className="text-xs opacity-60 mt-2">
-                        {formatTime(new Date())}
-                      </div>
-                    )}
-                  </div>
+        </div>
+        <div ref={messagesContainerRef} className="flex flex-col w-full h-full overflow-y-auto">
+          <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-10 pointer-events-none" />
+          {/* Permanent Loading Bar for /chat/new */}
+          {chatId === "new" && (
+            <div className="fixed top-0 left-0 right-0 z-50 w-full bg-gradient-to-r from-primary/20 to-secondary/20 border-b border-primary/30">
+              <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3 text-primary-600">
+                <Spinner size="sm" className="animate-spin" />
+                <span className="text-sm font-medium">
+                  {t("chatEx.initializing")}
+                </span>
+                <div className="ml-auto text-xs text-primary-500">
+                  {t("chatEx.pleaseWait")}
                 </div>
-              )}
+              </div>
+            </div>
+          )}
 
-              {/* 如果正在加载且没有消息，显示消息骨架屏 */}
-              {isLoadingSession &&
-                messages.length === 0 &&
-                !showGreetingTypewriter ? (
-                <div className="space-y-6">
-                  <MessageSkeleton isUser={false} />
-                  <MessageSkeleton isUser={true} />
-                </div>
-              ) : (
-                // 🎯 关键修复：对消息进行排序和去重
-                (() => {
-                  // 🐛 调试日志：查看消息的 _order 和时间戳
 
-                  // 1. 按 _order 排序（优先），时间戳作为备用
-                  const sortedMessages = [...messages].sort((a, b) => {
-                    const orderA = (a as any)._order ?? 999999;
-                    const orderB = (b as any)._order ?? 999999;
 
-                    if (orderA !== orderB) return orderA - orderB;
+          {/* Main Chat Area */}
+          <div className="flex-1 flex flex-col">
+            {/* 内容容器 - 大屏模式下充分利用空间，移动端取消padding */}
+            <div className="w-full flex flex-col px-24 md:px-28 max-w-full h-full">
+              {/* Chat Header */}
 
-                    // 如果 order 相同，按时间排序
-                    const timeA =
-                      a.timestamp instanceof Date
-                        ? a.timestamp.getTime()
-                        : new Date(a.timestamp).getTime();
-                    const timeB =
-                      b.timestamp instanceof Date
-                        ? b.timestamp.getTime()
-                        : new Date(b.timestamp).getTime();
-                    return timeA - timeB;
-                  });
+              {/* Messages Area */}
+              <div
 
-                  // 2. 去重：同一个ID只保留一条
-                  const uniqueMessages = sortedMessages.reduce((acc, msg) => {
-                    if (!acc.find((m) => m.id === msg.id)) {
-                      acc.push(msg);
-                    }
-                    return acc;
-                  }, [] as ChatMessage[]);
-
-                  return uniqueMessages;
-                })().map((message, index) => {
-                  const content = message.content || "";
-
-                  // 🎯 简化：直接根据 isFailed 字段判断是否是错误消息
-                  const isErrorMessage =
-                    message.sender === "assistant" && message.isFailed === true;
-
-                  // 🚨 如果是错误消息，渲染ErrorMessage组件
-                  if (isErrorMessage) {
-                    return (
-                      <ErrorMessage
-                        key={message.id}
-                        error={{
-                          error: content,
-                          error_type: "stream_generation_failed",
-                          retryable: true,
-                          resumable: false,
-                        }}
-                        onRetry={() => {
-                          if (chatId !== "new") {
-                            Store.session.clearPersistedErrorState(chatId);
-                          }
-
-                          // 🔄 重试时移除当前错误消息
-                          const currentErrorId = message.id;
-                          setMessages((prev) =>
-                            prev.filter((msg) => msg.id !== currentErrorId)
-                          );
-
-                          // 🚨 确保重试失败时能正确显示错误消息
-                          retryLastMessage(messages).catch((error) => {
-                            console.error(
-                              "🔄 [重试失败] Retry failed, ensuring error message is displayed:",
-                              error
-                            );
-
-                            // 如果重试失败，立即添加错误消息
-                            const retryErrorMessage: ChatMessage = {
-                              // id: crypto.randomUUID(),
-                              id: uuidv4(),
-                              sender: "assistant",
-                              content:
-                                error?.error ||
-                                error?.message ||
-                                "重试失败，请稍后再试。",
-                              timestamp: new Date(),
-                              isComplete: true,
-                              isFailed: true, // 🎯 标记为失败
-                            };
-
-                            setMessages((prev) => [...prev, retryErrorMessage]);
-                          });
-                        }}
-                        onResume={() => {
-                          if (chatId !== "new") {
-                            Store.session.clearPersistedErrorState(chatId);
-                          }
-
-                          // 🔄 恢复时移除当前错误消息
-                          const currentErrorId = message.id;
-                          setMessages((prev) =>
-                            prev.filter((msg) => msg.id !== currentErrorId)
-                          );
-
-                          // 🚨 确保恢复失败时能正确显示错误消息
-                          resumeConversation().catch((error) => {
-                            console.error(
-                              "🔄 [恢复失败] Resume failed, ensuring error message is displayed:",
-                              error
-                            );
-
-                            // 如果恢复失败，立即添加错误消息
-                            const resumeErrorMessage: ChatMessage = {
-                              // id: crypto.randomUUID(),
-                              id: uuidv4(),
-                              sender: "assistant",
-                              content:
-                                error?.error ||
-                                error?.message ||
-                                "恢复失败，请稍后再试。",
-                              timestamp: new Date(),
-                              isComplete: true,
-                              isFailed: true, // 🎯 标记为失败
-                            };
-
-                            setMessages((prev) => [
-                              ...prev,
-                              resumeErrorMessage,
-                            ]);
-                          });
-                        }}
-                        isRetrying={isLoading}
-                        isResuming={isLoading}
-                        assistantName={
-                          sessionInfo?.mode === "hepan"
-                            ? t("sidebar.synastryExpert")
-                            : sessionInfo?.mode === "personal"
-                              ? t("sidebar.fortuneTellingExpert")
-                              : currentCharacter?.name || t("chatEx.assistant")
-                        }
-                        assistantAvatar={
-                          getAvatarPublicUrl(
-                            currentCharacter?.avatar_id,
-                            currentCharacter?.auth_id
-                          ) || "/placeholder-user.jpg"
-                        }
-                        isPersisted={true}
-                        showRefreshHint={false}
-                        isLoading={false}
-                      />
-                    );
-                  }
-
-                  const lower = content.toLowerCase().trim();
-                  const isPaipanPayload =
-                    lower.startsWith("user's bazi infos:");
-                  let paipan: any = null;
-                  if (isPaipanPayload) {
-                    try {
-                      const jsonStart = content.indexOf("{");
-                      if (jsonStart >= 0) {
-                        const jsonStr = content.slice(jsonStart);
-                        const parsed = JSON.parse(jsonStr);
-                        paipan = parsed?.paipan || null;
+                className="flex-1 py-3 md:py-6 space-y-3 md:space-y-6"
+              >
+                {/* 显示打字机效果的打招呼语 */}
+                {showGreetingTypewriter && (
+                  <div className="flex justify-start items-start gap-2 md:gap-3">
+                    <Avatar
+                      src={
+                        getAvatarPublicUrl(
+                          currentCharacter?.avatar_id,
+                          currentCharacter?.auth_id
+                        ) || "/placeholder-user.jpg"
                       }
-                    } catch (e) {
-                      console.warn(
-                        "[/chat/[id]] failed to parse paipan payload",
-                        e
+                      name={currentCharacter?.name || "Assistant"}
+                      size="sm"
+                      className="flex-shrink-0 mt-1"
+                    />
+                    <div className="max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
+                      {/* Assistant Name */}
+                      <div className="text-sm font-medium mb-1 text-foreground-600">
+                        {sessionInfo?.mode === "hepan"
+                          ? t("sidebar.synastryExpert")
+                          : sessionInfo?.mode === "personal"
+                            ? t("sidebar.fortuneTellingExpert")
+                            : currentCharacter?.name || t("chatEx.assistant")}
+                      </div>
+
+                      {/* 打字机效果内容 */}
+                      <div className="prose prose-invert max-w-none text-sm leading-relaxed break-words">
+                        <MarkdownWithSources
+                          content={
+                            typewriter.isTyping
+                              ? `${typewriter.displayText}<typing-cursor></typing-cursor>`
+                              : typewriter.displayText
+                          }
+                          isStreaming={typewriter.isTyping}
+                          className="prose prose-invert max-w-none text-sm leading-relaxed break-words"
+                        />
+                      </div>
+
+                      {/* 打字机状态指示 */}
+                      {typewriter.isTyping && (
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-foreground/5">
+                          <div className="flex items-center gap-1">
+                            <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
+                            <div className="w-1 h-1 bg-primary/60 rounded-full animate-pulse [animation-delay:200ms]" />
+                            <div className="w-1 h-1 bg-primary/40 rounded-full animate-pulse [animation-delay:400ms]" />
+                          </div>
+                          <span className="text-xs text-primary font-medium">
+                            {t("chatEx.typing")}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* 完成时显示时间戳 */}
+                      {typewriter.isComplete && (
+                        <div className="text-xs opacity-60 mt-2">
+                          {formatTime(new Date())}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 如果正在加载且没有消息，显示消息骨架屏 */}
+                {isLoadingSession &&
+                  messages.length === 0 &&
+                  !showGreetingTypewriter ? (
+                  <div className="space-y-6">
+                    <MessageSkeleton isUser={false} />
+                    <MessageSkeleton isUser={true} />
+                  </div>
+                ) : (
+                  // 🎯 关键修复：对消息进行排序和去重
+                  (() => {
+                    // 🐛 调试日志：查看消息的 _order 和时间戳
+
+                    // 1. 按 _order 排序（优先），时间戳作为备用
+                    const sortedMessages = [...messages].sort((a, b) => {
+                      const orderA = (a as any)._order ?? 999999;
+                      const orderB = (b as any)._order ?? 999999;
+
+                      if (orderA !== orderB) return orderA - orderB;
+
+                      // 如果 order 相同，按时间排序
+                      const timeA =
+                        a.timestamp instanceof Date
+                          ? a.timestamp.getTime()
+                          : new Date(a.timestamp).getTime();
+                      const timeB =
+                        b.timestamp instanceof Date
+                          ? b.timestamp.getTime()
+                          : new Date(b.timestamp).getTime();
+                      return timeA - timeB;
+                    });
+
+                    // 2. 去重：同一个ID只保留一条
+                    const uniqueMessages = sortedMessages.reduce((acc, msg) => {
+                      if (!acc.find((m) => m.id === msg.id)) {
+                        acc.push(msg);
+                      }
+                      return acc;
+                    }, [] as ChatMessage[]);
+
+                    return uniqueMessages;
+                  })().map((message, index) => {
+                    const content = message.content || "";
+
+                    // 🎯 简化：直接根据 isFailed 字段判断是否是错误消息
+                    const isErrorMessage =
+                      message.sender === "assistant" && message.isFailed === true;
+
+                    // 🚨 如果是错误消息，渲染ErrorMessage组件
+                    if (isErrorMessage) {
+                      return (
+                        <ErrorMessage
+                          key={message.id}
+                          error={{
+                            error: content,
+                            error_type: "stream_generation_failed",
+                            retryable: true,
+                            resumable: false,
+                          }}
+                          onRetry={() => {
+                            if (chatId !== "new") {
+                              Store.session.clearPersistedErrorState(chatId);
+                            }
+
+                            // 🔄 重试时移除当前错误消息
+                            const currentErrorId = message.id;
+                            setMessages((prev) =>
+                              prev.filter((msg) => msg.id !== currentErrorId)
+                            );
+
+                            // 🚨 确保重试失败时能正确显示错误消息
+                            retryLastMessage(messages).catch((error) => {
+                              console.error(
+                                "🔄 [重试失败] Retry failed, ensuring error message is displayed:",
+                                error
+                              );
+
+                              // 如果重试失败，立即添加错误消息
+                              const retryErrorMessage: ChatMessage = {
+                                // id: crypto.randomUUID(),
+                                id: uuidv4(),
+                                sender: "assistant",
+                                content:
+                                  error?.error ||
+                                  error?.message ||
+                                  "重试失败，请稍后再试。",
+                                timestamp: new Date(),
+                                isComplete: true,
+                                isFailed: true, // 🎯 标记为失败
+                              };
+
+                              setMessages((prev) => [...prev, retryErrorMessage]);
+                            });
+                          }}
+                          onResume={() => {
+                            if (chatId !== "new") {
+                              Store.session.clearPersistedErrorState(chatId);
+                            }
+
+                            // 🔄 恢复时移除当前错误消息
+                            const currentErrorId = message.id;
+                            setMessages((prev) =>
+                              prev.filter((msg) => msg.id !== currentErrorId)
+                            );
+
+                            // 🚨 确保恢复失败时能正确显示错误消息
+                            resumeConversation().catch((error) => {
+                              console.error(
+                                "🔄 [恢复失败] Resume failed, ensuring error message is displayed:",
+                                error
+                              );
+
+                              // 如果恢复失败，立即添加错误消息
+                              const resumeErrorMessage: ChatMessage = {
+                                // id: crypto.randomUUID(),
+                                id: uuidv4(),
+                                sender: "assistant",
+                                content:
+                                  error?.error ||
+                                  error?.message ||
+                                  "恢复失败，请稍后再试。",
+                                timestamp: new Date(),
+                                isComplete: true,
+                                isFailed: true, // 🎯 标记为失败
+                              };
+
+                              setMessages((prev) => [
+                                ...prev,
+                                resumeErrorMessage,
+                              ]);
+                            });
+                          }}
+                          isRetrying={isLoading}
+                          isResuming={isLoading}
+                          assistantName={
+                            sessionInfo?.mode === "hepan"
+                              ? t("sidebar.synastryExpert")
+                              : sessionInfo?.mode === "personal"
+                                ? t("sidebar.fortuneTellingExpert")
+                                : currentCharacter?.name || t("chatEx.assistant")
+                          }
+                          assistantAvatar={
+                            getAvatarPublicUrl(
+                              currentCharacter?.avatar_id,
+                              currentCharacter?.auth_id
+                            ) || "/placeholder-user.jpg"
+                          }
+                          isPersisted={true}
+                          showRefreshHint={false}
+                          isLoading={false}
+                        />
                       );
                     }
-                  }
-                  const isSelected = selectedMessageIds.includes(message.id);
-                  const isSelectable = message.isComplete !== false; // 只有完成的消息可选择
 
-                  return (
-                    <div
-                      key={message.id}
-                      className={`flex flex-col ${message.sender === "user"
-                        ? "justify-end items-end"
-                        : "justify-start items-start"
-                        } gap-2 md:gap-3`}
-                    >
-                      <div className={`flex ${message.sender === "user"
-                        ? "justify-end"
-                        : "justify-start"
-                        } items-center gap-2 md:gap-3`}>
+                    const lower = content.toLowerCase().trim();
+                    const isPaipanPayload =
+                      lower.startsWith("user's bazi infos:");
+                    let paipan: any = null;
+                    if (isPaipanPayload) {
+                      try {
+                        const jsonStart = content.indexOf("{");
+                        if (jsonStart >= 0) {
+                          const jsonStr = content.slice(jsonStart);
+                          const parsed = JSON.parse(jsonStr);
+                          paipan = parsed?.paipan || null;
+                        }
+                      } catch (e) {
+                        console.warn(
+                          "[/chat/[id]] failed to parse paipan payload",
+                          e
+                        );
+                      }
+                    }
+                    const isSelected = selectedMessageIds.includes(message.id);
+                    const isSelectable = message.isComplete !== false; // 只有完成的消息可选择
 
-                        {/* Assistant Avatar - 始终显示 */}
-                        {message.sender !== "user" && (
-                          <Avatar
-                            src={
-                              getAvatarPublicUrl(
-                                currentCharacter?.avatar_id,
-                                currentCharacter?.auth_id
-                              ) || "/placeholder-user.jpg"
-                            }
-                            name={currentCharacter?.name || "Assistant"}
-                            size="sm"
-                            className="flex-shrink-0 mt-1 hidden md:block"
-                          />
-                        )}
-                        {/* Identity line above bubble */}
-                        <div
-                          className={`text-xs text-foreground-600 mb-1 ${message.sender === "user" ? "text-right" : ""
-                            }`}
-                        >
-                          {message.sender !== "user" ? (
-                            <>
-                              {sessionInfo?.mode === "hepan"
-                                ? t("sidebar.synastryExpert")
-                                : sessionInfo?.mode === "personal"
-                                  ? t("sidebar.fortuneTellingExpert")
-                                  : currentCharacter?.name || t("chatEx.assistant")}
-                              <span className="ml-1 text-foreground-400">@XWAN.AI</span>
-                            </>
-                          ) : (
-                            <>
-                              {Store.user.user?.email ? `${Store.user.user?.email} ` : ""}
-                              {Store.user.userName}
-                            </>
+                    return (
+                      <div
+                        key={message.id}
+                        className={`flex flex-col ${message.sender === "user"
+                          ? "justify-end items-end"
+                          : "justify-start items-start"
+                          } gap-2 md:gap-3`}
+                      >
+                        <div className={`flex ${message.sender === "user"
+                          ? "justify-end"
+                          : "justify-start"
+                          } items-center gap-2 md:gap-3`}>
+
+                          {/* Assistant Avatar - 始终显示 */}
+                          {message.sender !== "user" && (
+                            <Avatar
+                              src={
+                                getAvatarPublicUrl(
+                                  currentCharacter?.avatar_id,
+                                  currentCharacter?.auth_id
+                                ) || "/placeholder-user.jpg"
+                              }
+                              name={currentCharacter?.name || "Assistant"}
+                              size="sm"
+                              className="flex-shrink-0 mt-1 hidden md:block"
+                            />
+                          )}
+                          {/* Identity line above bubble */}
+                          <div
+                            className={`text-xs text-foreground-600 mb-1 ${message.sender === "user" ? "text-right" : ""
+                              }`}
+                          >
+                            {message.sender !== "user" ? (
+                              <>
+                                {sessionInfo?.mode === "hepan"
+                                  ? t("sidebar.synastryExpert")
+                                  : sessionInfo?.mode === "personal"
+                                    ? t("sidebar.fortuneTellingExpert")
+                                    : currentCharacter?.name || t("chatEx.assistant")}
+                                <span className="ml-1 text-foreground-400">@XWAN.AI</span>
+                              </>
+                            ) : (
+                              <>
+                                {Store.user.user?.email ? `${Store.user.user?.email} ` : ""}
+                                {Store.user.userName}
+                              </>
+                            )}
+                          </div>
+
+                          {/* User Avatar - 始终显示 */}
+                          {message.sender === "user" && (
+                            <Avatar
+                              src={Store.user.userAvatar}
+                              name={Store.user.userName}
+                              size="sm"
+                              className="flex-shrink-0 mt-1 hidden md:block"
+                            />
                           )}
                         </div>
 
-                        {/* User Avatar - 始终显示 */}
-                        {message.sender === "user" && (
-                          <Avatar
-                            src={Store.user.userAvatar}
-                            name={Store.user.userName}
-                            size="sm"
-                            className="flex-shrink-0 mt-1 hidden md:block"
-                          />
-                        )}
-                      </div>
-
-                      {/* Message Bubble */}
-                      <div
-                        onClick={() => {
-                          if (isShareMode && isSelectable) {
-                            handleToggleMessageSelection(message.id);
-                          }
-                        }}
-                        className={`relative ${message.content?.includes("```vis-paipan")
-                          ? "max-w-[95%] md:max-w-[85%]" // 🎨 命盘消息使用更大宽度
-                          : "max-w-[85%] md:max-w-[75%]"
-                          } rounded-3xl mx-6 px-4 md:px-5 py-3 md:py-4 break-words ${isShareMode && isSelectable ? "cursor-pointer transition-all hover:scale-[1.01]" : ""
-                          } ${isShareMode && isSelected
-                            ? message.sender === "user"
-                              ? "bg-primary/60 ring-2 ring-primary shadow-xl scale-[1.02] text-primary-foreground backdrop-blur-sm"
-                              : "bg-primary/10 ring-2 ring-primary shadow-xl scale-[1.02] border-primary text-foreground"
-                            : message.sender === "user"
-                              ? "bg-[#E8E8E8] text-primary-foreground"
-                              : "bg-[#F0F0F0] text-foreground"
-                          }`}
-                      >
-                        {/* Arrow tail pointing to sender */}
-                        {message.sender === "user" ? (
-                          <div 
-                            className={`absolute -right-5 top-4 w-0 h-0 border-t-[0px] border-b-[24px] border-l-[24px] ${
-                              isShareMode && isSelected
+                        {/* Message Bubble */}
+                        <div
+                          onClick={() => {
+                            if (isShareMode && isSelectable) {
+                              handleToggleMessageSelection(message.id);
+                            }
+                          }}
+                          className={`relative ${message.content?.includes("```vis-paipan")
+                            ? "max-w-[95%] md:max-w-[85%]" // 🎨 命盘消息使用更大宽度
+                            : "max-w-[85%] md:max-w-[75%]"
+                            } rounded-3xl mx-6 px-4 md:px-5 py-3 md:py-4 break-words ${isShareMode && isSelectable ? "cursor-pointer transition-all hover:scale-[1.01]" : ""
+                            } ${isShareMode && isSelected
+                              ? message.sender === "user"
+                                ? "bg-primary/60 ring-2 ring-primary shadow-xl scale-[1.02] text-primary-foreground backdrop-blur-sm"
+                                : "bg-primary/10 ring-2 ring-primary shadow-xl scale-[1.02] border-primary text-foreground"
+                              : message.sender === "user"
+                                ? "bg-[#E8E8E8] text-primary-foreground"
+                                : "bg-[#F0F0F0] text-foreground"
+                            }`}
+                        >
+                          {/* Arrow tail pointing to sender */}
+                          {message.sender === "user" ? (
+                            <div
+                              className={`absolute -right-5 top-4 w-0 h-0 border-t-[0px] border-b-[24px] border-l-[24px] ${isShareMode && isSelected
                                 ? "border-l-primary/60"
                                 : "border-l-[#E8E8E8]"
-                            } border-t-transparent border-b-transparent`}
-                          />
-                        ) : (
-                          <div 
-                            className={`absolute -left-5 top-4 w-0 h-0 border-t-[0px] border-b-[24px] border-r-[24px] ${
-                              isShareMode && isSelected
+                                } border-t-transparent border-b-transparent`}
+                            />
+                          ) : (
+                            <div
+                              className={`absolute -left-5 top-4 w-0 h-0 border-t-[0px] border-b-[24px] border-r-[24px] ${isShareMode && isSelected
                                 ? "border-r-primary/10"
                                 : "border-r-[#F0F0F0]"
-                            } border-t-transparent border-b-transparent`}
-                          />
-                        )}
-                        {/* 选中图标 - 右上角 */}
-                        {isShareMode && isSelected && (
-                          <div className="absolute -top-2 -right-2 bg-primary rounded-full p-1 shadow-lg z-10">
-                            <CheckCircle2 className="w-4 h-4 text-primary-foreground" />
-                          </div>
-                        )}
+                                } border-t-transparent border-b-transparent`}
+                            />
+                          )}
+                          {/* 选中图标 - 右上角 */}
+                          {isShareMode && isSelected && (
+                            <div className="absolute -top-2 -right-2 bg-primary rounded-full p-1 shadow-lg z-10">
+                              <CheckCircle2 className="w-4 h-4 text-primary-foreground" />
+                            </div>
+                          )}
 
-                        {/* watermark */}
-                        <div className="pointer-events-none absolute bottom-2 right-2 w-10 h-10 rounded-full bg-[radial-gradient(circle,rgba(0,0,0,0.06),rgba(0,0,0,0)_60%)]" />
+                          {/* watermark */}
+                          <div className="pointer-events-none absolute bottom-2 right-2 w-10 h-10 rounded-full bg-[radial-gradient(circle,rgba(0,0,0,0.06),rgba(0,0,0,0)_60%)]" />
 
-                        {/* 🧠 Thinking 可折叠部分 - 仅 assistant 消息显示 */}
-                        {message.sender === "assistant" && message.thinking && (
-                          <details className="mb-3 group">
-                            <summary className="flex items-center gap-2 cursor-pointer list-none select-none py-2.5 px-3 rounded-lg bg-primary/5 dark:bg-primary/10 hover:bg-primary/10 dark:hover:bg-primary/15 transition-all border border-primary/20 dark:border-primary/30">
-                              <svg
-                                className="w-3.5 h-3.5 text-primary transition-transform group-open:rotate-90 flex-shrink-0"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2.5}
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M9 5l7 7-7 7"
-                                />
-                              </svg>
-                              <span className="text-xs font-semibold text-primary flex items-center gap-1.5">
+                          {/* 🧠 Thinking 可折叠部分 - 仅 assistant 消息显示 */}
+                          {message.sender === "assistant" && message.thinking && (
+                            <details className="mb-3 group">
+                              <summary className="flex items-center gap-2 cursor-pointer list-none select-none py-2.5 px-3 rounded-lg bg-primary/5 dark:bg-primary/10 hover:bg-primary/10 dark:hover:bg-primary/15 transition-all border border-primary/20 dark:border-primary/30">
                                 <svg
-                                  className="w-3.5 h-3.5"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
+                                  className="w-3.5 h-3.5 text-primary transition-transform group-open:rotate-90 flex-shrink-0"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                  strokeWidth={2.5}
                                 >
-                                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
                                   <path
-                                    fillRule="evenodd"
-                                    d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                                    clipRule="evenodd"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M9 5l7 7-7 7"
                                   />
                                 </svg>
-                                思考过程
-                              </span>
-                              <span className="ml-auto text-xs text-default-400 font-mono">
-                                {message.thinking.length} chars
-                              </span>
-                              <span className="text-xs text-primary/60 group-open:hidden">
-                                展开查看
-                              </span>
-                              <span className="text-xs text-primary/60 hidden group-open:inline">
-                                收起
-                              </span>
-                            </summary>
-                            <div className="mt-2 p-4 rounded-lg bg-default-100/80 dark:bg-default-50/10 border border-default-300 dark:border-default-200/30">
-                              <MarkdownWithSources
-                                content={message.thinking}
-                                isStreaming={false}
-                                className="prose prose-sm dark:prose-invert max-w-none text-foreground dark:text-foreground leading-relaxed [&>p]:text-xs [&>p]:my-2 [&>ul]:text-xs [&>ol]:text-xs [&>h1]:text-sm [&>h2]:text-sm [&>h3]:text-xs [&>h4]:text-xs [&>strong]:text-primary [&>em]:text-primary/80 [&>p]:text-foreground-700 [&>p]:dark:text-foreground-300"
-                              />
-                            </div>
-                          </details>
-                        )}
+                                <span className="text-xs font-semibold text-primary flex items-center gap-1.5">
+                                  <svg
+                                    className="w-3.5 h-3.5"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                  思考过程
+                                </span>
+                                <span className="ml-auto text-xs text-default-400 font-mono">
+                                  {message.thinking.length} chars
+                                </span>
+                                <span className="text-xs text-primary/60 group-open:hidden">
+                                  展开查看
+                                </span>
+                                <span className="text-xs text-primary/60 hidden group-open:inline">
+                                  收起
+                                </span>
+                              </summary>
+                              <div className="mt-2 p-4 rounded-lg bg-default-100/80 dark:bg-default-50/10 border border-default-300 dark:border-default-200/30">
+                                <MarkdownWithSources
+                                  content={message.thinking}
+                                  isStreaming={false}
+                                  className="prose prose-sm dark:prose-invert max-w-none text-foreground dark:text-foreground leading-relaxed [&>p]:text-xs [&>p]:my-2 [&>ul]:text-xs [&>ol]:text-xs [&>h1]:text-sm [&>h2]:text-sm [&>h3]:text-xs [&>h4]:text-xs [&>strong]:text-primary [&>em]:text-primary/80 [&>p]:text-foreground-700 [&>p]:dark:text-foreground-300"
+                                />
+                              </div>
+                            </details>
+                          )}
 
-                        {/* Message Content */}
-                        {message.functionResponse ? (
-                          <AICard
-                            name={message.functionResponse.name}
-                            response={message.functionResponse.response}
-                          />
-                        ) : isPaipanPayload && paipan ? (
-                          <PaipanCard paipan={paipan} />
-                        ) : (
-                          <MarkdownWithSources
-                            content={message.content || ""}
-                            timestamp={formatTime(message.timestamp)}
-                            isStreaming={!message.isComplete}
-                            className="prose prose-invert max-w-none text-sm leading-relaxed break-words"
-                            isUserMessage={message.sender === "user"} // 🎨 区分用户消息和AI消息
-                          />
-                        )}
-                        {/* <div
+                          {/* Message Content */}
+                          {message.functionResponse ? (
+                            <AICard
+                              name={message.functionResponse.name}
+                              response={message.functionResponse.response}
+                            />
+                          ) : isPaipanPayload && paipan ? (
+                            <PaipanCard paipan={paipan} />
+                          ) : (
+                            <MarkdownWithSources
+                              content={message.content || ""}
+                              timestamp={formatTime(message.timestamp)}
+                              isStreaming={!message.isComplete}
+                              className="prose prose-invert max-w-none text-sm leading-relaxed break-words"
+                              isUserMessage={message.sender === "user"} // 🎨 区分用户消息和AI消息
+                            />
+                          )}
+                          {/* <div
                           className={`absolute bottom-2 text-xs opacity-60 ${message.sender === "user" ? "right-3" : "left-3"
                             }`}
                         >
                           {formatTime(message.timestamp)}
                         </div> */}
+                        </div>
+
                       </div>
+                    );
+                  })
+                )}
 
+                {/* AI正在生成回复的特殊loading状态 */}
+                {isLoading &&
+                  !currentAssistantMessage &&
+                  !currentThinkingMessage && (
+                    <div className="flex justify-start items-start gap-2 md:gap-3">
+                      <Avatar
+                        src={
+                          getAvatarPublicUrl(
+                            currentCharacter?.avatar_id,
+                            currentCharacter?.auth_id
+                          ) || "/placeholder-user.jpg"
+                        }
+                        name={currentCharacter?.name || "Assistant"}
+                        size="sm"
+                        className="flex-shrink-0 mt-1 hidden md:block"
+                      />
+                      <div className="relative max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-primary/20 shadow-md">
+                        {/* Arrow tail pointing left (assistant message) */}
+                        <div className="absolute -left-2 top-6 w-0 h-0 border-t-[8px] border-b-[8px] border-r-[12px] border-r-content2 border-t-transparent border-b-transparent" />
+                        {/* Assistant Name */}
+                        <div className="text-sm font-medium mb-1 text-foreground-600">
+                          {currentCharacter?.name || t("chatEx.assistant")}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex space-x-1">
+                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                          </div>
+                          <span className="text-sm text-primary font-medium">
+                            {t("chatEx.thinking")}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  );
-                })
-              )}
+                  )}
 
-              {/* AI正在生成回复的特殊loading状态 */}
-              {isLoading &&
-                !currentAssistantMessage &&
-                !currentThinkingMessage && (
+                {/* 流式输出的AI回复（整合 thinking） */}
+                {(currentThinkingMessage || currentAssistantMessage) && (
                   <div className="flex justify-start items-start gap-2 md:gap-3">
                     <Avatar
                       src={
@@ -2107,285 +2140,249 @@ const ChatPage = observer(() => {
                       size="sm"
                       className="flex-shrink-0 mt-1 hidden md:block"
                     />
-                    <div className="relative max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-primary/20 shadow-md">
+                    <div className="relative max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
                       {/* Arrow tail pointing left (assistant message) */}
                       <div className="absolute -left-2 top-6 w-0 h-0 border-t-[8px] border-b-[8px] border-r-[12px] border-r-content2 border-t-transparent border-b-transparent" />
                       {/* Assistant Name */}
                       <div className="text-sm font-medium mb-1 text-foreground-600">
-                        {currentCharacter?.name || t("chatEx.assistant")}
+                        {sessionInfo?.mode === "hepan"
+                          ? t("sidebar.synastryExpert")
+                          : sessionInfo?.mode === "personal"
+                            ? t("sidebar.fortuneTellingExpert")
+                            : currentCharacter?.name || t("chatEx.assistant")}
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+
+                      {/* 🧠 Thinking 部分 - 流式显示（展开状态） */}
+                      {currentThinkingMessage && (
+                        <div className="mb-3">
+                          <div className="flex items-center gap-2 py-2.5 px-3 rounded-lg bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/30">
+                            <div className="flex items-center gap-1">
+                              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                              <div className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse [animation-delay:200ms]" />
+                              <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-pulse [animation-delay:400ms]" />
+                            </div>
+                            <span className="text-xs font-semibold text-primary flex items-center gap-1.5">
+                              <svg
+                                className="w-3.5 h-3.5"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                                <path
+                                  fillRule="evenodd"
+                                  d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              思考中...
+                            </span>
+                            <span className="ml-auto text-xs text-default-400 font-mono">
+                              {currentThinkingMessage.length} chars
+                            </span>
+                          </div>
+                          <div className="mt-2 p-4 rounded-lg bg-default-100/80 dark:bg-default-50/10 border border-default-300 dark:border-default-200/30">
+                            <MarkdownWithSources
+                              content={currentThinkingMessage}
+                              isStreaming={true}
+                              className="prose prose-sm dark:prose-invert max-w-none text-foreground dark:text-foreground leading-relaxed [&>p]:text-xs [&>p]:my-2 [&>ul]:text-xs [&>ol]:text-xs [&>h1]:text-sm [&>h2]:text-sm [&>h3]:text-xs [&>h4]:text-xs [&>strong]:text-primary [&>em]:text-primary/80 [&>p]:text-foreground-700 [&>p]:dark:text-foreground-300"
+                            />
+                          </div>
                         </div>
-                        <span className="text-sm text-primary font-medium">
-                          {t("chatEx.thinking")}
+                      )}
+
+                      {/* Message Content */}
+                      {currentAssistantMessage && (
+                        <>
+                          <div className="prose prose-invert max-w-none text-sm leading-relaxed break-words">
+                            <MarkdownWithSources
+                              content={`${currentAssistantMessage}<typing-cursor></typing-cursor>`}
+                              isStreaming={true}
+                              className="prose prose-invert max-w-none text-sm leading-relaxed break-words"
+                            />
+                          </div>
+                          <div className="flex items-center gap-2 mt-3 pt-2 border-t border-foreground/5">
+                            <div className="flex items-center gap-1">
+                              <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
+                              <div className="w-1 h-1 bg-primary/60 rounded-full animate-pulse [animation-delay:200ms]" />
+                              <div className="w-1 h-1 bg-primary/40 rounded-full animate-pulse [animation-delay:400ms]" />
+                            </div>
+                            <span className="text-xs text-primary font-medium">
+                              {t("chatEx.typing")}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 🚨 错误消息现在直接在消息列表中渲染为ErrorMessage组件 */}
+
+                {/* 🚫 对话回合数限制提示 */}
+                {isLimitReached && turnStats && (
+                  <div className="flex justify-center my-6">
+                    <div className="w-full max-w-2xl">
+                      {/* 分隔线 */}
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-danger/30 to-transparent" />
+                        <span className="text-sm font-medium text-danger px-3 py-1 rounded-full bg-danger/10 border border-danger/30">
+                          此会话已达最大回合数
                         </span>
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-danger/30 to-transparent" />
                       </div>
-                    </div>
-                  </div>
-                )}
 
-              {/* 流式输出的AI回复（整合 thinking） */}
-              {(currentThinkingMessage || currentAssistantMessage) && (
-                <div className="flex justify-start items-start gap-2 md:gap-3">
-                  <Avatar
-                    src={
-                      getAvatarPublicUrl(
-                        currentCharacter?.avatar_id,
-                        currentCharacter?.auth_id
-                      ) || "/placeholder-user.jpg"
-                    }
-                    name={currentCharacter?.name || "Assistant"}
-                    size="sm"
-                    className="flex-shrink-0 mt-1 hidden md:block"
-                  />
-                  <div className="relative max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
-                    {/* Arrow tail pointing left (assistant message) */}
-                    <div className="absolute -left-2 top-6 w-0 h-0 border-t-[8px] border-b-[8px] border-r-[12px] border-r-content2 border-t-transparent border-b-transparent" />
-                    {/* Assistant Name */}
-                    <div className="text-sm font-medium mb-1 text-foreground-600">
-                      {sessionInfo?.mode === "hepan"
-                        ? t("sidebar.synastryExpert")
-                        : sessionInfo?.mode === "personal"
-                          ? t("sidebar.fortuneTellingExpert")
-                          : currentCharacter?.name || t("chatEx.assistant")}
-                    </div>
-
-                    {/* 🧠 Thinking 部分 - 流式显示（展开状态） */}
-                    {currentThinkingMessage && (
-                      <div className="mb-3">
-                        <div className="flex items-center gap-2 py-2.5 px-3 rounded-lg bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/30">
-                          <div className="flex items-center gap-1">
-                            <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                            <div className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse [animation-delay:200ms]" />
-                            <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-pulse [animation-delay:400ms]" />
-                          </div>
-                          <span className="text-xs font-semibold text-primary flex items-center gap-1.5">
-                            <svg
-                              className="w-3.5 h-3.5"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                              <path
-                                fillRule="evenodd"
-                                d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                                clipRule="evenodd"
-                              />
+                      {/* 提示卡片 */}
+                      <div className="p-4 rounded-2xl bg-gradient-to-br from-danger/5 to-danger/10 border border-danger/30">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-5 h-5 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
-                            思考中...
-                          </span>
-                          <span className="ml-auto text-xs text-default-400 font-mono">
-                            {currentThinkingMessage.length} chars
-                          </span>
-                        </div>
-                        <div className="mt-2 p-4 rounded-lg bg-default-100/80 dark:bg-default-50/10 border border-default-300 dark:border-default-200/30">
-                          <MarkdownWithSources
-                            content={currentThinkingMessage}
-                            isStreaming={true}
-                            className="prose prose-sm dark:prose-invert max-w-none text-foreground dark:text-foreground leading-relaxed [&>p]:text-xs [&>p]:my-2 [&>ul]:text-xs [&>ol]:text-xs [&>h1]:text-sm [&>h2]:text-sm [&>h3]:text-xs [&>h4]:text-xs [&>strong]:text-primary [&>em]:text-primary/80 [&>p]:text-foreground-700 [&>p]:dark:text-foreground-300"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Message Content */}
-                    {currentAssistantMessage && (
-                      <>
-                        <div className="prose prose-invert max-w-none text-sm leading-relaxed break-words">
-                          <MarkdownWithSources
-                            content={`${currentAssistantMessage}<typing-cursor></typing-cursor>`}
-                            isStreaming={true}
-                            className="prose prose-invert max-w-none text-sm leading-relaxed break-words"
-                          />
-                        </div>
-                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-foreground/5">
-                          <div className="flex items-center gap-1">
-                            <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
-                            <div className="w-1 h-1 bg-primary/60 rounded-full animate-pulse [animation-delay:200ms]" />
-                            <div className="w-1 h-1 bg-primary/40 rounded-full animate-pulse [animation-delay:400ms]" />
                           </div>
-                          <span className="text-xs text-primary font-medium">
-                            {t("chatEx.typing")}
-                          </span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* 🚨 错误消息现在直接在消息列表中渲染为ErrorMessage组件 */}
-
-              {/* 🚫 对话回合数限制提示 */}
-              {isLimitReached && turnStats && (
-                <div className="flex justify-center my-6">
-                  <div className="w-full max-w-2xl">
-                    {/* 分隔线 */}
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-danger/30 to-transparent" />
-                      <span className="text-sm font-medium text-danger px-3 py-1 rounded-full bg-danger/10 border border-danger/30">
-                        此会话已达最大回合数
-                      </span>
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-danger/30 to-transparent" />
-                    </div>
-
-                    {/* 提示卡片 */}
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-danger/5 to-danger/10 border border-danger/30">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center flex-shrink-0">
-                          <svg className="w-5 h-5 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-foreground mb-1">
-                            对话回合已用完
-                          </h4>
-                          <p className="text-sm text-foreground-600 mb-3">
-                            免费用户每个会话可进行 {turnStats.turn_limit} 回合对话（已使用 {turnStats.turn_count}/{turnStats.turn_limit}）
-                          </p>
-                          <Button
-                            color="primary"
-                            size="sm"
-                            onPress={onSubscriptionOpen}
-                            className="mt-2"
-                          >
-                            升级会员，享受无限对话
-                          </Button>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-foreground mb-1">
+                              对话回合已用完
+                            </h4>
+                            <p className="text-sm text-foreground-600 mb-3">
+                              免费用户每个会话可进行 {turnStats.turn_limit} 回合对话（已使用 {turnStats.turn_count}/{turnStats.turn_limit}）
+                            </p>
+                            <Button
+                              color="primary"
+                              size="sm"
+                              onPress={onSubscriptionOpen}
+                              className="mt-2"
+                            >
+                              升级会员，享受无限对话
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input Area */}
-            <div className="py-3 md:py-4 backdrop-blur-sm sticky bottom-0 z-10">
-              <div className="px-3 md:px-4">
-                {/* 命盘附件显示（仅 character_agent 模式） */}
-                {(sessionData as any)?.mode === "character_agent" &&
-                  attachedPaipans.length > 0 && (
-                    <div className="mb-2 md:mb-3 space-y-2">
-                      {attachedPaipans.map((paipan) => (
-                        <PaipanAttachmentCard
-                          key={paipan.id}
-                          id={paipan.id}
-                          name={paipan.name}
-                          gender={paipan.gender}
-                          birthday={paipan.birthday}
-                          onRemove={handleRemovePaipan}
-                        />
-                      ))}
-                    </div>
-                  )}
-              </div>
-              <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 h-full max-w-[600px] mx-auto">
-                {/* 命盘附件按钮（仅 character_agent 模式） */}
-                {(sessionData as any)?.mode === "character_agent" && (
-                  <Button
-                    isIconOnly
-                    variant="light"
-                    size="lg"
-                    onPress={() => setShowCharacterModal(true)}
-                    className="text-foreground hover:bg-content2 min-h-[44px] md:min-h-[48px] min-w-[44px] md:min-w-[48px] shrink-0"
-                    isDisabled={isLoading}
-                  >
-                    <Paperclip className="w-4 h-4 md:w-5 md:h-5" />
-                  </Button>
                 )}
-                <div className="flex-1 relative h-full">
-                  <textarea
-                    ref={textareaRef}
-                    value={inputMessage}
-                    onChange={(e) => {
-                      // 限制最大字符数为2000
-                      const value = e.target.value;
-                      if (value.length <= 2000) {
-                        setInputMessage(value);
+
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Input Area */}
+              <div className="py-3 md:py-4 backdrop-blur-sm sticky bottom-0 z-10">
+                <div className="px-3 md:px-4">
+                  {/* 命盘附件显示（仅 character_agent 模式） */}
+                  {(sessionData as any)?.mode === "character_agent" &&
+                    attachedPaipans.length > 0 && (
+                      <div className="mb-2 md:mb-3 space-y-2">
+                        {attachedPaipans.map((paipan) => (
+                          <PaipanAttachmentCard
+                            key={paipan.id}
+                            id={paipan.id}
+                            name={paipan.name}
+                            gender={paipan.gender}
+                            birthday={paipan.birthday}
+                            onRemove={handleRemovePaipan}
+                          />
+                        ))}
+                      </div>
+                    )}
+                </div>
+                <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 h-full max-w-[600px] mx-auto">
+                  {/* 命盘附件按钮（仅 character_agent 模式） */}
+                  {(sessionData as any)?.mode === "character_agent" && (
+                    <Button
+                      isIconOnly
+                      variant="light"
+                      size="lg"
+                      onPress={() => setShowCharacterModal(true)}
+                      className="text-foreground hover:bg-content2 min-h-[44px] md:min-h-[48px] min-w-[44px] md:min-w-[48px] shrink-0"
+                      isDisabled={isLoading}
+                    >
+                      <Paperclip className="w-4 h-4 md:w-5 md:h-5" />
+                    </Button>
+                  )}
+                  <div className="flex-1 relative h-full">
+                    <textarea
+                      ref={textareaRef}
+                      value={inputMessage}
+                      onChange={(e) => {
+                        // 限制最大字符数为2000
+                        const value = e.target.value;
+                        if (value.length <= 2000) {
+                          setInputMessage(value);
+                        }
+                      }}
+                      onKeyDown={handleKeyPress}
+                      placeholder={
+                        isLimitReached
+                          ? "已达对话回合上限，升级会员可继续对话"
+                          : t("chatEx.inputPlaceholder")
                       }
-                    }}
-                    onKeyDown={handleKeyPress}
-                    placeholder={
-                      isLimitReached
-                        ? "已达对话回合上限，升级会员可继续对话"
-                        : t("chatEx.inputPlaceholder")
-                    }
-                    disabled={isLoading || isLimitReached}
-                    rows={1}
-                    className="w-full h-full px-4 md:px-5 py-2 md:py-3 pr-14 md:pr-16
+                      disabled={isLoading || isLimitReached}
+                      rows={1}
+                      className="w-full h-full px-4 md:px-5 py-2 md:py-3 pr-14 md:pr-16
                           rounded-xl overflow-none
                            resize-none overflow-y-auto leading-5 md:leading-6 break-words
                            focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50
                            disabled:opacity-50 disabled:cursor-not-allowed
                            placeholder:text-foreground-400 text-sm md:text-base"
-                    style={{
-                      fontFamily: "inherit",
-                    }}
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={
-                      (!inputMessage.trim() && attachedPaipans.length === 0) ||
-                      isLoading ||
-                      isLimitReached
-                    }
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 md:h-9 md:w-9 rounded-xl flex items-center justify-center bg-content1/80 backdrop-blur-sm disabled:opacity-50"
-                    aria-label="发送"
-                  >
-                    <img src="/svg/发送对话.svg" alt="send" className="w-4 h-4" />
-                  </button>
-                  {/* 字符计数 */}
-                  {inputMessage.length > 0 && (
-                    <div className="absolute bottom-2 right-2 text-[10px] md:text-xs text-foreground-400 bg-content1/80 px-1.5 md:px-2 py-0.5 md:py-1 rounded-md backdrop-blur-sm">
-                      {inputMessage.length}/2000
-                    </div>
-                  )}
+                      style={{
+                        fontFamily: "inherit",
+                      }}
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={
+                        (!inputMessage.trim() && attachedPaipans.length === 0) ||
+                        isLoading ||
+                        isLimitReached
+                      }
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 md:h-9 md:w-9 rounded-xl flex items-center justify-center bg-content1/80 backdrop-blur-sm disabled:opacity-50"
+                      aria-label="发送"
+                    >
+                      <img src="/svg/发送对话.svg" alt="send" className="w-4 h-4" />
+                    </button>
+                    {/* 字符计数 */}
+                    {inputMessage.length > 0 && (
+                      <div className="absolute bottom-2 right-2 text-[10px] md:text-xs text-foreground-400 bg-content1/80 px-1.5 md:px-2 py-0.5 md:py-1 rounded-md backdrop-blur-sm">
+                        {inputMessage.length}/2000
+                      </div>
+                    )}
+                  </div>
+                  {/* 发送按钮合并为输入框内的绝对定位图标 */}
                 </div>
-                {/* 发送按钮合并为输入框内的绝对定位图标 */}
               </div>
             </div>
           </div>
+
+          {/* 命运面板 */}
+          {
+            destinyPanelOpen &&
+            sessionData &&
+            (sessionData.state as any)?.character_cache && (
+              <DestinyPanel
+                character={(sessionData.state as any).character_cache}
+                onClose={() => setDestinyPanelOpen(false)}
+              />
+            )
+          }
+
+          {/* 角色选择 Modal（命盘附件） */}
+          {
+            (sessionData as any)?.mode === "character_agent" && (
+              <CharacterSelectionModal
+                isOpen={showCharacterModal}
+                onClose={() => setShowCharacterModal(false)}
+                onSelect={handleCharacterSelection}
+                multiSelect={true}
+              />
+            )
+          }
+
+          {/* 🎯 订阅对话框 */}
+          <SubscriptionModal
+            isOpen={isSubscriptionOpen}
+            onOpenChange={onSubscriptionOpenChange}
+          />
         </div>
-
-        {/* 命运面板 */}
-        {
-          destinyPanelOpen &&
-          sessionData &&
-          (sessionData.state as any)?.character_cache && (
-            <DestinyPanel
-              character={(sessionData.state as any).character_cache}
-              onClose={() => setDestinyPanelOpen(false)}
-            />
-          )
-        }
-
-        {/* 角色选择 Modal（命盘附件） */}
-        {
-          (sessionData as any)?.mode === "character_agent" && (
-            <CharacterSelectionModal
-              isOpen={showCharacterModal}
-              onClose={() => setShowCharacterModal(false)}
-              onSelect={handleCharacterSelection}
-              multiSelect={true}
-            />
-          )
-        }
-
-
-
-        {/* 🎯 订阅对话框 */}
-        <SubscriptionModal
-          isOpen={isSubscriptionOpen}
-          onOpenChange={onSubscriptionOpenChange}
-        />
-      </div>
+      </>
     );
   }
 
