@@ -19,7 +19,8 @@ export const translations = {
       myHome: "My Home",
       userSettings: "User Settings",
       logOut: "Log Out",
-      signedInAs: "Signed in as"
+      signedInAs: "Signed in as",
+      searchResults: "Search results for"
     },
     // Sidebar
     sidebar: {
@@ -836,7 +837,8 @@ export const translations = {
       myHome: "我的主页",
       userSettings: "用户设置",
       logOut: "退出登录",
-      signedInAs: "已登录为"
+      signedInAs: "已登录为",
+      searchResults: "搜索结果"
     },
     // Sidebar
     sidebar: {

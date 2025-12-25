@@ -107,6 +107,7 @@ export default function PersonalCharacterDatabase() {
     () => searchParams.get("category"),
     [searchParams]
   );
+  const searchParam = useMemo(() => searchParams.get("search"), [searchParams]);
 
   const activeMainCategory: Category = useMemo(() => {
     let categories;
@@ -147,7 +148,7 @@ export default function PersonalCharacterDatabase() {
 
   useEffect(() => {
     fetchCharactersByMappingTags();
-  }, [activeMainCategory, sortBy, page, mainTags, selectedTags])
+  }, [activeMainCategory, sortBy, page, mainTags, selectedTags, searchParam])
 
   const fetchCharactersByMappingTags = async () => {
     console.log(selectedTags);
@@ -169,11 +170,21 @@ export default function PersonalCharacterDatabase() {
           column: "created_at",
           ascending: sortBy === "oldest" ? true : false
         },
+        nameSearch: searchParam || undefined,
       };
       const { data: mappingCharacters, count, error: charactersError } = await databaseOperations.getTagCharacterMapping(filter, pageSize, page - 1);
       setTotalCount(count || 0);
+      
+      // Deduplicate by character_id (since tag_character_mapping may return multiple rows per character)
+      const uniqueCharacters = new Map<string, any>();
+      mappingCharacters.forEach((char: any) => {
+        if (!uniqueCharacters.has(char.character_id)) {
+          uniqueCharacters.set(char.character_id, char);
+        }
+      });
+      
       // Transform Supabase data to component format
-      const transformedCharacters: DisplayCharacterData[] = mappingCharacters.map(
+      const transformedCharacters: DisplayCharacterData[] = Array.from(uniqueCharacters.values()).map(
         (char: any, index: number) => {
           const transformed = {
             id: char.character_id,
@@ -352,6 +363,7 @@ export default function PersonalCharacterDatabase() {
   };
 
   // Filter and sort characters based on current state
+  // Note: Name filtering is now done at database level, so filteredCharacters = characters
   const filteredCharacters = characters;
 
   const handleFilteringCharacter = async () => {
@@ -382,6 +394,12 @@ export default function PersonalCharacterDatabase() {
             <h3 className="text-4xl font-bold tracking-tight">
               {activeMainCategory?.display_name ?? ''}
             </h3>
+            {searchParam && (
+              <div className="mt-2 text-sm text-gray-500 flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                <span>{t("nav.searchResults")}: "{searchParam}"</span>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-start justify-between">

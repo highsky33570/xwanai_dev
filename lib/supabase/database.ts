@@ -28,6 +28,7 @@ export type TagFilters = {
     column?: string
     ascending?: boolean
   }
+  nameSearch?: string // Optional name search filter
 }
 
 
@@ -251,6 +252,11 @@ class DatabaseOperations {
       Object.entries(filters.pTags).forEach(([key, value]) => {
         query = query.eq('tag_name', value).eq('container_id', key);
       });
+    }
+
+    // name search filter
+    if (filters.nameSearch && filters.nameSearch.trim()) {
+      query = query.ilike('character_name', `%${filters.nameSearch.trim()}%`);
     }
 
     // order by

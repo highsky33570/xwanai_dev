@@ -23,7 +23,7 @@ import {
 } from "@heroui/react";
 import { useDisclosure } from "@heroui/react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   User,
   LogOut,
@@ -36,6 +36,7 @@ import {
   SlidersHorizontal,
   Search,
   Menu,
+  X,
 } from "lucide-react";
 import { authOperations } from "@/lib/supabase/auth";
 import { logger } from "@/lib/utils/logger";
@@ -60,6 +61,7 @@ type Character = Tables<"characters">;
 const NavigationNavbar = observer(() => {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user } = useAppGlobal();
   // const [isLoading, setIsLoading] = useState(true);
   const welcomeName = ((user?.user_metadata?.username || user?.email || "Guest") as string).toUpperCase();
@@ -84,6 +86,7 @@ const NavigationNavbar = observer(() => {
   const [, forceUpdate] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // 任务状态
   const { uncompletedCount, rewardClaimed, allCompleted } = useTaskStatus();
@@ -119,6 +122,17 @@ const NavigationNavbar = observer(() => {
       },
     ] : []),
   ];
+
+  // Sync search query with URL parameter when on /more page
+  useEffect(() => {
+    if (pathname === "/more") {
+      const urlSearch = searchParams.get("search");
+      if (urlSearch !== null) {
+        // Only sync if URL has search param, preserve user input otherwise
+        setSearchQuery(urlSearch);
+      }
+    }
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     // Listen for language changes
@@ -224,6 +238,45 @@ const NavigationNavbar = observer(() => {
 
     router.push(href);
     setIsMenuOpen(false);
+  };
+
+  // Build URL with search parameter while preserving existing query params
+  const buildMoreUrlWithSearch = (searchValue: string) => {
+    const params = new URLSearchParams();
+    
+    // Preserve existing query parameters from current URL if on /more page
+    if (pathname === "/more") {
+      searchParams.forEach((value, key) => {
+        if (key !== "search") {
+          params.set(key, value);
+        }
+      });
+    }
+    
+    // Add search parameter
+    if (searchValue.trim()) {
+      params.set("search", searchValue.trim());
+    }
+    
+    const queryString = params.toString();
+    return `/more${queryString ? `?${queryString}` : ""}`;
+  };
+
+  // Build URL without search parameter while preserving other params
+  const buildMoreUrlWithoutSearch = () => {
+    const params = new URLSearchParams();
+    
+    // Preserve existing query parameters except search
+    if (pathname === "/more") {
+      searchParams.forEach((value, key) => {
+        if (key !== "search") {
+          params.set(key, value);
+        }
+      });
+    }
+    
+    const queryString = params.toString();
+    return `/more${queryString ? `?${queryString}` : ""}`;
   };
 
   const handleSignUpClick = () => {
@@ -373,7 +426,40 @@ const NavigationNavbar = observer(() => {
               radius="lg"
               variant="bordered"
               placeholder="SEARCH"
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchQuery.trim()) {
+                  handleNavigation(buildMoreUrlWithSearch(searchQuery));
+                }
+              }}
               startContent={<Search className="w-3 h-3 text-gray-500" />}
+              endContent={
+                searchQuery.trim() ? (
+                  pathname === "/more" && searchParams.get("search") === searchQuery.trim() ? (
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        handleNavigation(buildMoreUrlWithoutSearch());
+                      }}
+                      className="p-1 hover:bg-gray-300 rounded-full transition-colors"
+                      aria-label="Clear search"
+                    >
+                      <X className="w-4 h-4 text-gray-700" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        handleNavigation(buildMoreUrlWithSearch(searchQuery));
+                      }}
+                      className="p-1 hover:bg-gray-300 rounded-full transition-colors"
+                      aria-label="Search"
+                    >
+                      <Search className="w-4 h-4 text-gray-700" />
+                    </button>
+                  )
+                ) : null
+              }
               classNames={{ input: "text-black bg-gray-200 placeholder:text-black placeholder:opacity-100 rounded-full focus:outline-none focus-visible:outline-none", inputWrapper: "text-black bg-gray-200 border-gray-300 rounded-full focus:outline-none focus-within:outline-none" }}
             />
           </div>
