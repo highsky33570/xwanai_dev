@@ -7,11 +7,11 @@ import { Providers } from "./providers"
 import { AppGlobalProvider } from "@/lib/context/GlobalContext"
 import { Averia_Serif_Libre } from "next/font/google"
 import { Suspense } from "react"
+import { generateMetadata } from "@/lib/utils/seo"
 
-export const metadata: Metadata = {
-  title: "Xwan AI",
-  description: "Define your Ego, Discover your Echo.",
-}
+export const metadata: Metadata = generateMetadata({
+  language: "en",
+})
 
 const averiaSerifLibre = Averia_Serif_Libre({
   subsets: ["latin"],
@@ -30,7 +30,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${averiaSerifLibre.variable} antialiased`}
         style={{
-          backgroundImage: "url(/background.png)",
+          // backgroundImage: "url(/background.png)",
           // backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           backgroundPosition: "center",

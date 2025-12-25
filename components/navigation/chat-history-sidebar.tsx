@@ -8,6 +8,7 @@ import { useUserData } from "@/hooks/use-data-queries";
 import { getAvatarPublicUrl } from "@/lib/supabase/storage";
 import { formatTimeOnly } from "@/lib/utils/timeFormatter";
 import LogoLeft from "../common/Logo_Left";
+import { useTranslation } from "@/lib/utils/translations";
 
 interface ChatHistorySidebarProps {
   onCreate?: () => void;
@@ -17,6 +18,7 @@ interface ChatHistorySidebarProps {
 export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHistorySidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useTranslation();
   const { characters, sessions } = useUserData();
   const [isOpen, setIsOpen] = useState(false);
   const [navHeight, setNavHeight] = useState(0);
@@ -60,7 +62,7 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
 
   return (
     <>
-      <div className={`relative w-full bg-transparent h-full flex flex-col ${inlineHidden ? 'hidden' : ''}`}>
+      <div className={`relative w-full h-full flex flex-col ${inlineHidden ? 'hidden' : ''}`}>
         <div className="relative z-10 lg:px-8 px-3 py-6">
           <LogoLeft />
           {/* <div className=" flex space-y-1 items-center max-h-24 mt-8 cursor-pointer" onClick={() => router.push("/")}>
@@ -89,7 +91,7 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
               startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}
               onPress={() => router.push("/database")}
             >
-              命盘分析
+              {t("common.baziAnalysis")}
             </Button>
           </div>
         </div>

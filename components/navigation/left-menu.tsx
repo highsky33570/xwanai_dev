@@ -245,7 +245,7 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
           startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}
           onPress={() => router.push("/database")}
         >
-          命盘分析
+          {t("common.baziAnalysis")}
         </Button>
       </div>
 
@@ -336,7 +336,7 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
 
 
   return (
-    <div className="relative lg:px-8 h-full flex flex-col py-6">
+    <div className="relative lg:px-12 md:px-10 px-6 h-full flex flex-col py-6">
       <div className={inlineHidden ? 'hidden' : 'flex flex-col h-full min-h-0 relative z-10'}>
         <div className="flex-1 min-h-0 overflow-y-auto">
           {renderContent()}

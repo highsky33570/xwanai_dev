@@ -119,7 +119,7 @@ const UserProfileHeader = observer(({
                   )}
                 </div>
                 <p className="text-white/70 text-lg">{email}</p>
-                <p className="text-white/50 text-sm">Member since {joinDate}</p>
+                <p className="text-white/50 text-sm">{t("settings.memberSince")} {joinDate}</p>
               </div>
             </div>
 

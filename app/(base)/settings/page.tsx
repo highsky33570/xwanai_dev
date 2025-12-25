@@ -58,6 +58,7 @@ import type { Tables } from "@/lib/supabase/types";
 import { useSubscription } from "@/hooks/use-subscription";
 import { InvitationCard } from "@/components/invitation/invitation-card";
 import { useAppGlobal } from "@/lib/context/GlobalContext";
+import { useTranslation } from "@/lib/utils/translations";
 
 type Profile = Tables<"profiles">;
 
@@ -87,7 +88,7 @@ function ProfileSkeleton() {
           </Button>
           <div className="flex-grow flex items-center justify-center gap-2 ">
             <User className="w-4 h-4 text-foreground-400" />
-            <h1 className="text-2xl font-bold">Profile Infomation</h1>
+            <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
             {/* <p className="text-foreground-600">
               Manage your account and preferences
             </p> */}
@@ -164,6 +165,7 @@ function ProfileSkeleton() {
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { subscription } = useSubscription();
   const {
     isOpen: isDeleteOpen,
@@ -355,16 +357,15 @@ export default function SettingsPage() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.username.trim()) {
-      newErrors.username = "Username is required";
+      newErrors.username = t("settings.usernameRequired");
     } else if (formData.username.length < 3) {
-      newErrors.username = "Username must be at least 3 characters";
+      newErrors.username = t("settings.usernameMinLength");
     } else if (!/^[a-zA-Z0-9_-]+$/.test(formData.username)) {
-      newErrors.username =
-        "Username can only contain letters, numbers, hyphens, and underscores";
+      newErrors.username = t("settings.usernameInvalid");
     }
 
     if (formData.bio.length > 500) {
-      newErrors.bio = "Bio must be less than 500 characters";
+      newErrors.bio = t("settings.bioMaxLength");
     }
 
     setErrors(newErrors);
@@ -537,7 +538,7 @@ export default function SettingsPage() {
         });
       }
 
-      setSuccessMessage("Profile updated successfully!");
+      setSuccessMessage(t("settings.profileUpdated"));
       setAvatarFile(null);
 
       // Clear success message after 3 seconds
@@ -628,7 +629,7 @@ export default function SettingsPage() {
           </Button>
           <div className="flex-grow flex items-center justify-center gap-2 ">
             <User className="w-4 h-4 text-foreground-400" />
-            <h1 className="text-2xl font-bold">Profile Infomation</h1>
+            <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
             {/* <p className="text-foreground-600">
               Manage your account and preferences
             </p> */}
@@ -687,14 +688,14 @@ export default function SettingsPage() {
                   className="h-10 px-5 min-w-[120px] rounded-full bg-gradient-to-r from-gray-100 to-[#EB7020]/20 text-foreground shadow-sm hover:to-[#EB7020]/30 hover:shadow-md cursor-pointer"
 
                 >
-                  {isUploading ? "Uploading..." : "Change"}
+                  {isUploading ? t("settings.uploading") : t("settings.change")}
                 </Button>
               </label>
               {errors.avatar && (
                 <p className="text-danger text-sm mt-1">{errors.avatar}</p>
               )}
               <p className="text-foreground-600 text-sm mt-1">
-                Max 5MB, JPG/PNG only
+                {t("settings.maxFileSize")}
               </p>
             </div>
           </div>
@@ -702,8 +703,8 @@ export default function SettingsPage() {
           <div className="flex flex-col w-full gap-4">
             {/* Username */}
             <Input
-              label="Username"
-              placeholder="Enter your username"
+              label={t("settings.username")}
+              placeholder={t("settings.usernamePlaceholder")}
               value={formData.username}
               onChange={(e) => handleInputChange("username", e.target.value)}
               isInvalid={!!errors.username}
@@ -718,8 +719,8 @@ export default function SettingsPage() {
 
             {/* Full Name */}
             <Input
-              label="Full Name"
-              placeholder="Enter your full name"
+              label={t("settings.fullName")}
+              placeholder={t("settings.fullNamePlaceholder")}
               value={formData.full_name}
               onChange={(e) => handleInputChange("full_name", e.target.value)}
               startContent={<User className="w-4 h-4 text-foreground-400" />}
@@ -727,17 +728,17 @@ export default function SettingsPage() {
 
             {/* Email (Read-only) */}
             <Input
-              label="Email"
+              label={t("settings.email")}
               value={user.email || ""}
               isReadOnly
               startContent={<Mail className="w-4 h-4 text-foreground-400" />}
-              description="Contact support to change your email address"
+              description={t("settings.emailDescription")}
             />
 
             {/* Bio */}
             <Textarea
-              label="Bio"
-              placeholder="Tell us about yourself..."
+              label={t("settings.bio")}
+              placeholder={t("settings.bioPlaceholder")}
               value={formData.bio}
               onChange={(e) => handleInputChange("bio", e.target.value)}
               maxRows={4}
@@ -748,8 +749,8 @@ export default function SettingsPage() {
 
             {/* Location */}
             <Input
-              label="Location"
-              placeholder="Where are you from?"
+              label={t("settings.location")}
+              placeholder={t("settings.locationPlaceholder")}
               value={formData.location}
               onChange={(e) => handleInputChange("location", e.target.value)}
               startContent={
@@ -759,7 +760,7 @@ export default function SettingsPage() {
 
             {/* Birth Date */}
             <Input
-              label="Birth Date"
+              label={t("settings.birthDate")}
               type="date"
               value={formData.birth_date}
               onChange={(e) =>
@@ -768,7 +769,7 @@ export default function SettingsPage() {
               startContent={
                 <Calendar className="w-4 h-4 text-foreground-400" />
               }
-              description="Used for astrology features"
+              description={t("settings.birthDateDescription")}
             />
           </div>
 
@@ -777,11 +778,11 @@ export default function SettingsPage() {
           <div className="flex flex-col w-full justify-center gap-4">
             <div className="flex items-center justify-center gap-2">
               <Info />
-              <h3 className="font-semibold">Account Information</h3>
+              <h3 className="font-semibold">{t("settings.accountInformation")}</h3>
             </div>
             <div className="flex items-center justify-between gap-2">
               <div>
-                <p>Subscription Plan</p>
+                <p>{t("settings.subscriptionPlan")}</p>
                 <Chip
                   color={
                     subscription?.subscription_tier === "yearly"
@@ -806,12 +807,12 @@ export default function SettingsPage() {
                   className="mt-1"
                 >
                   {subscription?.subscription_tier === "yearly"
-                    ? "Annual Premium"
+                    ? t("settings.annualPremium")
                     : subscription?.subscription_tier === "monthly"
-                      ? "Monthly Premium"
+                      ? t("settings.monthlyPremium")
                       : subscription?.subscription_tier === "premium"
-                        ? "Trial Premium (7 days)" // 🎯 试用会员显示
-                        : "Free Plan"}
+                        ? t("settings.trialPremium")
+                        : t("settings.freePlan")}
                 </Chip>
               </div>
               <Button
@@ -820,35 +821,35 @@ export default function SettingsPage() {
                 }}
                 className="h-10 px-5 min-w-[120px] rounded-full bg-gradient-to-r from-gray-100 to-[#EB7020]/20 text-foreground shadow-sm hover:to-[#EB7020]/30 hover:shadow-md"
               >
-                Upgrade
+                {t("settings.upgrade")}
               </Button>
             </div>
 
             <div className="flex items-center gap-2">
               <div>
-                <p>Member since</p>
+                <p>{t("settings.memberSince")}</p>
                 <span className="text-[#666666] text-sm">
-                  {user.created_at ? new Date(user.created_at).toLocaleDateString() : "Unknown"}
+                  {user.created_at ? new Date(user.created_at).toLocaleDateString() : t("settings.unknown")}
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <div>
-                <p>User ID</p>
+                <p>{t("settings.userId")}</p>
                 <span className="text-[#666666] text-sm">{user.id}</span>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <div>
-                <p>Profile Status</p>
-                <span className="text-[#EB7020] text-sm">{profile && "Active"}</span>
+                <p>{t("settings.profileStatus")}</p>
+                <span className="text-[#EB7020] text-sm">{profile && t("settings.active")}</span>
               </div>
             </div>
             <div className="flex items-center justify-between gap-2">
               <div>
-                <p className="flex items-center gap-2">您的邀请码<Info className="w-4 h-4" /></p>
+                <p className="flex items-center gap-2">{t("settings.invitationCode")}<Info className="w-4 h-4" /></p>
                 <span className="text-[#EB7020] text-sm">GT3EM</span>
               </div>
 
@@ -859,7 +860,7 @@ export default function SettingsPage() {
                 startContent={<Copy className="w-4 h-4" />}
                 className="h-10 px-5 min-w-[120px] rounded-full bg-gradient-to-r from-gray-100 to-[#EB7020]/20 text-foreground shadow-sm hover:to-[#EB7020]/30 hover:shadow-md"
               >
-                Copy
+                {t("settings.copy")}
               </Button>
             </div>
 
@@ -871,12 +872,12 @@ export default function SettingsPage() {
                 alt="preference"
                 className="h-6 w-6"
               />
-              <h3 className="font-semibold">Preferences</h3>
+              <h3 className="font-semibold">{t("settings.preferences")}</h3>
             </div>
             <div className="flex items-center justify-between gap-2">
               <div>
-                <p>Theme</p>
-                <span className="text-[#666666] text-sm">The theme is locked to dark mode</span>
+                <p>{t("settings.theme")}</p>
+                <span className="text-[#666666] text-sm">{t("settings.themeLocked")}</span>
               </div>
 
               <Switch
@@ -891,13 +892,12 @@ export default function SettingsPage() {
 
           {/* Danger Zone */}
           <div className="flex flex-col items-center justify-center">
-            <h3 className="font-semibold text-danger flex items-center gap-2">
+              <h3 className="font-semibold text-danger flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
-              Danger Zone
+              {t("settings.dangerZone")}
             </h3>
             <p className="text-sm text-foreground-600 mb-4 mt-2">
-              Once you delete your account, there is no going back. Please be
-              certain.
+              {t("settings.deleteAccountWarning")}
             </p>
             <Button
               color="danger"
@@ -906,7 +906,7 @@ export default function SettingsPage() {
               onPress={onDeleteOpen}
               startContent={<Trash2 className="w-4 h-4" />}
             >
-              Delete Account
+              {t("settings.deleteAccount")}
             </Button>
           </div>
 
@@ -922,7 +922,7 @@ export default function SettingsPage() {
                   !isSaving ? <Save className="w-4 h-4" /> : undefined
                 }
               >
-                {isSaving ? "Saving..." : "Save Changes"}
+                {isSaving ? t("settings.saving") : t("settings.saveChanges")}
               </Button>
             </div>
           )}
@@ -935,28 +935,27 @@ export default function SettingsPage() {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                <h3 className="text-danger">Delete Account</h3>
+                <h3 className="text-danger">{t("settings.deleteAccountTitle")}</h3>
               </ModalHeader>
               <ModalBody>
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-danger mt-0.5" />
                   <div>
                     <p className="font-medium mb-2">
-                      This action cannot be undone.
+                      {t("settings.deleteAccountConfirm")}
                     </p>
                     <p className="text-sm text-foreground-600">
-                      This will permanently delete your account and remove all
-                      of your data from our servers.
+                      {t("settings.deleteAccountDesc")}
                     </p>
                   </div>
                 </div>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose}>
-                  Cancel
+                  {t("settings.cancel")}
                 </Button>
                 <Button color="danger" onPress={handleDeleteAccount}>
-                  Delete Account
+                  {t("settings.deleteAccount")}
                 </Button>
               </ModalFooter>
             </>

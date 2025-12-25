@@ -50,7 +50,7 @@ const MessageSkeleton: FC<MessageSkeletonProps> = ({
 
       {/* Message Bubble */}
       <div
-        className={`relative max-w-[85%] md:max-w-[75%] rounded-3xl px-4 md:px-5 py-3 md:py-4 ${
+        className={`relative max-w-[85%] md:max-w-[85%] rounded-3xl px-4 md:px-5 py-3 md:py-4 ${
           isUser
             ? "bg-[#E8E8E8]"
             : "bg-[#F0F0F0] border border-foreground/10"

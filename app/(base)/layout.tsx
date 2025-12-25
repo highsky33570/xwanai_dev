@@ -23,9 +23,17 @@ export default function BaseLayout({
   // const [leftImageUrl, setLeftImageUrl] = useState<string>("/info-leftbackground.png");
   // const fileInputRef = useRef<HTMLInputElement | null>(null);
   return (
-    <div className="flex w-full h-full max-h-screen overflow-hidden" style={{ "--left-width": leftWidth } as React.CSSProperties}>
-      <aside className={`relative hidden flex-none flex-col px-3 shrink-0 max-h-screen min-h-screen lg:flex w-[var(--left-width)] ` } style={{ backgroundImage: showBackground ? 'url(/left-background.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        {showBackground ? (<div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/25 to-white z-0" />) : null}
+    <div 
+      className="flex w-full h-full max-h-screen overflow-hidden" 
+      style={{ 
+        "--left-width": leftWidth,
+        backgroundImage: "url(/background.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      } as React.CSSProperties}
+    >
+      <aside className={`relative flex-none flex-col px-3 shrink-0 max-h-screen min-h-screen lg:flex w-[var(--left-width)] `} style={{ backgroundImage: showBackground ? 'url(/png/left-side.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', backgroundPosition: 'center' }}>
+        {/* {showBackground ? (<div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/25 to-white z-0" />) : null} */}
         {showInfoLeftImage ? (
           <>
             {/* <div className="relative z-10 flex space-y-1 items-center max-h-24 ml-8 cursor-pointer py-6" onClick={() => router.push("/")}>
@@ -46,13 +54,13 @@ export default function BaseLayout({
             </div>
 
             {/* <div className="relative z-10"> */}
-              {/* <img
+            {/* <img
                 src={leftImageUrl}
                 alt=""
                 className="inset-0 w-full h-auto object-cover z-1 t-0"
               /> */}
-              {/* <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-transparent to-white/80 backdrop-blur-sm z-10" /> */}
-              {/* <div className="absolute bottom-3 left-10 z-20 pointer-events-auto">
+            {/* <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-transparent to-white/80 backdrop-blur-sm z-10" /> */}
+            {/* <div className="absolute bottom-3 left-10 z-20 pointer-events-auto">
                 <Button
                   variant="flat"
                   className="rounded-full px-4 py-2 bg-white/60 text-foreground-700 backdrop-blur-md border border-white/30 shadow-sm hover:bg-white/80 flex items-center gap-2"
@@ -79,7 +87,6 @@ export default function BaseLayout({
             {/* </div> */}
           </>
         ) : (<>
-
           <LeftMenu />
         </>)}
       </aside>

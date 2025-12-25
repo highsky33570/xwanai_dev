@@ -1656,7 +1656,7 @@ const ChatPage = observer(() => {
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col">
             {/* 内容容器 - 大屏模式下充分利用空间，移动端取消padding */}
-            <div className="w-full flex flex-col px-24 md:px-28 max-w-full h-full">
+            <div className="w-full flex flex-col px-24 md:px-[240px] max-w-full h-full">
               {/* Chat Header */}
 
               {/* Messages Area */}
@@ -1678,7 +1678,7 @@ const ChatPage = observer(() => {
                       size="sm"
                       className="flex-shrink-0 mt-1"
                     />
-                    <div className="max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
+                    <div className="max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
                       {/* Assistant Name */}
                       <div className="text-sm font-medium mb-1 text-foreground-600">
                         {sessionInfo?.mode === "hepan"
@@ -1970,7 +1970,7 @@ const ChatPage = observer(() => {
                           }}
                           className={`relative ${message.content?.includes("```vis-paipan")
                             ? "max-w-[95%] md:max-w-[85%]" // 🎨 命盘消息使用更大宽度
-                            : "max-w-[85%] md:max-w-[75%]"
+                            : "max-w-[85%] md:max-w-[85%]"
                             } rounded-3xl mx-6 px-4 md:px-5 py-3 md:py-4 break-words ${isShareMode && isSelectable ? "cursor-pointer transition-all hover:scale-[1.01]" : ""
                             } ${isShareMode && isSelected
                               ? message.sender === "user"
@@ -2105,7 +2105,7 @@ const ChatPage = observer(() => {
                         size="sm"
                         className="flex-shrink-0 mt-1 hidden md:block"
                       />
-                      <div className="relative max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-primary/20 shadow-md">
+                      <div className="relative max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-primary/20 shadow-md">
                         {/* Arrow tail pointing left (assistant message) */}
                         <div className="absolute -left-2 top-6 w-0 h-0 border-t-[8px] border-b-[8px] border-r-[12px] border-r-content2 border-t-transparent border-b-transparent" />
                         {/* Assistant Name */}
@@ -2140,7 +2140,7 @@ const ChatPage = observer(() => {
                       size="sm"
                       className="flex-shrink-0 mt-1 hidden md:block"
                     />
-                    <div className="relative max-w-[85%] md:max-w-[60%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
+                    <div className="relative max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
                       {/* Arrow tail pointing left (assistant message) */}
                       <div className="absolute -left-2 top-6 w-0 h-0 border-t-[8px] border-b-[8px] border-r-[12px] border-r-content2 border-t-transparent border-b-transparent" />
                       {/* Assistant Name */}

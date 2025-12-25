@@ -279,6 +279,9 @@ const NavigationNavbar = observer(() => {
     }
 
     switch (keyStr) {
+      case "my-home":
+        handleNavigation("/user/my-info");
+        break;
       case "settings":
         handleNavigation("/settings");
         break;

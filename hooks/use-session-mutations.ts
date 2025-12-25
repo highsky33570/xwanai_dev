@@ -6,7 +6,7 @@ import { toast } from "./use-toast";
 import { Store } from "@/store";
 import { formatBirthdayToISO } from "@/lib/utils/dateFormatter";
 import { getGreetingByMode } from "@/lib/utils/greetings";
-import { translations, type Language } from "@/lib/utils/translations";
+import { translations, type Language } from "@/lib/utils/translations-data";
 
 // Helper function to get translated text
 const t = (key: string): string => {
