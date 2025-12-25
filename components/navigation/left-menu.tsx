@@ -113,10 +113,7 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
     setSelectedTopic(categoryParam);
   }, [categoryParam])
 
-  useEffect(() => {
-    if (!modeParam) return;
-    setSelectedParentId(modeParam);
-  }, [modeParam])
+  // Removed - now handled by useMemo
 
   useEffect(() => {
     if (!selectedTopic) return
@@ -212,17 +209,21 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
   }
 
   // 🔥 selected parent (select box value)
-  const [selectedParentId, setSelectedParentId] = useState<string | null>(
-    mainCategories[0]?.id ? String(mainCategories[0].id) : null
-  )
+  // Initialize with null to ensure consistent SSR/hydration
+  const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
+
+  // Set initial value from URL param or first category (only on client after mount)
+  useEffect(() => {
+    if (modeParam) {
+      setSelectedParentId(modeParam);
+    } else if (mainCategories.length > 0 && !selectedParentId) {
+      setSelectedParentId(String(mainCategories[0].id));
+    }
+  }, [modeParam, mainCategories, selectedParentId]);
 
   const selectedParent = mainCategories.find(
     c => String(c.id) === selectedParentId
   )
-
-  useEffect(() => {
-    setSelectedParentId(mainCategories[0]?.id ? String(mainCategories[0].id) : null)
-  }, [mainCategories])
 
   const getCategoryIconUrl = (url?: string) => url
 
@@ -260,7 +261,7 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
             placeholder=""
             variant="bordered"
             items={mainCategories}
-            selectedKeys={new Set([selectedParentId ?? ''])}
+            selectedKeys={selectedParentId ? new Set([selectedParentId]) : new Set()}
             classNames={{
               trigger: "data-[focus=true]:border-[#EB7020] data-[open=true]:border-[#EB7020]",
               value: "text-[#EB7020] group[data-has-value=true] group-data-[has-value=true]:text-[#EB7020]",

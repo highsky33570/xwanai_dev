@@ -48,6 +48,7 @@ interface PageState {
   loading: boolean;
   error: string | null;
   characters: CharacterData[];
+  featuredCharacters: CharacterData[];
   user: SupabaseUser | null;
   userLoading: boolean;
 }
@@ -60,6 +61,7 @@ const HomePage = observer(() => {
     loading: true,
     error: null,
     characters: [],
+    featuredCharacters: [],
     user: null,
     userLoading: false,
   });
@@ -78,6 +80,7 @@ const HomePage = observer(() => {
   useEffect(() => {
     if (!state.userLoading) {
       loadCharacters();
+      loadFeaturedCharacters();
     }
   }, [state.userLoading]);
 
@@ -135,6 +138,7 @@ const HomePage = observer(() => {
         ...char,
         id: char.id,
         name: char.name,
+        username: char.username,
         // Add default/missing fields that might be expected by UI components
         description: "",
         avatar_id: null,
@@ -169,6 +173,52 @@ const HomePage = observer(() => {
     }
   };
 
+  const loadFeaturedCharacters = async () => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    try {
+      const { data: FeatureCharacters, error } = await databaseOperations.getFeaturedCharacters();
+      if (error) {
+        logger.error(
+          { module: "homepage", operation: "loadFeaturedCharacters", error },
+          "Failed to load featured characters"
+        );
+        setState((prev) => ({ ...prev, loading: false, error: "Failed to load featured characters. Please try again." }));
+        return;
+      }
+      // Map character_public_data to the format expected by the UI
+      // We map 'uuid' to 'id' because uuid is the actual character ID
+      // We map 'character_name' to 'name'
+      const transformedCharacters = (FeatureCharacters || []).map((char: any) => ({
+        ...char,
+        id: char.id,
+        username: char.username,
+        name: char.name,
+        // Add default/missing fields that might be expected by UI components
+        description: "",
+        avatar_id: null,
+        access_level: "public",
+        auth_id: null, // or some placeholder if needed
+      }));
+      setState((prev: PageState) => ({
+        ...prev,
+        featuredCharacters: transformedCharacters as unknown as CharacterData[],
+        loading: false,
+      }));
+      logger.success(
+        { module: "homepage", operation: "loadFeaturedCharacters", data: { count: FeatureCharacters.length } },
+        "Featured characters loaded successfully"
+      );
+    }
+    catch (error) {
+      logger.error(
+        { module: "homepage", operation: "loadFeaturedCharacters", error },
+        "Unexpected error loading featured characters"
+      );
+      setState((prev: PageState) => ({ ...prev, loading: false, error: "Failed to load featured characters. Please try again." }));
+    }
+    // return { data: FeatureCharacters, error: null }
+  }
+
   const searchCharacters = async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
@@ -183,15 +233,16 @@ const HomePage = observer(() => {
 
       // For now, just filter the loaded characters
       // TODO: Implement proper search in database operations
-      const { data: allCharacters, error } =
-        await databaseOperations.getPublicCharacters();
+      const { data: allCharacters, error } = await databaseOperations.getPublicCharacters();
 
       if (error) {
-        logger.error(
-          { module: "homepage", operation: "searchCharacters", error },
-          "Failed to search characters"
-        );
-        setState((prev) => ({
+        logger.error({ 
+          module: "homepage", 
+          operation: "searchCharacters", 
+          error
+        }, "Failed to search characters.");
+
+        setState((prev: PageState) => ({
           ...prev,
           loading: false,
           error: "Failed to search characters. Please try again.",
@@ -230,9 +281,9 @@ const HomePage = observer(() => {
       // 直接使用数据库返回的完整数据，包含profiles信息
       const transformedCharacters = filteredCharacters;
 
-      setState((prev) => ({
+      setState((prev: PageState) => ({
         ...prev,
-        characters: transformedCharacters,
+        characters: transformedCharacters as unknown as CharacterData[],
         loading: false,
       }));
 
@@ -267,6 +318,19 @@ const HomePage = observer(() => {
 
   const handleCharacterClick = (character: CharacterData) => {
     if (!user) {
+      // Show login modal if user is not authenticated
+      logger.info(
+        {
+          module: "homepage",
+          operation: "handleCharacterClick",
+          data: {
+            characterId: character.id,
+            characterName: character.characterName,
+          },
+        },
+        "User not authenticated - showing login modal"
+      );
+      document.dispatchEvent(new CustomEvent("openLoginModal"));
       return;
     }
     logger.info(
@@ -541,7 +605,7 @@ const HomePage = observer(() => {
                       resistanceRatio={0.5}
                       simulateTouch={true}
                     >
-                      {state.characters.slice(0, 12).map((char: any) => (
+                      {state.featuredCharacters.slice(0, 12).map((char: any) => (
                         <SwiperSlide key={char.id} className="flex-shrink-0 pb-2 sm:!w-[18rem] md:!w-[20rem]" style={{ width: "16rem" }}>
                           <FeaturedCharacterCard
                             data={char}

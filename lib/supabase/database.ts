@@ -642,6 +642,27 @@ class DatabaseOperations {
     }
   }
 
+  async getFeaturedCharacters(): Promise<{ data: Character[]; error: any }> {
+    try {
+      const { result, duration } = await withTiming(async () => {
+        return await supabase.from("public_characters").select("*")
+        .order("last_chat_at", { ascending: true }).limit(50)
+      })
+      return { data: result.data || [], error: null }
+    }
+    catch (error) {
+      logger.error(
+        {
+          module: "database",
+          operation: "getFeaturedCharacters",
+          error,
+        },
+        "Unexpected error fetching featured characters",
+      )
+      return { data: [], error }
+    }
+  }
+
   private async _enrichCharactersWithProfiles(characters: Character[]): Promise<{ data: Character[]; error: any }> {
     if (characters.length === 0) {
       return { data: [], error: null }
