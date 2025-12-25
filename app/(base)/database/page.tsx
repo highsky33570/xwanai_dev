@@ -1221,8 +1221,11 @@ export function DatabaseSkeleton() {
 
             {/* ===== Top action row ===== */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div />
-
+              {/* <div /> */}
+              <div className="flex gap-2">
+                <Skeleton className="h-9 w-40 rounded-lg" />
+                <Skeleton className="h-9 w-36 rounded-lg" />
+              </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                 <Skeleton className="h-10 w-full sm:w-36 rounded-full" />
                 <Skeleton className="h-10 w-full sm:w-28 rounded-full" />
@@ -1240,17 +1243,14 @@ export function DatabaseSkeleton() {
 
           {/* ===== Secondary toolbar ===== */}
           <div className="px-6 pb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex gap-2">
-                <Skeleton className="h-9 w-40 rounded-lg" />
-                <Skeleton className="h-9 w-36 rounded-lg" />
-              </div>
+            {/* <div className="flex items-center justify-between mb-4">
+              <div />
 
               <div className="flex gap-2">
                 <Skeleton className="h-9 w-32 rounded-lg" />
                 <Skeleton className="h-9 w-20 rounded-lg" />
               </div>
-            </div>
+            </div> */}
 
             {/* ===== Card grid ===== */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
