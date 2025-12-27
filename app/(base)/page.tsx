@@ -538,9 +538,9 @@ const HomePage = observer(() => {
   }
 
   return (
-    <div className="text-black">
+    <div className="text-black pr-10">
       <div className="flex">
-        <main className="flex-1 xl:px-32 lg:px-28 md:px-24 sm:px-12 py-6 w-full">
+        <main className="flex-1 py-6 w-full">
           {state.loading ? (
             <HomeSkeleton></HomeSkeleton>
             // <div className="h-full flex justify-center items-center py-16">

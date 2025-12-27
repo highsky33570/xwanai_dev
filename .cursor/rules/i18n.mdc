@@ -1,0 +1,81 @@
+---
+description: Internationalization (i18n) Rules - Critical
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+alwaysApply: true
+---
+
+# 🌍 Internationalization (i18n) - CRITICAL RULE
+
+## ❌ NEVER DO THIS:
+```tsx
+// ❌ BAD: Hardcoded text
+<h1>新手任务</h1>
+<Button>立即领取</Button>
+<p>完成所有任务即可获得7天会员奖励</p>
+```
+
+## ✅ ALWAYS DO THIS:
+```tsx
+// ✅ GOOD: Using translations
+import { useTranslation } from "@/lib/utils/translations"
+
+const MyComponent = () => {
+  const { t } = useTranslation()
+  return (
+    <>
+      <h1>{t("tasks.title")}</h1>
+      <Button>{t("tasks.claimNow")}</Button>
+      <p>{t("tasks.subtitle")}</p>
+    </>
+  )
+}
+```
+
+## Internationalization Requirements:
+
+### 1. ALL user-facing text MUST use the translation system
+- Location: `lib/utils/translations.ts`
+- Hook: `useTranslation()`
+- Method: `t("key.path")`
+
+### 2. Support both languages
+- English (en) - required
+- Simplified Chinese (zh) - required
+- Add translations to BOTH sections in translations.ts
+
+### 3. Translation key naming conventions
+- Use dot notation: `section.subsection.key`
+- Organize by feature: `tasks.*`, `nav.*`, `auth.*`
+- Be descriptive: `tasks.claimReward` not `tasks.btn1`
+
+### 4. Dynamic content
+- Use placeholders: `{count}`, `{name}`, etc.
+- Replace in code: `t("tasks.remaining").replace("{count}", "3")`
+
+### 5. When adding new features
+- Add translation keys FIRST
+- Add both EN and ZH translations
+- Use translation keys in components
+- Test with both languages
+
+## Translation File Structure:
+```typescript
+export const translations = {
+  en: {
+    section: {
+      title: "English Title",
+      description: "English description with {placeholder}"
+    }
+  },
+  zh: {
+    section: {
+      title: "中文标题",
+      description: "带有 {placeholder} 的中文描述"
+    }
+  }
+}
+```
+
+**Remember: Every piece of user-facing text MUST go through the translation system. No exceptions!**

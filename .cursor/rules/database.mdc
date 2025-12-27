@@ -1,0 +1,30 @@
+---
+description: Main rule
+globs:
+alwaysApply: true
+---
+
+The project structure is in .projectrc, api definition in /openapi.json, database definition in .definitionrc, .note is for all my manual note you should check upon when updating the codebase. Should there be any database/api error that is required to fix, remind me if I should update these definitions.
+
+
+The expected DOM format is described in the format of
+```
+DOM{
+    (flex-row, height 2)[
+        (flex-col, items-center)
+        character name:text-xl text-primary,
+        character birthday: text-sm, "born yy-mm-dd"
+        --
+        character starsign: string text-primary text-sm
+    ]
+}
+
+Where:
+"--" means space-between  
+"==" means use default flex layout  
+">>" and "<<" means flow direction.   
+"[]" indicates a container.  
+"()" indicates hint or coment.  
+"," indicates seperation of element under same layout structure.  
+":" indicates a memo at a single element level.  
+"\\""(quote) marks a string literal.

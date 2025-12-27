@@ -125,7 +125,7 @@ if (
 }
 
 const ChatPage = observer(() => {
-  const { t } = useTranslation();
+  const { t, getLanguage } = useTranslation();
   const queryClient = useQueryClient();
   const params = useParams();
   const chatId = params.id as string;
@@ -614,7 +614,7 @@ const ChatPage = observer(() => {
       messageOrderRef.current += 1;
       const errorMessage: ChatMessage = {
         // id: crypto.randomUUID(),
-        id: uuid4(),
+        id: uuidv4(),
         sender: "assistant",
         content: error.error || "发生了未知错误，请重试。",
         timestamp: new Date(),
@@ -1431,7 +1431,7 @@ const ChatPage = observer(() => {
   if (isLoadingSession) {
     return (
       <div className="flex flex-col h-full w-full mx-15">
-        <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-[0.05] pointer-events-none" />
         {/* Permanent Loading Bar for /chat/new */}
         {chatId === "new" && (
           <div className="fixed top-0 left-0 right-0 z-50 w-full bg-gradient-to-r from-primary/20 to-secondary/20 border-b border-primary/30">
@@ -1501,6 +1501,8 @@ const ChatPage = observer(() => {
           <div className="relative">
             <div className="flex flex-col items-center gap-1">
               <Avatar
+                color="primary"
+                isBordered
                 src={
                   getAvatarPublicUrl(
                     currentCharacter?.avatar_id,
@@ -1508,8 +1510,8 @@ const ChatPage = observer(() => {
                   ) || "/placeholder-user.jpg"
                 }
                 name={currentCharacter?.name || "Assistant"}
-                size="sm"
-                className="w-12 h-12"
+                size="md"
+              // className="w-12 h-12"
               />
               <h3 className="font-semibold text-foreground text-base">
                 {sessionInfo?.mode === "hepan"
@@ -1537,7 +1539,7 @@ const ChatPage = observer(() => {
                   aria-label="Character Sessions"
                   className="max-h-80 overflow-y-auto"
                   emptyContent={
-                    characterSessionsLoading ? "加载中..." : "暂无历史对话"
+                    characterSessionsLoading ? t("chatEx.loadingSessions") : t("chatEx.noHistoryConversations")
                   }
                 >
                   <DropdownItem
@@ -1546,7 +1548,7 @@ const ChatPage = observer(() => {
                     onPress={() => setLiunianOpen(true)}
                     className="border-b border-foreground/10"
                   >
-                    大运流年
+                    {t("chatEx.liunian")}
                   </DropdownItem>
                   {(sessionData?.state as any)?.character_cache?.paipan &&
                     (sessionData?.state as any)?.character_cache?.birth_time && (
@@ -1555,7 +1557,7 @@ const ChatPage = observer(() => {
                         startContent={<Sparkles className="w-4 h-4" />}
                         onPress={() => setDestinyPanelOpen(true)}
                       >
-                        命运面板
+                        {t("chatEx.destinyPanel")}
                       </DropdownItem>
                     )}
                   {messages.length > 0 && (
@@ -1564,20 +1566,23 @@ const ChatPage = observer(() => {
                       startContent={<Share2 className="w-4 h-4" />}
                       onPress={handleToggleShareMode}
                     >
-                      分享模式
+                      {t("chatEx.shareMode")}
                     </DropdownItem>
                   )}
-                  <DropdownSection title={`${currentCharacter?.name || "角色"} 的对话`}>
+                  <DropdownSection title={`${currentCharacter?.name || t("sidebar.unknown")} ${t("chatEx.conversationsOf")}`}>
                     {characterSessions.map((session: any) => (
                       <DropdownItem
                         key={session.id}
-                        description={new Date(session.update_time).toLocaleString("zh-CN", {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        description={new Date(session.update_time).toLocaleString(
+                          getLanguage() === "zh" ? "zh-CN" : "en-US",
+                          {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
                         startContent={
                           session.id === chatId ? (
                             <div className="w-2 h-2 bg-primary rounded-full" />
@@ -1592,7 +1597,7 @@ const ChatPage = observer(() => {
                           }
                         }}
                       >
-                        {session.title || "未命名对话"}
+                        {session.title || t("chatEx.unnamedConversation")}
                       </DropdownItem>
                     ))}
                   </DropdownSection>
@@ -1604,9 +1609,12 @@ const ChatPage = observer(() => {
                   {() => (
                     <>
                       <ModalHeader className="flex flex-col items-center gap-2 pt-8 pb-4">
-                        <h2 className="text-2xl font-serif tracking-wider text-black/80">命運時間線</h2>
+                        <h2 className="text-2xl font-serif tracking-wider text-black/80">{t("chatEx.destinyTimeline")}</h2>
                         <div className="text-sm text-gray-500 font-serif tracking-wide">
-                          庚午 丁亥 己亥 戊辰 · 百年運勢一覽
+                          {birthInfoForTimeline ? (
+                            // Note: The bazi display logic would need to be implemented separately if needed
+                            t("chatEx.centuryFortuneOverview")
+                          ) : null}
                         </div>
                       </ModalHeader>
                       <ModalBody className="p-0 overflow-hidden">
@@ -1619,13 +1627,13 @@ const ChatPage = observer(() => {
                         ) : (
                           <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
                             <Calendar className="w-12 h-12 text-foreground-400" />
-                            <p className="text-foreground-600">缺少出生信息</p>
-                            <p className="text-sm text-foreground-400">该角色没有出生时间数据</p>
+                            <p className="text-foreground-600">{t("chatEx.missingBirthInfo")}</p>
+                            <p className="text-sm text-foreground-400">{t("chatEx.noBirthTimeData")}</p>
                           </div>
                         )}
                       </ModalBody>
                       <ModalFooter>
-                        <Button variant="light" onPress={() => setLiunianOpen(false)}>关闭</Button>
+                        <Button variant="light" onPress={() => setLiunianOpen(false)}>{t("chatEx.close")}</Button>
                       </ModalFooter>
                     </>
                   )}
@@ -1635,7 +1643,7 @@ const ChatPage = observer(() => {
           </div>
         </div>
         <div ref={messagesContainerRef} className="flex flex-col w-full h-full overflow-y-auto">
-          <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-10 pointer-events-none" />
+          <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-[0.05] pointer-events-none" />
           {/* Permanent Loading Bar for /chat/new */}
           {chatId === "new" && (
             <div className="fixed top-0 left-0 right-0 z-50 w-full bg-gradient-to-r from-primary/20 to-secondary/20 border-b border-primary/30">
@@ -1651,17 +1659,12 @@ const ChatPage = observer(() => {
             </div>
           )}
 
-
-
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col">
             {/* 内容容器 - 大屏模式下充分利用空间，移动端取消padding */}
-            <div className="w-full flex flex-col px-24 md:px-[240px] max-w-full h-full">
-              {/* Chat Header */}
-
+            <div className="w-full flex flex-col px-24 md:!pr-[240px] max-w-full h-full">
               {/* Messages Area */}
               <div
-
                 className="flex-1 py-3 md:py-6 space-y-3 md:space-y-6"
               >
                 {/* 显示打字机效果的打招呼语 */}
@@ -1675,10 +1678,12 @@ const ChatPage = observer(() => {
                         ) || "/placeholder-user.jpg"
                       }
                       name={currentCharacter?.name || "Assistant"}
-                      size="sm"
+                      size="md"
+                      isBordered
+                      color="primary"
                       className="flex-shrink-0 mt-1"
                     />
-                    <div className="max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
+                    <div className="max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-[#F0F0F0] border border-foreground/10 text-foreground shadow-sm break-words">
                       {/* Assistant Name */}
                       <div className="text-sm font-medium mb-1 text-foreground-600">
                         {sessionInfo?.mode === "hepan"
@@ -1907,7 +1912,7 @@ const ChatPage = observer(() => {
                         className={`flex flex-col ${message.sender === "user"
                           ? "justify-end items-end"
                           : "justify-start items-start"
-                          } gap-2 md:gap-3`}
+                          }`}
                       >
                         <div className={`flex ${message.sender === "user"
                           ? "justify-end"
@@ -1924,28 +1929,31 @@ const ChatPage = observer(() => {
                                 ) || "/placeholder-user.jpg"
                               }
                               name={currentCharacter?.name || "Assistant"}
-                              size="sm"
+                              size="md"
+                              isBordered
+                              color="primary"
                               className="flex-shrink-0 mt-1 hidden md:block"
                             />
                           )}
                           {/* Identity line above bubble */}
                           <div
-                            className={`text-xs text-foreground-600 mb-1 ${message.sender === "user" ? "text-right" : ""
+                            className={`text-xs text-foreground-600 ${message.sender === "user" ? "text-right" : ""
                               }`}
                           >
                             {message.sender !== "user" ? (
                               <>
-                                {sessionInfo?.mode === "hepan"
+                                <span className="text-medium">{sessionInfo?.mode === "hepan"
                                   ? t("sidebar.synastryExpert")
                                   : sessionInfo?.mode === "personal"
                                     ? t("sidebar.fortuneTellingExpert")
                                     : currentCharacter?.name || t("chatEx.assistant")}
-                                <span className="ml-1 text-foreground-400">@XWAN.AI</span>
+                                </span>
+                                <span className="ml-1 text-xs text-foreground-400">@XWAN.AI</span>
                               </>
                             ) : (
                               <>
-                                {Store.user.user?.email ? `${Store.user.user?.email} ` : ""}
-                                {Store.user.userName}
+                                <span className="text-xs text-foreground-400">{Store.user.user?.email ? `${Store.user.user?.email} ` : ""}</span>
+                                <span className="text-medium">{Store.user.userName}</span>
                               </>
                             )}
                           </div>
@@ -1955,7 +1963,9 @@ const ChatPage = observer(() => {
                             <Avatar
                               src={Store.user.userAvatar}
                               name={Store.user.userName}
-                              size="sm"
+                              size="md"
+                              isBordered
+                              color="primary"
                               className="flex-shrink-0 mt-1 hidden md:block"
                             />
                           )}
@@ -1971,7 +1981,7 @@ const ChatPage = observer(() => {
                           className={`relative ${message.content?.includes("```vis-paipan")
                             ? "max-w-[95%] md:max-w-[85%]" // 🎨 命盘消息使用更大宽度
                             : "max-w-[85%] md:max-w-[85%]"
-                            } rounded-3xl mx-6 px-4 md:px-5 py-3 md:py-4 break-words ${isShareMode && isSelectable ? "cursor-pointer transition-all hover:scale-[1.01]" : ""
+                            } rounded-3xl mx-8 px-4 md:px-5 py-3 md:py-4 break-words ${isShareMode && isSelectable ? "cursor-pointer transition-all hover:scale-[1.01]" : ""
                             } ${isShareMode && isSelected
                               ? message.sender === "user"
                                 ? "bg-primary/60 ring-2 ring-primary shadow-xl scale-[1.02] text-primary-foreground backdrop-blur-sm"
@@ -2103,6 +2113,8 @@ const ChatPage = observer(() => {
                         }
                         name={currentCharacter?.name || "Assistant"}
                         size="sm"
+                        color="primary"
+                        isBordered
                         className="flex-shrink-0 mt-1 hidden md:block"
                       />
                       <div className="relative max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-primary/20 shadow-md">
@@ -2137,14 +2149,16 @@ const ChatPage = observer(() => {
                         ) || "/placeholder-user.jpg"
                       }
                       name={currentCharacter?.name || "Assistant"}
-                      size="sm"
+                      size="md"
+                      isBordered
+                      color="primary"
                       className="flex-shrink-0 mt-1 hidden md:block"
                     />
-                    <div className="relative max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-content2 border border-foreground/10 text-foreground shadow-sm break-words">
+                    <div className="relative max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-[#F0F0F0] border border-foreground/10 text-foreground shadow-sm break-words">
                       {/* Arrow tail pointing left (assistant message) */}
                       <div className="absolute -left-2 top-6 w-0 h-0 border-t-[8px] border-b-[8px] border-r-[12px] border-r-content2 border-t-transparent border-b-transparent" />
                       {/* Assistant Name */}
-                      <div className="text-sm font-medium mb-1 text-foreground-600">
+                      <div className="text-sm font-medium mb-1 text-foreground-400">
                         {sessionInfo?.mode === "hepan"
                           ? t("sidebar.synastryExpert")
                           : sessionInfo?.mode === "personal"

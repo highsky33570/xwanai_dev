@@ -738,10 +738,10 @@ export default function PersonalCharacterDatabase() {
 
   return (
     <>
-      <div className="relative w-full h-full">
-        <div className="relative z-10 p-6">
+      <div className="relative w-full h-full pr-10">
+        <div className="relative z-10 py-6">
           <div className="rounded-3xl">
-            <div className="p-6">
+            <div className="py-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
               <div className="flex items-center gap-2">
                   <Button
@@ -900,7 +900,7 @@ export default function PersonalCharacterDatabase() {
               </div>
             </div>
 
-            <div className="px-6 pb-6">
+            <div className="pb-6">
               <div className="flex items-center justify-between mb-4">
                 <div></div>
                 {/* <div className="flex items-center gap-2">
@@ -1210,14 +1210,12 @@ export default function PersonalCharacterDatabase() {
   );
 }
 
-
-
 export function DatabaseSkeleton() {
   return (
-    <div className="relative w-full h-full">
-      <div className="relative z-10 p-6">
+    <div className="relative w-full h-full pr-10">
+      <div className="relative z-10 py-6">
         <div className="rounded-3xl">
-          <div className="p-6 space-y-6">
+          <div className="py-6 space-y-6">
 
             {/* ===== Top action row ===== */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -1242,7 +1240,7 @@ export function DatabaseSkeleton() {
           </div>
 
           {/* ===== Secondary toolbar ===== */}
-          <div className="px-6 pb-6">
+          <div className="pb-6">
             {/* <div className="flex items-center justify-between mb-4">
               <div />
 

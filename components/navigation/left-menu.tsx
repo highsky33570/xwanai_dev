@@ -1,7 +1,7 @@
 "use client"
 
 import { Button, Select, SelectItem } from "@heroui/react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Plus, ChevronRight } from "lucide-react"
 import { useCharacterCategories, useDimensionCategories, useMainCategories } from "@/hooks/use-data-queries"
@@ -211,19 +211,41 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
   // 🔥 selected parent (select box value)
   // Initialize with null to ensure consistent SSR/hydration
   const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
+  const isInitializedRef = useRef(false);
 
-  // Set initial value from URL param or first category (only on client after mount)
+  // Set initial value from URL param or first category (only once on mount)
   useEffect(() => {
+    if (isInitializedRef.current) return; // Only initialize once
+    
     if (modeParam) {
       setSelectedParentId(modeParam);
-    } else if (mainCategories.length > 0 && !selectedParentId) {
+      isInitializedRef.current = true;
+    } else if (mainCategories.length > 0) {
       setSelectedParentId(String(mainCategories[0].id));
+      isInitializedRef.current = true;
     }
-  }, [modeParam, mainCategories, selectedParentId]);
+  }, [modeParam, mainCategories]);
 
   const selectedParent = mainCategories.find(
     c => String(c.id) === selectedParentId
   )
+
+  // Auto-select first child when parent category is selected (only if no category in URL)
+  useEffect(() => {
+    // Don't auto-select if categoryParam exists (URL has priority)
+    if (categoryParam) return;
+    
+    if (selectedParent?.children && selectedParent.children.length > 0 && !selectedTopic) {
+      const firstChild = selectedParent.children[0];
+      const firstChildId = String(firstChild.id);
+      setSelectedTopic(firstChildId);
+      // Navigate to the first child's URL
+      if (firstChild.mode_id) {
+        if (isInitializedRef.current) return; // Only initialize once
+        router.push(`/more?mode=${firstChild.mode_id}&category=${firstChildId}`);
+      }
+    }
+  }, [selectedParent, selectedTopic, categoryParam, router]);
 
   const getCategoryIconUrl = (url?: string) => url
 
@@ -262,14 +284,20 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
             variant="bordered"
             items={mainCategories}
             selectedKeys={selectedParentId ? new Set([selectedParentId]) : new Set()}
+            disallowEmptySelection
             classNames={{
               trigger: "data-[focus=true]:border-[#EB7020] data-[open=true]:border-[#EB7020]",
               value: "text-[#EB7020] group[data-has-value=true] group-data-[has-value=true]:text-[#EB7020]",
               popoverContent: "border-[#EB7020]/20",
             }}
             onSelectionChange={(keys) => {
-              const selectedKey = Array.from(keys)[0] as string;
-              setSelectedParentId(selectedKey);
+              const selectedKey = Array.from(keys)[0] as string | undefined;
+              if (selectedKey) {
+                setSelectedParentId(selectedKey);
+                // Reset selectedTopic when parent category changes
+                setSelectedTopic(null);
+                router.push(`/more?mode=${selectedKey}`);
+              }
             }}
           >
             {(item: Category) => (
@@ -336,7 +364,7 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
 
 
   return (
-    <div className="relative lg:px-12 md:px-10 px-6 h-full flex flex-col py-6">
+    <div className="relative h-full flex flex-col py-4 lg:py-6 lg:px-8 px-3">
       <div className={inlineHidden ? 'hidden' : 'flex flex-col h-full min-h-0 relative z-10'}>
         <div className="flex-1 min-h-0 overflow-y-auto">
           {renderContent()}

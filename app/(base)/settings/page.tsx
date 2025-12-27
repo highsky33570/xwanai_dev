@@ -77,6 +77,8 @@ interface FormData {
 function ProfileSkeleton() {
   const router = useRouter();
 
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen">
       <div className="max-w-3xl mx-auto p-6 space-y-8">

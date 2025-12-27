@@ -1,7 +1,5 @@
 "use client";
-
 import type React from "react";
-
 import { useState, useEffect } from "react";
 import {
   Navbar,
@@ -174,8 +172,6 @@ const NavigationNavbar = observer(() => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-
 
   const handleSignOut = async () => {
     logger.info(
@@ -397,26 +393,26 @@ const NavigationNavbar = observer(() => {
         {/* Right side */}
         <NavbarContent justify="end" className="gap-2 text-black">
           <div className="hidden sm:flex items-center gap-3 text-gray-600 h-full">
-            <button aria-label="Tasks" className="p-1 rounded hover:bg-black/5 w-10" onClick={() => handleDropdownAction("tasks")}>
+            <button aria-label="Tasks" className="p-1 rounded hover:bg-black/5 w-10 h-10 flex items-center justify-center" onClick={() => handleDropdownAction("tasks")}>
               <img
                 src={pathname?.startsWith("/database") ? "/svg/tab/task_active.svg" : "/svg/tab/task.svg"}
                 alt="Tasks"
-                className="w-auto h-full"
+                className="w-full h-full object-contain"
               />
             </button>
-            <button aria-label="chat" className="p-1 rounded hover:bg-black/5 w-10" onClick={() => handleDropdownAction("chat")}>
+            <button aria-label="chat" className="p-1 rounded hover:bg-black/5 w-10 h-10 flex items-center justify-center" onClick={() => handleDropdownAction("chat")}>
               <img
                 // src={isSubscriptionOpen ? "/svg/tab/chat_active.svg" : "/svg/tab/chat.svg"}
                 src={pathname?.startsWith("/chat") ? "/svg/tab/chat_active.svg" : "/svg/tab/chat.svg"}
                 alt="chat"
-                className="w-auto h-full"
+                className="w-full h-full object-contain"
               />
             </button>
-            <button aria-label="Settings" className="p-1 rounded hover:bg-black/5 w-10" onClick={() => handleDropdownAction("settings")}>
+            <button aria-label="Settings" className="p-1 rounded hover:bg-black/5 w-10 h-10 flex items-center justify-center" onClick={() => handleDropdownAction("settings")}>
               <img
                 src={pathname?.startsWith("/settings") ? "/svg/tab/setting_active.svg" : "/svg/tab/setting.svg"}
                 alt="Settings"
-                className="w-auto h-full"
+                className="w-full h-full object-contain"
               />
             </button>
           </div>
@@ -472,7 +468,7 @@ const NavigationNavbar = observer(() => {
             <NavbarItem className="hidden sm:block">
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <div className="text-xs text-gray-500 tracking-wide">WELCOME BACK</div>
+                  <div className="text-xs text-gray-500 tracking-wide">{t("common.welcomeBack")}</div>
                   <div className="text-sm font-semibold tracking-wide">{welcomeName}</div>
                 </div>
               </div>

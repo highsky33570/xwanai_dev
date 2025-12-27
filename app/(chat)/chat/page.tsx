@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { authOperations } from "@/lib/supabase/auth";
 import { logger } from "@/lib/utils/logger";
- 
+
 
 // 🔧 动态导入Modal组件，优化性能
 const ModeSelectionModal = dynamic(
@@ -40,7 +40,7 @@ export default function ChatIdlePage() {
   // 🎯 检查 URL 参数，处理任务引导
   useEffect(() => {
     const task = searchParams.get('task');
-    
+
     if (!showModeModal) { // 添加条件避免重复触发
       if (task === 'personal') {
         // 任务1：个人命理档案 -> 自动选择 personal 标签页
@@ -70,27 +70,19 @@ export default function ChatIdlePage() {
   };
 
   return (
-    <div
-      className="flex h-full w-full items-center justify-center relative"
-      style={{
-        // backgroundImage: "url(/background_top.svg)",
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "top center",
-        backgroundSize: "cover",
-      }}
-    >
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-[0.05] pointer-events-none" />
       {/* Center Idle Panel */}
       <div className="flex-1 flex items-center justify-center px-4">
         <Card className="max-w-xl w-full bg-content2/80 backdrop-blur-sm border border-foreground/10 shadow-xl relative">
-          
+
           <CardBody className="p-10 text-center space-y-4">
             <MessageCircle className="w-12 h-12 text-primary mx-auto" />
             <h2 className="text-2xl font-semibold text-foreground">
-              Start a New Reading
+              {t("chatEx.startNewReading")}
             </h2>
             <p className="text-foreground-600">
-              Choose a mode to begin or continue an existing session from the
-              left sidebar.
+              {t("chatEx.chooseModeDescription")}
             </p>
             <div className="pt-2">
               <Button
@@ -98,7 +90,7 @@ export default function ChatIdlePage() {
                 startContent={<Sparkles className="w-4 h-4" />}
                 onPress={() => setShowModeModal(true)} // 🔧 改为弹窗
               >
-                New Reading
+                {t("chatEx.newReading")}
               </Button>
             </div>
           </CardBody>
@@ -113,7 +105,7 @@ export default function ChatIdlePage() {
         fromTask={fromTask}
       />
 
-      
+
     </div>
   );
 }

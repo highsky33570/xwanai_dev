@@ -17,7 +17,7 @@ export default function BaseLayout({
 }) {
   const pathname = usePathname();
   // const inVisibleLeft = pathname?.startsWith("/settings");
-  const showInfoLeftImage = pathname?.startsWith("/character/info") || pathname?.startsWith("/database") || pathname?.startsWith("/settings");
+  const showInfoLeftImage = pathname?.startsWith("/character/info") || pathname?.startsWith("/database") || pathname?.startsWith("/settings") || pathname?.startsWith("/user/my-info");
   const leftWidth = showInfoLeftImage ? '400px' : '400px';
   const showBackground = pathname?.startsWith("/database");
   // const [leftImageUrl, setLeftImageUrl] = useState<string>("/info-leftbackground.png");
@@ -32,7 +32,7 @@ export default function BaseLayout({
         backgroundPosition: "center",
       } as React.CSSProperties}
     >
-      <aside className={`relative flex-none flex-col px-3 shrink-0 max-h-screen min-h-screen lg:flex w-[var(--left-width)] `} style={{ backgroundImage: showBackground ? 'url(/png/left-side.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', backgroundPosition: 'center' }}>
+      <aside className={`relative hidden lg:flex flex-none flex-col px-3 shrink-0 max-h-screen min-h-screen w-[var(--left-width)]`} style={{ backgroundImage: showBackground ? 'url(/png/left-side.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', backgroundPosition: 'center' }}>
         {/* {showBackground ? (<div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/25 to-white z-0" />) : null} */}
         {showInfoLeftImage ? (
           <>
@@ -46,7 +46,7 @@ export default function BaseLayout({
                 XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>AI</span>
               </div>
             </div> */}
-            <div className="flex flex-col h-full justify-between lg:px-8 py-6 z-10" >
+            <div className="flex flex-col h-full justify-between px-4 lg:px-8 py-6 z-10" >
               <div className="flex-1">
                 <LogoLeft />
               </div>
@@ -90,7 +90,7 @@ export default function BaseLayout({
           <LeftMenu />
         </>)}
       </aside>
-      <div className="flex flex-1 flex-col min-w-0 lg:max-w-[calc(100%-var(--left-width))]" >
+      <div className="flex flex-1 flex-col min-w-0 lg:max-w-[calc(100%-var(--left-width))] xl:pl-24 lg:pl-20 md:pl-12 sm:pl-12" >
         <Navbar />
         <div className="overflow-y-auto">
           {children}

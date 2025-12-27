@@ -1,0 +1,296 @@
+---
+description: General Development Rules
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+alwaysApply: true
+---
+
+# 📋 Development Guidelines
+
+## 00. Communication Guidelines
+
+**简洁响应原则**：
+- ✅ 完成修改后，简短说明改了什么即可
+- ❌ 不需要大段的代码描述和解释（闪动太快看不见）
+- ❌ 不要创建额外的 MD 文档（用户基本不会看）
+- ✅ 如有操作流程需要说明，直接在对话中告知即可
+
+## 0. Shared Resources Reference
+
+⚠️ **ALWAYS check `shared/` directory for frontend-backend shared resources**
+
+- **Location**: `/shared/` directory in frontend workspace
+- **Backend Access**: Via symbolic links in backend workspace root
+- **Content**: Database schema, API specification, chat flow protocol
+
+### 📋 Shared Files
+
+**Database Schema - `shared/.definitionrc`**
+- **Location**: `XWANAI_frontend/shared/.definitionrc`
+- **Backend**: Via symlink (`XWANAI_backend/.definitionrc` → `../XWANAI_frontend/shared/.definitionrc`)
+- **Content**: Complete database schema with all tables, indexes, constraints, and **database functions (RPC)**
+- **Update When**: 
+  - After creating/modifying tables
+  - After adding/changing indexes
+  - **After creating/modifying database functions (RPC)**
+  - After changing constraints or triggers
+
+**API Specification - `shared/openapi.json`**
+- **Location**: `XWANAI_frontend/shared/openapi.json`
+- **Backend**: Via symlink (`XWANAI_backend/openapi.json` → `../XWANAI_frontend/shared/openapi.json`)
+- **Content**: OpenAPI 3.1 specification for all backend endpoints
+- **Update When**: Adding/modifying API endpoints or request/response schemas
+- **Auto-generate**: Run backend and visit `http://localhost:8000/openapi.json`
+
+**Chat Flow Protocol - `shared/chat-flow.md`**
+- **Location**: `XWANAI_frontend/shared/chat-flow.md`
+- **Backend**: Via symlink (`XWANAI_backend/chat-flow.md` → `../XWANAI_frontend/shared/chat-flow.md`)
+- **Content**: Frontend-Backend interaction protocol and SSE response format
+- **Update When**: Changing chat modes, API endpoints, or response structures
+
+### When making database changes:
+1. ✅ Update the actual database (via migrations or Supabase Dashboard)
+2. ✅ Update `.definitionrc` to reflect the changes
+3. ✅ Update TypeScript types in `lib/supabase/types.ts` if needed
+4. ✅ Create migration file in `supabase/migrations/` if applicable
+
+### 📌 Database Functions (RPC) - Critical Reminders
+
+**When creating/modifying Supabase RPC functions:**
+
+1. **⚠️ Parameter Type Matching is CRITICAL**
+   ```sql
+   -- ❌ BAD: Type mismatch causes errors
+   CREATE FUNCTION my_func(user_id text) ...
+   -- But calling with: .rpc('my_func', { user_id: uuid })
+   -- Error: operator does not exist: uuid = text
+   
+   -- ✅ GOOD: Types match
+   CREATE FUNCTION my_func(user_id uuid) ...
+   .rpc('my_func', { user_id: uuid })
+   ```
+
+2. **🔄 Always Update `.definitionrc` After Function Changes**
+   - Add new function definitions
+   - Update modified function signatures
+   - Document parameter types and return types
+   - Include usage examples in comments
+
+3. **🎯 Frontend RPC Call Checklist**
+   ```typescript
+   // ✅ Verify parameter names match the function definition
+   const { data, error } = await supabase.rpc('function_name', {
+     param_name: value  // Must match SQL parameter name exactly
+   })
+   
+   // ✅ Check parameter types
+   // - uuid → string (in TypeScript)
+   // - integer → number
+   // - text → string
+   // - jsonb → object
+   // - boolean → boolean
+   ```
+
+4. **📝 Function Naming Convention**
+   - Use snake_case (PostgreSQL convention)
+   - Be descriptive: `get_user_stats` not `get_stats`
+   - Prefix with action: `get_`, `create_`, `update_`, `delete_`, `check_`
+
+5. **🔐 Security Settings**
+   - Use `SECURITY DEFINER` for functions that need elevated privileges
+   - Use `SECURITY INVOKER` for functions using caller's permissions
+   - Always validate user permissions inside SECURITY DEFINER functions
+
+### Example Function Definition in `.definitionrc`:
+
+```sql
+-- =============================================================================
+-- FUNCTION: get_usage_stats
+-- 获取用户使用统计（包含会员状态、配额和使用量）
+-- 
+-- Parameters:
+--   user_id_param uuid - User's UUID from auth.users
+-- 
+-- Returns: TABLE with usage statistics
+--   - subscription_tier: text
+--   - character_count: bigint
+--   - character_limit: integer
+-- 
+-- Usage (Frontend):
+--   const { data } = await supabase.rpc('get_usage_stats', {
+--     user_id_param: user.id
+--   })
+-- =============================================================================
+CREATE OR REPLACE FUNCTION public.get_usage_stats(user_id_param uuid)
+RETURNS TABLE(...) 
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+...
+$$;
+```
+
+## 1. Direct API Calls Architecture
+- Frontend calls backend API directly (no Next.js proxy)
+- Use `lib/api/client.ts` for API requests
+- Backend URL: configured via `NEXT_PUBLIC_API_BASE_URL`
+- Always import from `lib/api/config.ts` for consistent API_BASE_URL
+
+### 📊 Data Fetching Strategy:
+- **GET requests**: Prefer using Supabase client directly when possible (faster, more efficient)
+- **POST/PUT/DELETE requests**: Use backend API endpoints (business logic, validation)
+- **Authenticated queries**: Use Supabase client with RLS (Row Level Security)
+- **Complex operations**: Use backend API for multi-step logic
+- **RPC Functions**: Use Supabase RPC for database functions (e.g., `is_premium_user`)
+
+### ✅ Correct API Configuration:
+
+#### 1. Simple GET requests - Use Supabase client directly
+```typescript
+import { supabase } from "@/lib/supabase/client"
+import { authOperations } from "@/lib/supabase/auth"
+
+// ✅ 获取用户角色列表
+const user = await authOperations.getCurrentUser()
+
+const { data, error } = await supabase
+  .from('characters')
+  .select('*')
+  .eq('auth_id', user.id)
+  .order('created_at', { ascending: false })
+
+// ✅ 获取用户订阅信息
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('subscription_status, subscription_tier, subscription_start_date, subscription_end_date')
+  .eq('id', user.id)
+  .maybeSingle()
+
+// ✅ 调用 RPC 函数
+const { data: isPremium } = await supabase.rpc('is_premium_user', {
+  target_user_id: user.id
+})
+```
+
+#### 2. POST/PUT/DELETE requests - Use backend API
+```typescript
+import { API_BASE_URL } from "./config"
+
+// ✅ 创建会话（需要业务逻辑）
+const response = await fetch(`${API_BASE_URL}/api/chat/v1/session`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify(data)
+})
+
+// ✅ 支付相关（需要后端验证）
+const response = await fetch(`${API_BASE_URL}/api/stripe/v1/checkout`, {
+  method: 'POST',
+  body: JSON.stringify(checkoutData)
+})
+```
+
+### ❌ Incorrect API Configuration:
+```typescript
+// ❌ Don't hardcode API URLs
+const API_BASE_URL = "http://localhost:8000"
+
+// ❌ Don't use backend API for simple GET requests that can use Supabase
+const response = await fetch(`${API_BASE_URL}/api/characters`)
+// 应该用: supabase.from('characters').select('*')
+
+// ❌ Don't use backend API to get subscription status
+const response = await fetch(`${API_BASE_URL}/api/stripe/v1/subscription-status`)
+// 应该用: supabase.from('profiles').select('subscription_*').eq('id', userId)
+```
+
+## 2. State Management
+- **MobX** for global state (`store/`)
+- **React Query** for server state
+- **React hooks** for local state
+
+## 3. Styling
+- Use **TailwindCSS** utilities
+- **NextUI** components for UI
+- Custom dark theme (height-based colors)
+
+## 4. File Naming Conventions
+- Pages: `page.tsx`, `layout.tsx`, `loading.tsx`
+- Components: `kebab-case.tsx`
+- Utilities: `camelCase.ts`
+
+## 5. Import Strategy
+- Absolute imports with `@/` prefix
+- Import translation hook when needed
+- Keep imports organized
+
+## 6. Type Safety
+- Use **TypeScript** for all files
+- Define proper interfaces/types
+- Use Supabase generated types
+
+## 7. Authentication Guard for API Calls
+When creating hooks that call authenticated APIs:
+
+### ✅ Always check for authentication first:
+```typescript
+import { authOperations } from "@/lib/supabase/auth"
+
+const fetchData = async () => {
+  // 🔒 Only call API if user is logged in
+  const token = await authOperations.getAccessToken()
+  if (!token) {
+    setData(null)
+    return
+  }
+  
+  // Proceed with API call
+  const result = await apiCall()
+}
+```
+
+### ❌ Don't call authenticated APIs without checking:
+```typescript
+// ❌ This will fail for non-logged-in users
+const fetchData = async () => {
+  const result = await apiCall()  // Will throw error!
+}
+```
+
+## 8. Error Handling
+- Use `logger.warn` for expected errors (like user not logged in)
+- Use `logger.error` for unexpected errors
+- Provide user-friendly error messages
+- Don't log sensitive information
+
+## 9. Full-Stack Development Approach
+- **Always think holistically**: Development requirements should be implemented across frontend, backend, and database layers
+- **Don't limit yourself to a single workspace**: If a feature requires changes to backend API, database schema, or frontend UI, implement all necessary changes
+- **Example**: When adding a new feature:
+  - ✅ Update backend API endpoints
+  - ✅ Create or modify database tables/migrations
+  - ✅ Update frontend UI and API client
+  - ✅ Add proper error handling at all layers
+
+## 10. Developer Notifications
+- **Always notify the developer** about any manual operations required
+- **Database migrations**: Remind the developer to run `supabase db push` after creating migration files
+- **Backend changes**: Notify if the backend server needs to be restarted
+- **Environment variables**: Alert when new environment variables need to be configured
+- **Package installations**: Remind to run `npm install` or `pip install` if dependencies are added
+
+### ✅ Good Practice:
+```
+⚠️ 提醒开发者：
+1. 已创建数据库迁移文件，请运行：`supabase db push`
+2. 后端添加了新的依赖，请运行：`pip install -r requirements.txt`
+3. 修改了环境变量配置，请检查 `.env` 文件
+```
+
+---
+
+**Key Principle**: Build robust, type-safe, and well-architected applications with excellent user experience. Think full-stack, execute full-stack, notify proactively.

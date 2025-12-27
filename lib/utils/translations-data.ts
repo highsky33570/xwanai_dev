@@ -252,6 +252,7 @@ export const translations = {
       // Character list
       noMatchingCharacters: "No matching characters",
       adjustSearchCriteria: "Try adjusting your search or filter criteria",
+      tryAdjustingFilters: "Try adjusting your search or filter criteria",
       noSelectedCharacters: "No selected characters",
       // Character card
       cardFavorite: "Favorite",
@@ -289,6 +290,9 @@ export const translations = {
       register: "Sign Up",
       cancel: "Cancel",
       baziAnalysis: "BaZi Analysis",
+      footerDescription: "A music label under HyperGryph Network, providing music production, artist management, and music distribution, committed to bringing contemporary listeners a reimagined narrative logic of music.",
+      contact: "CONTACT",
+      welcomeBack: "WELCOME BACK",
     },
     // Subscription
     subscription: {
@@ -491,7 +495,25 @@ export const translations = {
       chatWithPrefix: "Chat with",
       mayTakeSeconds: "This may take a few seconds.",
       assistant: "Assistant",
-      you: "You"
+      you: "You",
+      // Session menu
+      loadingSessions: "Loading...",
+      noHistoryConversations: "No history conversations",
+      liunian: "Destiny Flow Years",
+      destinyPanel: "Destiny Panel",
+      shareMode: "Share Mode",
+      conversationsOf: "conversations",
+      unnamedConversation: "Unnamed conversation",
+      // Destiny timeline modal
+      destinyTimeline: "Destiny Timeline",
+      centuryFortuneOverview: " · Century Fortune Overview",
+      missingBirthInfo: "Missing birth information",
+      noBirthTimeData: "This character has no birth time data",
+      close: "Close",
+      // Chat page empty state
+      startNewReading: "Start a New Reading",
+      chooseModeDescription: "Choose a mode to begin or continue an existing session from the left sidebar.",
+      newReading: "New Reading"
     },
     // Character Info Page
     characterInfo: {
@@ -598,6 +620,12 @@ export const translations = {
       day: "day",
       days: "days",
       expired: "Expired",
+      loadingProfile: "Loading your profile...",
+      errorLoadingProfile: "Error Loading Profile",
+      authenticationRequired: "Authentication Required",
+      pleaseSignIn: "Please sign in to view your profile",
+      tryAgain: "Try Again",
+      signIn: "Sign In",
     },
     // Share page
     sharePage: {
@@ -997,7 +1025,10 @@ export const translations = {
       hourAgo: "小时前",
       hoursAgo: "小时前",
       dayAgo: "天前",
-      daysAgo: "天前"
+      daysAgo: "天前",
+      more: "更多 +",
+      sort: "排序",
+      featured: "精选"
     },
     // Database page
     database: {
@@ -1067,6 +1098,7 @@ export const translations = {
       // Character list
       noMatchingCharacters: "无匹配的角色",
       adjustSearchCriteria: "尝试调整您的搜索或筛选条件",
+      tryAdjustingFilters: "尝试调整您的搜索或筛选条件",
       noSelectedCharacters: "尚未选择角色",
       // Character card
       cardFavorite: "收藏",
@@ -1098,12 +1130,15 @@ export const translations = {
     },
     // Common
     common: {
+      welcomeBack: "欢迎回来",
       signIn: "登入",
       signUp: "注册",
       login: "登入",
       register: "注册",
       cancel: "取消",
       baziAnalysis: "命盘分析",
+      footerDescription: "隶属于上海鹰角网络公司旗下的音乐厂牌提供音乐制作、音乐人经纪、音乐发行致力为当代听众带来音乐叙事逻重新解读",
+      contact: "联系",
     },
     // Settings page
     settings: {
@@ -1357,7 +1392,25 @@ export const translations = {
       chatWithPrefix: "与...聊天",
       mayTakeSeconds: "这可能需要几秒钟。",
       assistant: "助手",
-      you: "你"
+      you: "你",
+      // Session menu
+      loadingSessions: "加载中...",
+      noHistoryConversations: "暂无历史对话",
+      liunian: "大运流年",
+      destinyPanel: "命运面板",
+      shareMode: "分享模式",
+      conversationsOf: "的对话",
+      unnamedConversation: "未命名对话",
+      // Destiny timeline modal
+      destinyTimeline: "命運時間線",
+      centuryFortuneOverview: " · 百年運勢一覽",
+      missingBirthInfo: "缺少出生信息",
+      noBirthTimeData: "该角色没有出生时间数据",
+      close: "关闭",
+      // Chat page empty state
+      startNewReading: "开始新的解读",
+      chooseModeDescription: "选择一个模式开始，或从左侧边栏继续现有会话。",
+      newReading: "新建解读"
     },
     // Character Info Page
     characterInfo: {
@@ -1466,6 +1519,12 @@ export const translations = {
       day: "天",
       days: "天",
       expired: "已过期",
+      loadingProfile: "正在加载您的资料...",
+      errorLoadingProfile: "加载资料时出错",
+      authenticationRequired: "需要登录",
+      pleaseSignIn: "请先登录以查看您的资料",
+      tryAgain: "重试",
+      signIn: "登录",
     },
     // Share page
     sharePage: {

@@ -102,7 +102,7 @@ const UserProfileHeader = observer(({
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <h1 className="text-4xl font-title font-bold text-white">
+                  <h1 className="text-4xl font-title font-bold ">
                     {username}
                   </h1>
                   {/* Subscription Badge */}
@@ -118,8 +118,8 @@ const UserProfileHeader = observer(({
                     </Chip>
                   )}
                 </div>
-                <p className="text-white/70 text-lg">{email}</p>
-                <p className="text-white/50 text-sm">{t("settings.memberSince")} {joinDate}</p>
+                <p className="text-foreground-70 text-lg">{email}</p>
+                <p className="text-foreground-50 text-sm">{t("settings.memberSince")} {joinDate}</p>
               </div>
             </div>
 
@@ -129,7 +129,7 @@ const UserProfileHeader = observer(({
                 <div className="font-bold text-primary text-2xl">
                   {stats.totalCharacters}
                 </div>
-                <div className="text-white/60 text-sm font-medium">
+                <div className="text-foreground-60/60 text-sm font-medium">
                   Total Characters
                 </div>
               </div>
@@ -137,19 +137,19 @@ const UserProfileHeader = observer(({
                 <div className="font-bold text-success text-2xl">
                   {stats.publicCharacters}
                 </div>
-                <div className="text-white/60 text-sm font-medium">Public</div>
+                <div className="text-foreground-60/60 text-sm font-medium">Public</div>
               </div>
               <div className="text-center md:text-left bg-white/5 rounded-lg p-4">
                 <div className="font-bold text-warning text-2xl">
                   {stats.privateCharacters}
                 </div>
-                <div className="text-white/60 text-sm font-medium">Private</div>
+                <div className="text-foreground-60/60 text-sm font-medium">Private</div>
               </div>
               <div className="text-center md:text-left bg-white/5 rounded-lg p-4">
                 <div className="font-bold text-secondary text-2xl">
                   {stats.totalLikes}
                 </div>
-                <div className="text-white/60 text-sm font-medium">
+                <div className="text-foreground-60 text-sm font-medium">
                   Total Likes
                 </div>
               </div>
@@ -164,7 +164,7 @@ const UserProfileHeader = observer(({
                       {getSubscriptionIcon()}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-white flex items-center gap-2">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2">
                         {subscriptionAPI.formatTierName(subscription.subscription_tier, getLanguage())}
                         <Chip
                           size="sm"
@@ -174,7 +174,7 @@ const UserProfileHeader = observer(({
                           {subscriptionAPI.formatStatusName(subscription.subscription_status, getLanguage())}
                         </Chip>
                       </h3>
-                      <div className="flex items-center gap-4 text-sm text-white/60 mt-1">
+                      <div className="flex items-center gap-4 text-sm text-foreground-60 mt-1">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {getLanguage() === "zh" ? "到期：" : "Expires: "}
@@ -213,7 +213,7 @@ const UserProfileHeader = observer(({
               <Button
                 variant="bordered"
                 startContent={<Edit className="w-4 h-4" />}
-                className="border-white/30 hover:border-white/50 text-white hover:bg-white/10"
+                className="border-foreground-30 hover:border-foreground-50 text-foreground hover:bg-foreground-10"
                 size="lg"
                 onPress={() => setIsEditModalOpen(true)}
               >

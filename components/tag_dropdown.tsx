@@ -2,7 +2,7 @@
 
 import { Tag } from "@/lib/app_interface";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { ChevronRightIcon } from "@radix-ui/react-icons";
+import { ChevronRightIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 
 
 
@@ -83,6 +83,8 @@ export default function TagDropdown({ tags, selectedTagLabel, onSelect }: Props)
             ✕
           </button>
         )}
+
+        <ChevronDownIcon className="w-4 h-4 opacity-70" />
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Content className="bg-[#fff] shadow-md rounded p-1 min-w-[180px] z-50">

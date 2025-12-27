@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Spinner, Card, CardBody, Button, Chip, Snippet } from "@heroui/react";
+import { Card, CardBody, Button, Chip, Snippet, Skeleton } from "@heroui/react";
 import { RefreshCw, Share2, Clock, ExternalLink, Copy } from "lucide-react";
 import UserProfileHeader from "@/components/user/user-profile-header";
 import { authOperations } from "@/lib/supabase/auth";
@@ -182,16 +182,84 @@ export default function MyInfoPage() {
       case "hepan":
         return t("myShares.hepanShare");
       default:
-        return shareType;
+        return share.share_type;
     }
   };
 
   if (loading) {
     return (
-      <div className="h-screen w-full bg-content1 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Spinner size="lg" color="primary" />
-          <div className="text-white/60">Loading your profile...</div>
+      <div className="w-full h-full pr-10">
+        <div className="relative z-10 py-6">
+          <div className="rounded-3xl">
+            <div className="py-6 space-y-8">
+              {/* Profile Header Skeleton */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="rounded-full">
+                    <div className="w-20 h-20 bg-default-200" />
+                  </Skeleton>
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="rounded-lg">
+                      <div className="h-6 w-48 bg-default-200" />
+                    </Skeleton>
+                    <Skeleton className="rounded-lg">
+                      <div className="h-4 w-64 bg-default-200" />
+                    </Skeleton>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <Skeleton className="rounded-lg">
+                    <div className="h-10 w-32 bg-default-200" />
+                  </Skeleton>
+                  <Skeleton className="rounded-lg">
+                    <div className="h-10 w-32 bg-default-200" />
+                  </Skeleton>
+                </div>
+              </div>
+
+              {/* Shares Section Skeleton */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="rounded-lg">
+                    <div className="h-8 w-40 bg-default-200" />
+                  </Skeleton>
+                  <Skeleton className="rounded-lg">
+                    <div className="h-8 w-24 bg-default-200" />
+                  </Skeleton>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <Card key={i} className="bg-white/80 backdrop-blur-sm border border-black/10">
+                      <CardBody className="p-4 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="rounded-full">
+                            <div className="h-6 w-16 bg-default-200" />
+                          </Skeleton>
+                          <Skeleton className="rounded-lg">
+                            <div className="h-4 w-12 bg-default-200" />
+                          </Skeleton>
+                        </div>
+                        <Skeleton className="rounded-lg">
+                          <div className="h-4 w-full bg-default-200" />
+                        </Skeleton>
+                        <Skeleton className="rounded-lg">
+                          <div className="h-8 w-full bg-default-200" />
+                        </Skeleton>
+                        <div className="flex justify-between">
+                          <Skeleton className="rounded-lg">
+                            <div className="h-3 w-20 bg-default-200" />
+                          </Skeleton>
+                          <Skeleton className="rounded-lg">
+                            <div className="h-3 w-16 bg-default-200" />
+                          </Skeleton>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -199,176 +267,181 @@ export default function MyInfoPage() {
 
   if (error) {
     return (
-      <div className="h-screen w-full bg-content1 flex items-center justify-center">
-        <Card className="max-w-md bg-content1 border border-white/5">
-          <CardBody className="text-center p-8 space-y-4">
-            <div className="text-danger text-4xl">⚠️</div>
-            <h3 className="text-xl font-semibold text-white">
-              Error Loading Profile
-            </h3>
-            <p className="text-white/60">{error}</p>
-            <Button
-              color="primary"
-              startContent={<RefreshCw className="w-4 h-4" />}
-              onPress={handleRefresh}
-            >
-              Try Again
-            </Button>
-          </CardBody>
-        </Card>
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-center space-y-4 max-w-md">
+          <div className="text-danger text-4xl">⚠️</div>
+          <h3 className="text-xl font-semibold text-foreground">
+            {t("myShares.errorLoadingProfile")}
+          </h3>
+          <p className="text-foreground-600">{error}</p>
+          <Button
+            color="primary"
+            startContent={<RefreshCw className="w-4 h-4" />}
+            onPress={handleRefresh}
+            className="bg-[#EB7020] text-white"
+          >
+            {t("myShares.tryAgain")}
+          </Button>
+        </div>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="h-screen w-full bg-content1 flex items-center justify-center">
-        <Card className="max-w-md bg-content2 border border-white/5">
-          <CardBody className="text-center p-8 space-y-4">
-            <div className="text-warning text-4xl">🔐</div>
-            <h3 className="text-xl font-semibold text-white">
-              Authentication Required
-            </h3>
-            <p className="text-white/60">Please sign in to view your profile</p>
-            <Button color="primary" onPress={() => router.push("/login")}>
-              Sign In
-            </Button>
-          </CardBody>
-        </Card>
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-center space-y-4 max-w-md">
+          <div className="text-warning text-4xl">🔐</div>
+          <h3 className="text-xl font-semibold text-foreground">
+            {t("myShares.authenticationRequired")}
+          </h3>
+          <p className="text-foreground-600">{t("myShares.pleaseSignIn")}</p>
+          <Button 
+            color="primary" 
+            onPress={() => router.push("/login")}
+            className="bg-[#EB7020] text-white"
+          >
+            {t("myShares.signIn")}
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-content1">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Profile Header */}
-        <UserProfileHeader
-          profile={user}
-          stats={{
-            totalCharacters: 0,
-            publicCharacters: 0,
-            privateCharacters: 0,
-            totalLikes: 0,
-          }}
-          onUserUpdated={handleUserUpdated}
-        />
+    <div className="w-full h-full pr-10">
+      <div className="relative z-10 py-6">
+        <div className="rounded-3xl">
+          <div className="py-6">
+            {/* Profile Header */}
+            <UserProfileHeader
+              profile={user}
+              stats={{
+                totalCharacters: 0,
+                publicCharacters: 0,
+                privateCharacters: 0,
+                totalLikes: 0,
+              }}
+              onUserUpdated={handleUserUpdated}
+            />
 
-        {/* Shares Section */}
-        <div>
-          <div className="space-y-6">
-            {/* Section Header */}
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center gap-4">
-                <h2 className="text-3xl font-title font-bold text-white flex items-center gap-3">
-                  <Share2 className="w-8 h-8 text-primary" />
-                  {t("myShares.title")}
-                </h2>
-                {shares.length > 0 && (
-                  <div className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-medium">
-                    {shares.length} {t("myShares.sharesCount")}
+            {/* Shares Section */}
+            <div className="mt-8">
+              <div className="space-y-6">
+                {/* Section Header */}
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-2xl font-semibold text-black flex items-center gap-3">
+                      <Share2 className="w-6 h-6 text-[#EB7020]" />
+                      {t("myShares.title")}
+                    </h2>
+                    {shares.length > 0 && (
+                      <div className="bg-[#EB7020]/20 text-[#EB7020] px-3 py-1 rounded-full text-sm font-medium">
+                        {shares.length} {t("myShares.sharesCount")}
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    variant="flat"
+                    size="sm"
+                    startContent={<RefreshCw className="w-4 h-4" />}
+                    onPress={handleRefresh}
+                    className="bg-black/5 text-black"
+                  >
+                    {t("myShares.refresh")}
+                  </Button>
+                </div>
+
+                {/* Shares Content */}
+                {shares.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="text-8xl opacity-50 mb-6">📤</div>
+                    <div className="space-y-3">
+                      <h3 className="text-2xl font-semibold text-black">
+                        {t("myShares.noShares")}
+                      </h3>
+                      <p className="text-black/70 text-lg max-w-md mx-auto">
+                        {t("myShares.noSharesDescription")}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {shares.map((share) => (
+                      <Card 
+                        key={share.id} 
+                        className="bg-white/80 backdrop-blur-sm border border-black/10 hover:border-[#EB7020]/30 transition-all"
+                      >
+                        <CardBody className="p-4 space-y-2.5">
+                          {/* 标题和类型 */}
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2">
+                              <Chip
+                                color={getShareTypeColor(share.share_type) as any}
+                                variant="flat"
+                                size="sm"
+                                className="font-medium text-xs"
+                              >
+                                {getShareTypeLabel(share.share_type)}
+                              </Chip>
+                              <div className="flex items-center gap-1 text-xs text-black/60">
+                                <Clock className="w-3 h-3" />
+                                <span>{share.view_count}{t("myShares.views")}</span>
+                              </div>
+                            </div>
+                            <h3 className="text-sm font-semibold text-black line-clamp-1">
+                              {getShareTitle(share)}
+                            </h3>
+                          </div>
+
+                          {/* 分享码 */}
+                          <div className="flex items-center gap-2">
+                            <Snippet
+                              symbol=""
+                              size="sm"
+                              className="flex-1"
+                              classNames={{
+                                base: "bg-black/5",
+                                pre: "text-[10px] font-mono break-all text-black",
+                              }}
+                              copyIcon={<Copy className="w-3 h-3" />}
+                              onCopy={() => {
+                                if (baseUrl) {
+                                  navigator.clipboard.writeText(`${baseUrl}/share/${share.share_token}`);
+                                  sonnerToast.success(t("characterInfo.linkCopied"));
+                                }
+                              }}
+                            >
+                              {share.share_token}
+                            </Snippet>
+                            <Button
+                              isIconOnly
+                              size="sm"
+                              variant="flat"
+                              onPress={() => baseUrl && window.open(`${baseUrl}/share/${share.share_token}`, "_blank")}
+                              isDisabled={!baseUrl}
+                              className="min-w-8 h-8 bg-black/5"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5 text-black" />
+                            </Button>
+                          </div>
+
+                          {/* 时间信息 */}
+                          <div className="flex items-center justify-between text-xs text-black/50 pt-1">
+                            <span>{formatRelativeTime(share.created_at)}</span>
+                            <span className={new Date(share.expires_at) <= new Date() ? "text-danger" : ""}>
+                              {new Date(share.expires_at) > new Date()
+                                ? `${Math.ceil((new Date(share.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}${t("myShares.days")}`
+                                : t("myShares.expired")}
+                            </span>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    ))}
                   </div>
                 )}
               </div>
-              <Button
-                color="default"
-                variant="flat"
-                size="sm"
-                startContent={<RefreshCw className="w-4 h-4" />}
-                onPress={handleRefresh}
-              >
-                {t("myShares.refresh")}
-              </Button>
             </div>
-
-            {/* Shares Content */}
-            {shares.length === 0 ? (
-              <Card className="bg-gradient-to-br from-content1 to-content2 border border-white/10 shadow-lg">
-                <CardBody className="text-center p-16 space-y-6">
-                  <div className="text-8xl opacity-50">📤</div>
-                  <div className="space-y-3">
-                    <h3 className="text-2xl font-title font-bold text-white">
-                      {t("myShares.noShares")}
-                    </h3>
-                    <p className="text-white/70 text-lg max-w-md mx-auto">
-                      {t("myShares.noSharesDescription")}
-                    </p>
-                  </div>
-                </CardBody>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {shares.map((share) => (
-                  <Card key={share.id} className="bg-content2/80 backdrop-blur-sm border border-white/10 hover:border-primary/30 transition-all">
-                    <CardBody className="p-4 space-y-2.5">
-                      {/* 标题和类型 */}
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <Chip
-                            color={getShareTypeColor(share.share_type) as any}
-                            variant="flat"
-                            size="sm"
-                            className="font-medium text-xs"
-                          >
-                            {getShareTypeLabel(share.share_type)}
-                          </Chip>
-                          <div className="flex items-center gap-1 text-xs text-white/60">
-                            <Clock className="w-3 h-3" />
-                            <span>{share.view_count}{t("myShares.views")}</span>
-                          </div>
-                        </div>
-                        <h3 className="text-sm font-semibold text-white line-clamp-1">
-                          {getShareTitle(share)}
-                        </h3>
-                      </div>
-
-                      {/* 分享码 */}
-                      <div className="flex items-center gap-2">
-                        <Snippet
-                          symbol=""
-                          size="sm"
-                          className="flex-1"
-                          classNames={{
-                            base: "bg-content1/50",
-                            pre: "text-[10px] font-mono break-all",
-                          }}
-                          copyIcon={<Copy className="w-3 h-3" />}
-                          onCopy={() => {
-                            if (baseUrl) {
-                              navigator.clipboard.writeText(`${baseUrl}/share/${share.share_token}`);
-                              sonnerToast.success(t("characterInfo.linkCopied"));
-                            }
-                          }}
-                        >
-                          {share.share_token}
-                        </Snippet>
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          color="secondary"
-                          onPress={() => baseUrl && window.open(`${baseUrl}/share/${share.share_token}`, "_blank")}
-                          isDisabled={!baseUrl}
-                          className="min-w-8 h-8"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-
-                      {/* 时间信息 */}
-                      <div className="flex items-center justify-between text-xs text-white/50 pt-1">
-                        <span>{formatRelativeTime(share.created_at)}</span>
-                        <span className={new Date(share.expires_at) <= new Date() ? "text-danger" : ""}>
-                          {new Date(share.expires_at) > new Date()
-                            ? `${Math.ceil((new Date(share.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}${t("myShares.days")}`
-                            : t("myShares.expired")}
-                        </span>
-                      </div>
-                    </CardBody>
-                  </Card>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>

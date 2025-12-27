@@ -435,7 +435,7 @@ export default function PersonalCharacterDatabase() {
                     onPress={(e) => {
                       setEnableFilter(!enableFilter);
                     }}>
-                    {!hasFilter ? <FunnelX /> : <FunnelPlus />}
+                    {!hasFilter ? <FunnelX className="w-4 h-4" /> : <FunnelPlus className="w-4 h-4" />}
                   </Button>
                 </Popover.Trigger>
                 <Popover.Portal>
@@ -511,7 +511,7 @@ export default function PersonalCharacterDatabase() {
                     setEnableFilter(false);
                   }}
                 >
-                  <Trash2 />
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               )}
 
