@@ -92,6 +92,10 @@ export default function BaseLayout({
       </aside>
       <div className="flex flex-1 flex-col min-w-0 lg:max-w-[calc(100%-var(--left-width))] xl:pl-24 lg:pl-20 md:pl-12 sm:pl-12" >
         <Navbar />
+        {/* Mobile left menu overlay mount point */}
+        <div className="lg:hidden">
+          <LeftMenu inlineHidden />
+        </div>
         <div className="overflow-y-auto">
           {children}
         </div>

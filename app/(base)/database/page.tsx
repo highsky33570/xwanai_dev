@@ -738,12 +738,12 @@ export default function PersonalCharacterDatabase() {
 
   return (
     <>
-      <div className="relative w-full h-full pr-10">
-        <div className="relative z-10 py-6">
+      <div className="relative w-full h-full px-4 sm:px-6 lg:px-10">
+        <div className="relative z-10 py-4 sm:py-6">
           <div className="rounded-3xl">
             <div className="py-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                   <Button
                     variant="solid"
                     className="bg-[#EB7020] text-white"
@@ -901,7 +901,7 @@ export default function PersonalCharacterDatabase() {
             </div>
 
             <div className="pb-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div></div>
                 {/* <div className="flex items-center gap-2">
                   <Button
@@ -928,7 +928,7 @@ export default function PersonalCharacterDatabase() {
                   </Button>
                 </div> */}
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 justify-end">
                   {isSelectionMode && (
                     <Button
                       variant="flat"

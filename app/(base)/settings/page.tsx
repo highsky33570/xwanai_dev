@@ -85,9 +85,7 @@ function ProfileSkeleton() {
 
         {/* Header */}
         <div className="flex items-center gap-4 my-8 justify-between">
-          <Button isIconOnly variant="light" onClick={() => router.back()}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
+       
           <div className="flex-grow flex items-center justify-center gap-2 ">
             <User className="w-4 h-4 text-foreground-400" />
             <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
@@ -626,9 +624,7 @@ export default function SettingsPage() {
       <div className="max-w-3xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center gap-4 my-8 justify-between">
-          <Button isIconOnly variant="light" onClick={() => router.back()}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
+          
           <div className="flex-grow flex items-center justify-center gap-2 ">
             <User className="w-4 h-4 text-foreground-400" />
             <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
