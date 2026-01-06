@@ -1,0 +1,679 @@
+# Character App - Next.js Project Session Context
+## Project Overview & Implementation Status
+
+### 🎯 Project Description
+A comprehensive character creation and management application built with Next.js 15, featuring:
+- Character creation with astrology/bazi integration
+- User authentication and profile management
+- Public character database and discovery
+- Real-time chat capabilities
+- Responsive design with dark theme
+
+### 🏗️ Architecture Overview
+- **Frontend**: Next.js 15 with App Router
+- **UI Framework**: NextUI + TailwindCSS
+- **Authentication**: Supabase Auth
+- **Database**: Supabase PostgreSQL + External API
+- **Styling**: Custom dark theme with height-based color system
+- **State Management**: React hooks + Supabase real-time
+- **Logging**: Custom structured logging system
+
+---
+
+## 📁 Module Documentation
+
+### 1. **Authentication System** (`lib/supabase/auth.ts`)
+**Status**: ✅ Fully Implemented
+**Purpose**: Complete user authentication flow with Supabase integration
+
+#### Operations:
+- `signUp(data: SignUpData)` - User registration with metadata
+- `signIn(data: SignInData)` - Email/password authentication
+- `signOut()` - Session termination
+- `getCurrentUser()` - Retrieve current authenticated user
+- `getCurrentSession()` - Get current session data
+- `onAuthStateChange(callback)` - Real-time auth state monitoring
+- `isAuthenticated()` - Check authentication status
+
+#### Features:
+- Comprehensive error handling and logging
+- User metadata support (username, full_name)
+- Real-time auth state changes
+- Performance timing for all operations
+- Sanitized logging (passwords redacted)
+
+#### Integration Points:
+- Used in navbar for user state
+- Character creation requires authentication
+- Database operations use user context
+
+---
+
+### 2. **Database Operations** (`lib/supabase/database.ts`)
+**Status**: ✅ Fully Implemented
+**Purpose**: Supabase database operations for character management
+
+#### Operations:
+- `createCharacter(data)` - Create new character with full metadata
+- `getCharacterById(id)` - Retrieve single character
+- `getPublicCharacters(limit)` - Get public character feed
+- `getUserCharacters(userId)` - Get user's personal characters
+- `updateCharacter(id, data)` - Update character information
+- `deleteCharacter(id)` - Soft delete (sets disabled=true)
+- `searchCharacters(query, limit)` - Full-text search on characters
+
+#### Database Schema:
+\`\`\`sql
+characters {
+  id: string (UUID)
+  name: string
+  description: string | null
+  avatar_url: string | null
+  data_type: "virtual" | "real"
+  visibility: "public" | "private"
+  creator_id: string
+  tags: string[] | null
+  metadata: Json | null
+  birth_date: string | null
+  birth_location: string | null
+  disabled: boolean
+  created_at: string
+  updated_at: string
+}
+
+\`\`\`
+
+---
+
+## 🗂️ **Complete File & Module Breakdown**
+
+### **📁 Root Configuration Files**
+
+#### `package.json`
+- **Purpose**: Project dependencies and scripts
+- **Key Dependencies**: Next.js 15, NextUI, Supabase, Framer Motion, Lucide React
+- **Scripts**: dev, build, start, lint
+
+#### `next.config.mjs`
+- **Purpose**: Next.js framework configuration
+- **Features**: TypeScript/ESLint ignoring, image optimization, NextUI optimization
+- **Environment**: Injects API base URL and Supabase credentials
+
+#### `tailwind.config.js`
+- **Purpose**: TailwindCSS and NextUI theme configuration
+- **Features**: Custom color palette, dark theme, responsive breakpoints
+- **Integration**: NextUI plugin with custom theme colors
+
+#### `postcss.config.mjs`
+- **Purpose**: PostCSS configuration for TailwindCSS
+- **Plugins**: tailwindcss, autoprefixer
+
+#### `tsconfig.json`
+- **Purpose**: TypeScript configuration
+- **Features**: Path aliases (@/*), strict mode, Next.js plugin
+
+#### `.env.local`
+- **Purpose**: Environment variables
+- **Variables**: Supabase URL/key, API base URL
+
+#### `.definitionrc`
+- **Purpose**: Database schema documentation
+- **Content**: Complete SQL schema with tables, indexes, triggers, relationships
+
+---
+
+### **📁 app/ - Next.js App Router**
+
+#### **📁 app/layout.tsx**
+- **Purpose**: Root layout wrapper
+- **Exports**: `RootLayout` component
+- **Features**: Metadata configuration, ClientLayout wrapper
+
+#### **📁 app/clientLayout.tsx**
+- **Purpose**: Client-side layout with providers
+- **Exports**: `ClientLayout` component
+- **Features**: Font loading, theme providers, navbar, card-based layout
+- **Fonts**: Averia Serif Libre (body), Bodoni Moda (titles)
+
+#### **📁 app/providers.tsx**
+- **Purpose**: React context providers
+- **Exports**: `Providers` component
+- **Features**: NextUI provider, theme provider, router integration
+
+#### **📁 app/globals.css**
+- **Purpose**: Global styles and CSS variables
+- **Features**: TailwindCSS imports, custom color variables, utility classes
+- **Color System**: Height-based background colors, primary/secondary colors
+
+#### **📁 app/page.tsx**
+- **Purpose**: Homepage with character feed
+- **Exports**: `HomePage` component
+- **State Management**: 
+  - `PageState` interface (loading, error, characters, user, userLoading)
+- **Features**: Character grid, search/filter, authentication status, API integration
+- **Hooks**: useEffect for user check and character loading
+
+#### **📁 app/loading.tsx**
+- **Purpose**: Global loading component
+- **Exports**: Empty loading component (returns null)
+
+---
+
+### **📁 app/(base)/ - Main Application Routes**
+
+#### **📁 app/(base)/layout.tsx**
+- **Purpose**: Base layout for main app routes
+- **Exports**: `BaseLayout` component
+
+#### **📁 app/(base)/page.tsx**
+- **Purpose**: Homepage placeholder (redirects to main page.tsx)
+- **Features**: Character info and user info navigation buttons
+
+#### **📁 app/(base)/database/page.tsx**
+- **Purpose**: Personal character database management
+- **Exports**: `PersonalCharacterDatabase` component
+- **State Management**: Search query, sort options, filters, character list
+- **Features**: Split layout (header + scrollable content), search/filter controls
+- **Components Used**: DatabaseHeader, DatabaseControls, CharacterList
+
+#### **📁 app/(base)/character/create/page.tsx**
+- **Purpose**: Character creation type selection
+- **Exports**: `CharacterCreationIntroPage` component
+- **State Management**: Modal disclosure, selected character type
+- **Features**: Character type cards, creation modal trigger
+- **Character Types**: Original Character, Celebrity, Fantasy Character
+
+#### **📁 app/(base)/character/designer/page.tsx**
+- **Purpose**: Character design and editing interface
+- **Exports**: `CharacterDesignerPage` component
+- **State Management**: Character data, form data, loading/saving states
+- **Features**: Character editing, tag management, save functionality
+- **URL Params**: Character ID from search params
+
+#### **📁 app/(base)/character/designer/loading.tsx**
+- **Purpose**: Loading component for designer page
+- **Exports**: Empty loading component
+
+#### **📁 app/(base)/character/info/page.tsx**
+- **Purpose**: Character detail view with interactions
+- **Exports**: `CharacterInfoPage` component
+- **Features**: Character preview, actions, comments section
+- **Mock Data**: Character details, comments, user interactions
+
+#### **📁 app/(base)/user/my-info/page.tsx**
+- **Purpose**: Current user profile page
+- **Exports**: `UserMyInfoPage` component
+- **Features**: User profile header, character grid, profile management
+
+#### **📁 app/(base)/user/other/page.tsx**
+- **Purpose**: Other user profile viewing
+- **Exports**: `UserOtherPage` component
+- **Features**: Public profile view, user's public characters
+
+#### **📁 app/(base)/user/update/page.tsx**
+- **Purpose**: User profile editing (placeholder)
+- **Exports**: `UserUpdatePage` component
+
+#### **📁 app/(base)/settings/page.tsx**
+- **Purpose**: Application settings (placeholder)
+- **Exports**: `SettingsPage` component
+
+---
+
+### **📁 app/(login)/ - Authentication Routes**
+
+#### **📁 app/(login)/layout.tsx**
+- **Purpose**: Layout for authentication pages
+- **Exports**: `LoginLayout` component
+
+#### **📁 app/(login)/login/page.tsx**
+- **Purpose**: Full-page login interface
+- **Exports**: `LoginPage` component
+- **State Management**: `LoginState` interface (email, password, visibility, loading, error, success)
+- **Features**: Email/password login, SSO placeholders, form validation
+- **Integration**: Auth operations, router navigation
+
+#### **📁 app/(login)/register/page.tsx**
+- **Purpose**: User registration page
+- **Exports**: `RegisterPage` component
+- **State Management**: `RegisterState` interface (comprehensive form state)
+- **Features**: Registration form, password strength, terms acceptance, SSO options
+- **Validation**: Email format, password strength, username format
+
+#### **📁 app/(login)/restore-password/page.tsx**
+- **Purpose**: Password reset page (placeholder)
+- **Exports**: `RestorePasswordPage` component
+
+---
+
+### **📁 app/(chat)/ - Chat Application Routes**
+
+#### **📁 app/(chat)/layout.tsx**
+- **Purpose**: Layout for chat pages
+- **Exports**: `ChatLayout` component
+
+#### **📁 app/(chat)/chat/page.tsx**
+- **Purpose**: Chat interface (placeholder)
+- **Exports**: `ChatPage` component
+
+---
+
+### **📁 components/ - Reusable UI Components**
+
+#### **📁 components/auth/**
+
+##### `login-modal.tsx`
+- **Purpose**: Modal login interface
+- **Exports**: `LoginModal` component
+- **Props**: `LoginModalProps` interface (isOpen, onOpenChange, callbacks)
+- **State Management**: Form state, password visibility, loading, error handling
+- **Features**: Email/password auth, SSO buttons, form validation
+- **Integration**: Auth operations, modal control
+
+#### **📁 components/character/**
+
+##### `character-card.tsx`
+- **Purpose**: Character display card for grids/lists
+- **Exports**: `CharacterCard` component
+- **Props**: `CharacterCardProps` interface (data, onClick)
+- **Data Interface**: `CharacterData` (id, username, updatedTime, characterName, description, images)
+- **Features**: Avatar display, user info, timestamps, click handling
+
+##### `character-card-database.tsx`
+- **Purpose**: Horizontal character card for database view
+- **Exports**: `CharacterCardDatabase` component
+- **Props**: `CharacterCardDatabaseProps` interface
+- **Features**: Compact layout, starsign, birthdate display
+
+##### `character-creation-modal.tsx`
+- **Purpose**: Character creation form modal
+- **Exports**: `CharacterCreationModal` component
+- **Props**: `CharacterCreationModalProps` interface (isOpen, onOpenChange, selectedType)
+- **State Management**: Form data (name, birthDate, birthLocation, isPublic)
+- **Features**: Form validation, API integration, database creation, navigation
+- **Integration**: Auth operations, database operations, router
+
+##### `character-type-card.tsx`
+- **Purpose**: Character type selection cards
+- **Exports**: `CharacterTypeCard` component
+- **Props**: `CharacterTypeCardProps` interface (type, description, icon, onClick)
+- **Features**: Hover effects, icon display, click handling
+
+##### `character-preview.tsx`
+- **Purpose**: Detailed character preview component
+- **Exports**: `CharacterPreview` component
+- **Props**: `CharacterPreviewProps` interface
+- **Data Interface**: `CharacterData` (comprehensive character info)
+- **Features**: Character image, details, author info, stats
+
+##### `character-actions.tsx`
+- **Purpose**: Character interaction buttons
+- **Exports**: `CharacterActions` component
+- **Props**: `CharacterActionsProps` interface (callback functions)
+- **Features**: Add to library, start chat, like, share actions
+
+##### `comment-section.tsx`
+- **Purpose**: Character comments interface
+- **Exports**: `CommentSection` component
+- **Props**: `CommentSectionProps` interface
+- **State Management**: Comments list, new comment input
+- **Features**: Add comments, display comments, user avatars
+
+#### **📁 components/database/**
+
+##### `database-header.tsx`
+- **Purpose**: Database page header with branding
+- **Exports**: `DatabaseHeader` component
+- **Features**: Centered logo, title, description
+
+##### `database-controls.tsx`
+- **Purpose**: Database search and control interface
+- **Exports**: `DatabaseControls` component
+- **Props**: `DatabaseControlsProps` interface (callback functions)
+- **Features**: Search bar, sort dropdown, synastry reading, new character button
+
+##### `character-list.tsx`
+- **Purpose**: Character list display for database
+- **Exports**: `CharacterList` component
+- **Props**: `CharacterListProps` interface (characters, onCharacterClick)
+- **Features**: Character count, empty state, character cards
+
+#### **📁 components/navigation/**
+
+##### `navbar.tsx`
+- **Purpose**: Main application navigation
+- **Exports**: `NavigationNavbar` component
+- **State Management**: Menu state, user state, loading state
+- **Features**: Responsive design, user dropdown, auth integration, navigation logging
+- **Menu Items**: Home, Database, Chat, Settings
+- **Integration**: Auth operations, router, login modal
+
+#### **📁 components/search/**
+
+##### `search-bar.tsx`
+- **Purpose**: Search interface with filtering
+- **Exports**: `SearchBar` component
+- **Props**: `SearchBarProps` interface (placeholder, onSearch, onFilterChange)
+- **State Management**: Search query, dropdown state, selected filters
+- **Features**: Search input, filter dropdown, filter management
+- **Filter Options**: Recent, Popular, Mine, Celebrity, OCs, Agent-Ready
+
+#### **📁 components/sidebar/**
+
+##### `accordion-sidebar.tsx`
+- **Purpose**: Main application sidebar with accordion menu
+- **Exports**: `AccordionSidebar` component
+- **State Management**: Accordion states, mobile menu state, mobile detection
+- **Components**: `AccordionMenuItem` (internal component)
+- **Props**: `AccordionMenuItemProps` interface
+- **Features**: Mobile responsive, action buttons, expandable categories
+- **Menu Categories**: Feed/Home, Celebrity, OCs, Agent-Ready
+
+#### **📁 components/user/**
+
+##### `user-profile-header.tsx`
+- **Purpose**: User profile display header
+- **Exports**: `UserProfileHeader` component
+- **Props**: `UserProfileHeaderProps` interface (user, isOwnProfile)
+- **Data Interface**: `UserData` (username, avatar, description, planStatus, etc.)
+- **Features**: Avatar, user info, plan status, action buttons
+
+##### `user-character-grid.tsx`
+- **Purpose**: Grid display of user's characters
+- **Exports**: `UserCharacterGrid` component
+- **Props**: `UserCharacterGridProps` interface
+- **Features**: Character count, grid layout, empty state
+
+---
+
+### **📁 lib/ - Utility Libraries**
+
+#### **📁 lib/api/**
+
+##### `client.ts`
+- **Purpose**: API client for external service integration
+- **Classes**: 
+  - `APIError` - Custom error class with status and response
+- **Functions**:
+  - `apiRequest<T>(endpoint, options)` - Generic API request handler
+- **Exports**: 
+  - `apiClient` - Core API operations
+  - `characterAPI` - Character-specific operations
+  - `userAPI` - User-specific operations  
+  - `chatAPI` - Chat-specific operations
+
+**apiClient Operations**:
+- `uploadAvatar(file)` - File upload with progress tracking
+- `createCharacter(data)` - Character creation via API
+- `createBasicBazi(data)` - Personal astrology creation
+- `createBasicBaziNoAuth(data)` - Anonymous astrology creation
+- `chat(data)` - Chat message sending
+- `createSessionShare(basicBaziId, sessionId)` - Session sharing
+- `getSessionShare(shareToken)` - Retrieve shared sessions
+
+**characterAPI Operations**:
+- `getPublicCharacters()` - Fetch public character feed
+- `createCharacter(data)` - Character creation wrapper
+- `searchCharacters(query, filters)` - Character search
+- `getCharacterById(characterId)` - Single character retrieval
+
+**userAPI Operations**:
+- `uploadAvatar(file)` - User avatar upload
+- `createPersonalBazi(data)` - Personal astrology creation
+
+**chatAPI Operations**:
+- `sendMessage(data)` - Chat message handling
+- `createShare(basicBaziId, sessionId)` - Share creation
+- `getShare(shareToken)` - Share retrieval
+
+##### `types.ts`
+- **Purpose**: TypeScript interfaces for API operations
+- **Interfaces**:
+  - `AvatarUploadResponse` - Avatar upload response
+  - `BasicBaziCharacterCreate` - Character creation request
+  - `BasicBaziCreate` - Basic astrology creation
+  - `CharacterResponse` - Character API response
+  - `BasicBaziResponse` - Astrology API response
+  - `ChatRequest` - Chat message request
+  - `BasicBaziSessionShareResponse` - Session share response
+  - `EventResponse` - Event logging response
+  - `CharacterWithDetails` - Extended character interface
+
+#### **📁 lib/supabase/**
+
+##### `client.ts`
+- **Purpose**: Supabase client initialization
+- **Exports**: `supabase` - Configured Supabase client
+- **Features**: Auto-refresh tokens, session persistence, URL detection
+- **Configuration**: Auth settings, error handling
+
+##### `server.ts`
+- **Purpose**: Server-side Supabase client
+- **Exports**: `createServerClient()` - Server client factory
+- **Features**: Environment validation, error handling
+
+##### `auth.ts`
+- **Purpose**: Authentication operations wrapper
+- **Classes**: `AuthOperations` - Main auth class
+- **Exports**: `authOperations` - Singleton instance
+- **Interfaces**:
+  - `SignUpData` - Registration data
+  - `SignInData` - Login data
+
+**AuthOperations Methods**:
+- `signUp(data)` - User registration with metadata
+- `signIn(data)` - Email/password authentication  
+- `signOut()` - Session termination
+- `getCurrentUser()` - Current user retrieval
+- `getCurrentSession()` - Current session retrieval
+- `onAuthStateChange(callback)` - Auth state monitoring
+- `isAuthenticated()` - Authentication check
+
+##### `database.ts`
+- **Purpose**: Database operations for Supabase
+- **Exports**: `databaseOperations` - Operations object
+- **Interfaces**:
+  - `CreateCharacterData` - Character creation data
+  - `DatabaseOperations` - Operations interface
+
+**DatabaseOperations Methods**:
+- `createCharacter(data)` - Character creation
+- `getCharacterById(id)` - Single character retrieval
+- `getPublicCharacters(limit)` - Public character feed
+- `getUserCharacters(userId)` - User's characters
+- `updateCharacter(id, data)` - Character updates
+- `deleteCharacter(id)` - Soft character deletion
+- `searchCharacters(query, limit)` - Character search
+
+##### `types.ts`
+- **Purpose**: TypeScript definitions for Supabase
+- **Types**: Complete database schema types
+- **Tables**: characters, profiles, comments, likes
+- **Utilities**: Insert, Update, Select type variants
+
+#### **📁 lib/utils/**
+
+##### `logger.ts`
+- **Purpose**: Comprehensive application logging system
+- **Classes**: `Logger` - Main logging class
+- **Exports**: 
+  - `logger` - Singleton logger instance
+  - `withTiming<T>(operation)` - Performance timing utility
+
+**Logger Methods**:
+- `info(data, message)` - Information logging
+- `success(data, message)` - Success logging
+- `error(data, message)` - Error logging
+- `warn(data, message)` - Warning logging
+- `debug(data, message)` - Debug logging
+
+**Specialized Logging**:
+- `authOperation(operation, data)` - Authentication logging
+- `supabaseOperation(operation, table, data)` - Database logging
+- `apiRequest(method, url, data)` - API request logging
+- `apiResponse(method, url, status, data, duration)` - API response logging
+
+**Features**:
+- Development-only logging
+- Data sanitization (sensitive data redaction)
+- Performance timing integration
+- Structured logging with module/operation context
+- Console grouping for readability
+
+---
+
+## 🔧 **Class and Interface Hierarchy**
+
+### **State Management Interfaces**
+
+#### **Page State Interfaces**:
+\`\`\`typescript
+interface PageState {
+  loading: boolean
+  error: string | null
+  characters: CharacterWithDetails[]
+  user: SupabaseUser | null
+  userLoading: boolean
+}
+
+interface LoginState {
+  email: string
+  password: string
+  isPasswordVisible: boolean
+  loading: boolean
+  error: string | null
+  success: string | null
+}
+
+interface RegisterState {
+  username: string
+  email: string
+  password: string
+  confirmPassword: string
+  acceptTerms: boolean
+  isPasswordVisible: boolean
+  isConfirmPasswordVisible: boolean
+  loading: boolean
+  error: string | null
+  success: string | null
+}
+\`\`\`
+
+#### **Component Props Interfaces**:
+\`\`\`typescript
+interface CharacterCardProps {
+  data: CharacterData
+  onClick?: (character: CharacterData) => void
+}
+
+interface CharacterCreationModalProps {
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
+  selectedType: string
+}
+
+interface SearchBarProps {
+  placeholder?: string
+  onSearch?: (query: string) => void
+  onFilterChange?: (filters: string[]) => void
+}
+\`\`\`
+
+### **Data Model Interfaces**
+
+#### **Character Data Models**:
+\`\`\`typescript
+interface CharacterData {
+  id: string
+  username: string
+  updatedTime: string
+  characterName: string
+  description: string
+  characterImage?: string
+  userAvatar?: string
+}
+
+interface CharacterWithDetails extends CharacterResponse {
+  avatar_url?: string
+  creator_name?: string
+  like_count?: number
+  comment_count?: number
+  basic_bazi?: BasicBaziResponse
+}
+\`\`\`
+
+#### **API Data Models**:
+\`\`\`typescript
+interface BasicBaziCharacterCreate {
+  name: string
+  gender: "male" | "female" | "lgbtq"
+  birthday_utc8: string
+  longitude: number
+  birthplace: string
+  mbti: string
+  mode: "personal" | "character" | "none_auth"
+  avatar_id: string | null
+  description: string | null
+  data_type: "virtual_virtual" | "virtual_real" | "real_real" | "real_virtual"
+  visibility: "public" | "private"
+  tags: string[]
+}
+\`\`\`
+
+### **Error Handling Classes**
+
+#### **APIError Class**:
+\`\`\`typescript
+class APIError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public response?: any,
+  ) {
+    super(message)
+    this.name = "APIError"
+  }
+}
+\`\`\`
+
+#### **Logger Class**:
+\`\`\`typescript
+class Logger {
+  private isDevelopment: boolean
+  private formatMessage(level: LogLevel, data: LogData, message: string): void
+  private getEmoji(level: LogLevel): string
+  private sanitizeData(data: any): any
+  
+  // Public logging methods
+  info(data: LogData, message: string): void
+  success(data: LogData, message: string): void
+  error(data: LogData, message: string): void
+  warn(data: LogData, message: string): void
+  debug(data: LogData, message: string): void
+  
+  // Specialized logging methods
+  authOperation(operation: string, data?: any): void
+  supabaseOperation(operation: string, table: string, data?: any): void
+  apiRequest(method: string, url: string, data?: any): void
+  apiResponse(method: string, url: string, status: number, data?: any, duration?: number): void
+}
+\`\`\`
+
+### **Authentication Classes**
+
+#### **AuthOperations Class**:
+\`\`\`typescript
+class AuthOperations {
+  async signUp(data: SignUpData): Promise<{ user: User | null; error: any }>
+  async signIn(data: SignInData): Promise<{ user: User | null; error: any }>
+  async signOut(): Promise<{ error: any }>
+  async getCurrentUser(): Promise<User | null>
+  async getCurrentSession(): Promise<Session | null>
+  onAuthStateChange(callback: (event: string, session: Session | null) => void)
+  async isAuthenticated(): Promise<boolean>
+}
+\`\`\`
+
+---
+
+This comprehensive breakdown covers every file, class, interface, and major function in the project, providing complete visibility into the codebase structure and functionality.
