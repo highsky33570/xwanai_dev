@@ -53,6 +53,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { useAppGlobal } from "@/lib/context/GlobalContext";
 import Logo from "../common/Logo";
 import path from "path";
+import { getAvatarPublicUrl } from "@/lib/supabase/storage";
 
 type Character = Tables<"characters">;
 
@@ -64,6 +65,10 @@ const NavigationNavbar = observer(() => {
   // const [isLoading, setIsLoading] = useState(true);
   const welcomeName = ((user?.user_metadata?.username || user?.email || "Guest") as string).toUpperCase();
   // const isSettingPage = pathname.startsWith("/settings");
+
+  const avatarUrl = user?.user_metadata?.avatar_url || undefined;
+  const avatarFallback = user?.user_metadata?.username || user?.email || "Guest";
+  const avatarName = user?.user_metadata?.username || user?.email || "Guest";
 
   const {
     isOpen: isLoginOpen,
@@ -80,6 +85,7 @@ const NavigationNavbar = observer(() => {
   const { t } = useTranslation();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [, forceUpdate] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -285,7 +291,7 @@ const NavigationNavbar = observer(() => {
     );
 
     // Close the login modal
-    onLoginOpenChange(false);
+    onLoginOpenChange();
 
     // Navigate to register page
     handleNavigation("/register");
@@ -301,7 +307,7 @@ const NavigationNavbar = observer(() => {
     );
 
     // Close the login modal
-    onLoginOpenChange(false);
+    onLoginOpenChange();
 
     // Navigate to restore-password page
     handleNavigation("/restore-password");
@@ -328,6 +334,9 @@ const NavigationNavbar = observer(() => {
     }
 
     switch (keyStr) {
+      case "home":
+        handleNavigation("/");
+        break;
       case "my-home":
         handleNavigation("/user/my-info");
         break;
@@ -362,16 +371,33 @@ const NavigationNavbar = observer(() => {
   const handleOpenLeftOverlay = () => {
     console.log("menu clicked");
     const isChat = pathname?.startsWith("/chat");
-    const evt = new Event(isChat ? "openChatHistorySidebar" : "openLeftMenu");
+    if (isChat) {
+      const evt = new Event(isMobileMenuOpen ? "closeChatHistorySidebar" : "openChatHistorySidebar");
+      document.dispatchEvent(evt);
+      return;
+    }
+    const evt = new Event(isMobileMenuOpen ? "closeLeftMenu" : "openLeftMenu");
     document.dispatchEvent(evt);
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  useEffect(() => {
+    const handleClosed = () => setIsMobileMenuOpen(false);
+    const handleOpened = () => setIsMobileMenuOpen(true);
+    document.addEventListener("leftMenuClosed", handleClosed);
+    document.addEventListener("leftMenuOpened", handleOpened);
+    return () => {
+      document.removeEventListener("leftMenuClosed", handleClosed);
+      document.removeEventListener("leftMenuOpened", handleOpened);
+    };
+  }, []);
 
   return (
     <>
       <Navbar
         id="app-navbar"
         onMenuOpenChange={setIsMenuOpen}
-        className={`${isScrolled ? "backdrop-blur-md" : "backdrop-blur-none"} w-full z-[9999] bg-transparent py-2`}
+        className={`${isScrolled ? "backdrop-blur-md" : "backdrop-blur-none"} w-full bg-transparent py-2`}
         maxWidth="full"
       >
         {
@@ -382,39 +408,174 @@ const NavigationNavbar = observer(() => {
             />
             <button
               aria-label="Open sidebar"
-              className="flex lg:hidden p-1 rounded hover:bg-black/5 w-10"
+              className="relative flex lg:hidden p-2 rounded-[5px] hover:bg-black/5 w-10 h-10 items-center justify-center bg-[#e2e2e5]"
+              style={{ padding: "10px" }}
               onClick={handleOpenLeftOverlay}
             >
-              <Menu className="w-5 h-5" />
+              <span
+                className="block absolute w-5 h-[3px] bg-[#555] rounded-full transition-all duration-200"
+                style={{
+                  top: "50%",
+                  left: "50%",
+                  transform: isMobileMenuOpen
+                    ? "translate(-50%, -50%) rotate(45deg)"
+                    : "translate(-50%, -8px) rotate(0deg)",
+                  opacity: 1,
+                }}
+              />
+              <span
+                className="block absolute w-5 h-[3px] bg-[#555] rounded-full transition-all duration-200"
+                style={{
+                  top: "50%",
+                  left: "50%",
+                  transform: isMobileMenuOpen
+                    ? "translate(-50%, -50%) scaleX(0)"
+                    : "translate(-50%, -50%) scaleX(1)",
+                  opacity: isMobileMenuOpen ? 0 : 1,
+                }}
+              />
+              <span
+                className="block absolute w-5 h-[3px] bg-[#555] rounded-full transition-all duration-200"
+                style={{
+                  top: "50%",
+                  left: "50%",
+                  transform: isMobileMenuOpen
+                    ? "translate(-50%, -50%) rotate(-45deg)"
+                    : "translate(-50%, 6px) rotate(0deg)",
+                  opacity: 1,
+                }}
+              />
             </button>
           </NavbarContent>)
         }
 
         {/* Right side */}
         <NavbarContent justify="end" className="gap-2 text-black">
-          <div className="hidden sm:flex items-center gap-3 text-gray-600 h-full">
-            <button aria-label="Tasks" className="p-1 rounded hover:bg-black/5 w-10 h-10 flex items-center justify-center" onClick={() => handleDropdownAction("tasks")}>
+          {/* Desktop quick menu */}
+          <div className="hidden sm:flex items-center gap-6 text-gray-600 h-full mt-5">
+          <Link
+            href="/"
+            aria-label={t("nav.home")}
+            className="p-1 rounded text-center flex flex-col items-center gap-1 whitespace-nowrap"
+          >
+              <img
+                src={pathname == '/' ? "/svg/tab/home_active.svg" : "/svg/tab/home.svg"}
+                alt={t("nav.home")}
+                className="w-9 h-9 mx-auto object-contain"
+              />
+              <span className={pathname === "/" ? "text-[#eb7020]" : ""}>{t("nav.home")}</span>
+            </Link>
+          <Link
+            href="/database"
+            aria-label={t("nav.database")}
+            className="p-1 rounded text-center flex flex-col items-center gap-1 whitespace-nowrap"
+            onClick={(e) => {
+              if (!user) {
+                e.preventDefault();
+                onLoginOpen();
+              }
+            }}
+          >
               <img
                 src={pathname?.startsWith("/database") ? "/svg/tab/task_active.svg" : "/svg/tab/task.svg"}
-                alt="Tasks"
-                className="w-full h-full object-contain"
+                alt={t("nav.database")}
+                className="w-9 h-9 mx-auto object-contain"
               />
-            </button>
-            <button aria-label="chat" className="p-1 rounded hover:bg-black/5 w-10 h-10 flex items-center justify-center" onClick={() => handleDropdownAction("chat")}>
+              <span className={pathname === "/database" ? "text-[#eb7020]" : ""}>{t("nav.database")}</span>
+            </Link>
+            <Link
+              href="/chat"
+              aria-label={t("nav.chat")}
+              className="p-1 text-center flex flex-col items-center gap-1 whitespace-nowrap"
+              onClick={(e) => {
+                if (!user) {
+                  e.preventDefault();
+                  onLoginOpen();
+                }
+              }}
+            >
               <img
-                // src={isSubscriptionOpen ? "/svg/tab/chat_active.svg" : "/svg/tab/chat.svg"}
                 src={pathname?.startsWith("/chat") ? "/svg/tab/chat_active.svg" : "/svg/tab/chat.svg"}
-                alt="chat"
-                className="w-full h-full object-contain"
+                alt={t("nav.chat")}
+                className="w-9 h-9 mx-auto object-contain"
               />
-            </button>
-            <button aria-label="Settings" className="p-1 rounded hover:bg-black/5 w-10 h-10 flex items-center justify-center" onClick={() => handleDropdownAction("settings")}>
+              <span className={pathname === "/chat" ? "text-[#eb7020]" : ""}>{t("nav.chat")}</span>
+            </Link>
+            <Link
+              href="/settings"
+              aria-label={t("nav.settings")}
+              className="p-1 text-center flex flex-col items-center gap-1 whitespace-nowrap"
+            >
               <img
                 src={pathname?.startsWith("/settings") ? "/svg/tab/setting_active.svg" : "/svg/tab/setting.svg"}
-                alt="Settings"
-                className="w-full h-full object-contain"
+                alt={t("nav.settings")}
+                className="w-9 h-9 mx-auto object-contain"
               />
-            </button>
+              <span className={pathname === "/settings" ? "text-[#eb7020]" : ""}>{t("nav.settings")}</span>
+            </Link>
+          </div>
+          {/* Mobile quick menu */}
+          <div className="flex sm:hidden items-center gap-3 text-gray-600 pt-2.5 mr-2.5">
+            <Link
+              href="/"
+              aria-label={t("nav.home")}
+              className="p-2 rounded-md text-center flex flex-col items-center gap-0.5 whitespace-nowrap"
+            >
+              <img
+                src={pathname == '/' ? "/svg/tab/home_active.svg" : "/svg/tab/home.svg"}
+                alt={t("nav.home")}
+                className="w-8 h-8 mx-auto object-contain"
+              />
+              <span className={`text-sm ${pathname === "/" ? "text-[#eb7020]" : ""}`}>{t("nav.home")}</span>
+            </Link>
+            <Link
+              href="/database"
+              aria-label={t("nav.database")}
+              className="p-2 rounded-md text-center flex flex-col items-center gap-0.5 whitespace-nowrap"
+              onClick={(e) => {
+                if (!user) {
+                  e.preventDefault();
+                  onLoginOpen();
+                }
+              }}
+            >
+              <img
+                src={pathname?.startsWith("/database") ? "/svg/tab/task_active.svg" : "/svg/tab/task.svg"}
+                alt={t("nav.database")}
+                className="w-8 h-8 mx-auto object-contain"
+              />
+              <span className={`text-sm ${pathname === "/database" ? "text-[#eb7020]" : ""}`}>{t("nav.database")}</span>
+            </Link>
+            <Link
+              href="/chat"
+              aria-label={t("nav.chat")}
+              className="p-2 rounded-md text-center flex flex-col items-center gap-0.5 whitespace-nowrap"
+              onClick={(e) => {
+                if (!user) {
+                  e.preventDefault();
+                  onLoginOpen();
+                }
+              }}
+            >
+              <img
+                src={pathname?.startsWith("/chat") ? "/svg/tab/chat_active.svg" : "/svg/tab/chat.svg"}
+                alt={t("nav.chat")}
+                className="w-8 h-8 mx-auto object-contain"
+              />
+              <span className={`text-sm ${pathname === "/chat" ? "text-[#eb7020]" : ""}`}>{t("nav.chat")}</span>
+            </Link>
+            <Link
+              href="/settings"
+              aria-label={t("nav.settings")}
+              className="p-2 rounded-md text-center flex flex-col items-center gap-0.5 whitespace-nowrap"
+            >
+              <img
+                src={pathname?.startsWith("/settings") ? "/svg/tab/setting_active.svg" : "/svg/tab/setting.svg"}
+                alt={t("nav.settings")}
+                className="w-8 h-8 mx-auto object-contain"
+              />
+              <span className={`text-sm ${pathname === "/settings" ? "text-[#eb7020]" : ""}`}>{t("nav.settings")}</span>
+            </Link>
           </div>
           <div className="hidden sm:block w-full max-w-xl min-w-[200px]">
             <Input
@@ -476,7 +637,7 @@ const NavigationNavbar = observer(() => {
           )}
 
           <NavbarItem>
-            {user ? (
+            {user && user.user_metadata?.avatar_url ? (
               <Dropdown placement="bottom-end" className="bg-white">
                 <DropdownTrigger>
                   <button className="relative inline-flex outline-none">
@@ -486,7 +647,11 @@ const NavigationNavbar = observer(() => {
                       color="secondary"
                       name={user.user_metadata?.username || user.email}
                       size="sm"
-                      src={user.user_metadata?.avatar_url}
+                      // src={user.user_metadata?.avatar_url || undefined}
+                      src={getAvatarPublicUrl(
+                        user.user_metadata?.avatar_url,
+                        user.user_metadata?.sub
+                      )}
                     />
                     <span className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4">
                       <SubscriptionBadge variant="icon" />
@@ -547,7 +712,7 @@ const NavigationNavbar = observer(() => {
                         textValue="Beginner Tasks"
                         endContent={
                           uncompletedCount > 0 ? (
-                            <Badge content={uncompletedCount} color="primary" size="sm" />
+                            <Badge color="primary" size="sm">{uncompletedCount}</Badge>
                           ) : null
                         }
                       >

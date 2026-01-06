@@ -131,31 +131,29 @@ export const apiClient = {
         throw new APIError(errorData.message || "Failed to upload avatar", response.status, errorData)
       }
 
-      const responseData = await response.json().catch(() => null)
+      // Handle both text/plain and JSON responses
+      const contentType = response.headers.get("content-type") || ""
+      let fileId: string
 
-      // Normalize various possible backend shapes to { file_id: string }
-      if (
-        responseData &&
-        typeof responseData === "object" &&
-        typeof responseData.file_id === "string"
-      ) {
-        return { file_id: responseData.file_id }
+      if (contentType.includes("application/json")) {
+        const responseData = await response.json()
+        if (responseData && typeof responseData === "object" && typeof responseData.file_id === "string") {
+          fileId = responseData.file_id
+        } else if (responseData && typeof responseData === "object" && typeof responseData.data === "string") {
+          fileId = responseData.data
+        } else if (typeof responseData === "string") {
+          fileId = responseData
+        } else {
+          throw new APIError("Unexpected avatar upload response shape", 500, responseData)
+        }
+      } else {
+        // Handle text/plain response (Next.js API route returns this)
+        const responseText = await response.text()
+        // Clean up the file_id (remove quotes and whitespace)
+        fileId = responseText.replace(/["{}\s]/g, "").trim()
       }
 
-      if (
-        responseData &&
-        typeof responseData === "object" &&
-        typeof responseData.data === "string" &&
-        (responseData.code === 200 || typeof responseData.code === "number")
-      ) {
-        return { file_id: responseData.data }
-      }
-
-      if (typeof responseData === "string") {
-        return { file_id: responseData }
-      }
-
-      throw new APIError("Unexpected avatar upload response shape", 500, responseData)
+      return { file_id: fileId }
     } catch (error) {
       if (error instanceof APIError) {
         throw error

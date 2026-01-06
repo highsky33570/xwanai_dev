@@ -32,7 +32,7 @@ export default function BaseLayout({
         backgroundPosition: "center",
       } as React.CSSProperties}
     >
-      <aside className={`relative hidden lg:flex flex-none flex-col px-3 shrink-0 max-h-screen min-h-screen w-[var(--left-width)]`} style={{ backgroundImage: showBackground ? 'url(/png/left-side.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', backgroundPosition: 'center' }}>
+      <aside className={`relative sm:hidden lg:flex flex-none flex-col px-3 shrink-0 max-h-screen min-h-screen w-[var(--left-width)]`} style={{ backgroundImage: showBackground ? 'url(/png/left-side.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', backgroundPosition: 'center' }}>
         {/* {showBackground ? (<div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/25 to-white z-0" />) : null} */}
         {showInfoLeftImage ? (
           <>
@@ -90,8 +90,12 @@ export default function BaseLayout({
           <LeftMenu />
         </>)}
       </aside>
-      <div className="flex flex-1 flex-col min-w-0 lg:max-w-[calc(100%-var(--left-width))] xl:pl-24 lg:pl-20 md:pl-12 sm:pl-12" >
+      <div className="flex flex-1 flex-col min-w-0 lg:max-w-[calc(100%-var(--left-width))] sm:pl-0 md:pl-0 xl:pl-24 lg:pl-20 2xl:pl-28" >
         <Navbar />
+        {/* Mobile left menu overlay mount point */}
+        <div className="lg:hidden">
+          <LeftMenu inlineHidden />
+        </div>
         <div className="overflow-y-auto">
           {children}
         </div>

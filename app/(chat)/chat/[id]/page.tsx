@@ -768,10 +768,10 @@ const ChatPage = observer(() => {
             const payload = {
               name: character.name,
               gender: (character.gender as any) || "male",
-              birthday_utc8: character.birthday_utc8 || "",
+              birthday_utc8: character?.birthday_utc8 || "",
               longitude: character.longitude ?? 139.0,
-              birthplace: character.birthplace || "",
-              mbti: character.mbti || "",
+              birthplace: character?.birthplace || "",
+              mbti: character?.mbti || "",
               mode: "character" as const,
             };
             basicBaziId = await apiClient.createBasicBazi(payload);
@@ -1642,7 +1642,7 @@ const ChatPage = observer(() => {
             </div>
           </div>
         </div>
-        <div ref={messagesContainerRef} className="flex flex-col w-full h-full overflow-y-auto">
+        <div ref={messagesContainerRef} className="flex flex-col w-full h-full overflow-y-auto pl-5">
           <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-[0.05] pointer-events-none" />
           {/* Permanent Loading Bar for /chat/new */}
           {chatId === "new" && (
@@ -1662,7 +1662,7 @@ const ChatPage = observer(() => {
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col">
             {/* 内容容器 - 大屏模式下充分利用空间，移动端取消padding */}
-            <div className="w-full flex flex-col px-24 md:!pr-[240px] max-w-full h-full">
+            <div className="w-full flex flex-col sm:!pr-[12px] md:!pr-[12px] lg:!pr-[280px] xl:!pr-[320px] 2xl:!pr-[360px]  max-w-full h-full">
               {/* Messages Area */}
               <div
                 className="flex-1 py-3 md:py-6 space-y-3 md:space-y-6"
@@ -1696,6 +1696,7 @@ const ChatPage = observer(() => {
                       {/* 打字机效果内容 */}
                       <div className="prose prose-invert max-w-none text-sm leading-relaxed break-words">
                         <MarkdownWithSources
+                          timestamp={new Date().toISOString()}
                           content={
                             typewriter.isTyping
                               ? `${typewriter.displayText}<typing-cursor></typing-cursor>`
@@ -1932,7 +1933,7 @@ const ChatPage = observer(() => {
                               size="md"
                               isBordered
                               color="primary"
-                              className="flex-shrink-0 mt-1 hidden md:block"
+                              className="flex-shrink-0 mt-1 md:block"
                             />
                           )}
                           {/* Identity line above bubble */}
@@ -1966,7 +1967,7 @@ const ChatPage = observer(() => {
                               size="md"
                               isBordered
                               color="primary"
-                              className="flex-shrink-0 mt-1 hidden md:block"
+                              className="flex-shrink-0 mt-1 md:block"
                             />
                           )}
                         </div>
@@ -2047,20 +2048,21 @@ const ChatPage = observer(() => {
                                       clipRule="evenodd"
                                     />
                                   </svg>
-                                  思考过程
+                                  {t("chatEx.thinkingProcess")}
                                 </span>
                                 <span className="ml-auto text-xs text-default-400 font-mono">
                                   {message.thinking.length} chars
                                 </span>
                                 <span className="text-xs text-primary/60 group-open:hidden">
-                                  展开查看
+                                  {t("chatEx.expandToView")}
                                 </span>
                                 <span className="text-xs text-primary/60 hidden group-open:inline">
-                                  收起
+                                  {t("chatEx.collapse")}
                                 </span>
                               </summary>
                               <div className="mt-2 p-4 rounded-lg bg-default-100/80 dark:bg-default-50/10 border border-default-300 dark:border-default-200/30">
                                 <MarkdownWithSources
+                                  timestamp={formatTime(message.timestamp)}
                                   content={message.thinking}
                                   isStreaming={false}
                                   className="prose prose-sm dark:prose-invert max-w-none text-foreground dark:text-foreground leading-relaxed [&>p]:text-xs [&>p]:my-2 [&>ul]:text-xs [&>ol]:text-xs [&>h1]:text-sm [&>h2]:text-sm [&>h3]:text-xs [&>h4]:text-xs [&>strong]:text-primary [&>em]:text-primary/80 [&>p]:text-foreground-700 [&>p]:dark:text-foreground-300"
@@ -2196,6 +2198,7 @@ const ChatPage = observer(() => {
                           </div>
                           <div className="mt-2 p-4 rounded-lg bg-default-100/80 dark:bg-default-50/10 border border-default-300 dark:border-default-200/30">
                             <MarkdownWithSources
+                              timestamp={formatTime(new Date())}
                               content={currentThinkingMessage}
                               isStreaming={true}
                               className="prose prose-sm dark:prose-invert max-w-none text-foreground dark:text-foreground leading-relaxed [&>p]:text-xs [&>p]:my-2 [&>ul]:text-xs [&>ol]:text-xs [&>h1]:text-sm [&>h2]:text-sm [&>h3]:text-xs [&>h4]:text-xs [&>strong]:text-primary [&>em]:text-primary/80 [&>p]:text-foreground-700 [&>p]:dark:text-foreground-300"
@@ -2209,6 +2212,7 @@ const ChatPage = observer(() => {
                         <>
                           <div className="prose prose-invert max-w-none text-sm leading-relaxed break-words">
                             <MarkdownWithSources
+                              timestamp={formatTime(new Date())}
                               content={`${currentAssistantMessage}<typing-cursor></typing-cursor>`}
                               isStreaming={true}
                               className="prose prose-invert max-w-none text-sm leading-relaxed break-words"
@@ -2326,7 +2330,7 @@ const ChatPage = observer(() => {
                       onKeyDown={handleKeyPress}
                       placeholder={
                         isLimitReached
-                          ? "已达对话回合上限，升级会员可继续对话"
+                          ? t("chatEx.conversationLimitReached")
                           : t("chatEx.inputPlaceholder")
                       }
                       disabled={isLoading || isLimitReached}

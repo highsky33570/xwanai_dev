@@ -139,11 +139,12 @@ const HomePage = observer(() => {
         id: char.id,
         name: char.name,
         username: char.username,
+        // Preserve avatar_id if it exists, otherwise set to null
+        avatar_id: char.avatar_id ?? null,
+        auth_id: char.auth_id ?? null,
         // Add default/missing fields that might be expected by UI components
-        description: "",
-        avatar_id: null,
+        description: char.description ?? "",
         access_level: "public",
-        auth_id: null, // or some placeholder if needed
       }));
 
       setState((prev) => ({
@@ -193,11 +194,12 @@ const HomePage = observer(() => {
         id: char.id,
         username: char.username,
         name: char.name,
+        // Preserve avatar_id if it exists, otherwise set to null
+        avatar_id: char.avatar_id ?? null,
+        auth_id: char.auth_id ?? null,
         // Add default/missing fields that might be expected by UI components
-        description: "",
-        avatar_id: null,
+        description: char.description ?? "",
         access_level: "public",
-        auth_id: null, // or some placeholder if needed
       }));
       setState((prev: PageState) => ({
         ...prev,
@@ -265,14 +267,15 @@ const HomePage = observer(() => {
       // Apply filters
       if (filters.length > 0) {
         filteredCharacters = filteredCharacters.filter((char) => {
+          const dataType = (char as any).data_type;
           return filters.some((filter) => {
             switch (filter) {
               case "celebrity":
-                return char.data_type === "real";
+                return dataType === "real";
               case "ocs":
-                return char.data_type === "virtual";
+                return dataType === "virtual";
               default:
-                return char.tags?.includes(filter);
+                return (char as any).tags?.includes(filter);
             }
           });
         });
@@ -538,7 +541,7 @@ const HomePage = observer(() => {
   }
 
   return (
-    <div className="text-black pr-10">
+    <div className="text-black px-4 sm:px-10">
       <div className="flex">
         <main className="flex-1 py-6 w-full">
           {state.loading ? (
@@ -551,9 +554,13 @@ const HomePage = observer(() => {
             // </div>
           ) : (
             <>
-              <Card className="overflow-hidden mb-6 bg-transparent shadow-none">
+              <Card className="overflow-hidden mb-6 bg-transparent shadow-none rounded-2xl">
                 <CardBody className="p-0">
-                  <img src="/hero.png" alt="" className="w-full h-auto" />
+                  <img
+                    src="/hero1.png"
+                    alt=""
+                    className="w-full h-[35vh] sm:h-auto object-cover object-center"
+                  />
                 </CardBody>
               </Card>
               {state.characters.length > 0 && (
@@ -581,7 +588,10 @@ const HomePage = observer(() => {
                       simulateTouch={true}
                     >
                       {state.characters.slice(0, 12).map((char: any) => (
-                        <SwiperSlide key={char.id} className="flex-shrink-0 pb-2" style={{ width: "12rem" }}>
+                        <SwiperSlide
+                          key={char.id}
+                          className="flex-shrink-0 pb-2 !w-[10.5rem] sm:!w-[12.5rem] md:!w-[14rem]"
+                        >
                           <CharacterCard
                             data={char}
                             onClick={(payload: any) => {
@@ -606,7 +616,10 @@ const HomePage = observer(() => {
                       simulateTouch={true}
                     >
                       {state.featuredCharacters.slice(0, 12).map((char: any) => (
-                        <SwiperSlide key={char.id} className="flex-shrink-0 pb-2 sm:!w-[18rem] md:!w-[20rem]" style={{ width: "16rem" }}>
+                        <SwiperSlide
+                          key={char.id}
+                          className="flex-shrink-0 pb-2 !w-[14rem] sm:!w-[18rem] md:!w-[20rem]"
+                        >
                           <FeaturedCharacterCard
                             data={char}
                             onClick={(payload: any) => {

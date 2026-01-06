@@ -1,5 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { subscriptionAPI, SubscriptionInfo } from "@/lib/api/subscription";
+import { getAvatarPublicUrl } from "@/lib/supabase/storage";
 
 interface UserProfile {
   id: string;
@@ -122,7 +123,7 @@ class UserStore {
   }
 
   get userAvatar(): string {
-    return this.currentUser?.avatar_url || "/placeholder-user.jpg";
+    return getAvatarPublicUrl(this.currentUser?.avatar_url, this.currentUser?.id || null) || "/placeholder-user.jpg";
   }
 
   get userName(): string {

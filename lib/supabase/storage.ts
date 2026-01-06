@@ -1,6 +1,5 @@
 import { createClient } from "./client"
-
-import { v4 as  uuidv4 } from "uuid"
+import { apiClient } from "@/lib/api/client"
 
 export interface UploadedAvatarInfo {
   file_id: string
@@ -9,52 +8,35 @@ export interface UploadedAvatarInfo {
 
 const AVATAR_BUCKET = "avatars"
 const supabase = createClient();
+
 export async function uploadAvatarToStorage(file: File): Promise<UploadedAvatarInfo> {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-  if (userError || !user) {
-    throw new Error("Not authenticated")
-  }
+  // Use API endpoint to avoid RLS policy issues
+  // The backend handles the upload with proper permissions
+  const { file_id } = await apiClient.uploadAvatar(file)
 
-  const fileExtension = file.name.split(".").pop() || "bin"
-  const uniqueId = uuidv4();
-  
-  // typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-  //   ? crypto.randomUUID()
-  //   : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
-  const objectPath = `${user.id}/${uniqueId}.${fileExtension.toLowerCase()}`
-
-  const { error: uploadError } = await supabase.storage
-    .from(AVATAR_BUCKET)
-    .upload(objectPath, file, {
-      cacheControl: "3600",
-      upsert: true,
-      contentType: file.type || undefined,
-    })
-
-  if (uploadError) {
-    throw uploadError
-  }
-
-  const { data: publicUrlData } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(objectPath)
+  // Get public URL for the uploaded file
+  // The file_id format from backend is typically: user_id/uuid.ext
+  const { data: publicUrlData } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(file_id)
   const publicUrl = publicUrlData.publicUrl
 
-  return { file_id: objectPath, public_url: publicUrl }
+  return { file_id, public_url: publicUrl }
 }
 
 export function getAvatarPublicUrl(
   fileId: string | null | undefined,
   ownerUserId?: string | null
 ): string | undefined {
+
   if (!fileId) return undefined
+  if (fileId.includes("http") || fileId.includes("https")) {
+    return fileId
+  }
   let normalizedId = fileId
 
-  // If legacy file IDs are stored without an extension, default to .jpg
+  // If legacy file IDs are stored without an extension, default to .png
   const hasExtension = /\.[a-zA-Z0-9]+$/.test(normalizedId)
   if (!hasExtension) {
-    normalizedId = `${normalizedId}.jpg`
+    normalizedId = `${normalizedId}.png`
   }
 
   // If id was stored as bare UUID and we know the owner, attempt `${ownerUserId}_${uuid}.ext`

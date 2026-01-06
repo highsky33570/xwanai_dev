@@ -1,9 +1,9 @@
 "use client"
 
-import { Button, Select, SelectItem } from "@heroui/react"
+import { Button, Select, SelectItem, Input } from "@heroui/react"
 import { useEffect, useMemo, useState, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Plus, ChevronRight } from "lucide-react"
+import { Plus, ChevronRight, Search as SearchIcon } from "lucide-react"
 import { useCharacterCategories, useDimensionCategories, useMainCategories } from "@/hooks/use-data-queries"
 import { Category } from "@/lib/app_interface"
 import { useTranslation } from "@/lib/utils/translations"
@@ -74,6 +74,8 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const [isOpen, setIsOpen] = useState(false)
   const [navHeight, setNavHeight] = useState(0)
+  const [mobileSearch, setMobileSearch] = useState("")
+  const [animateIn, setAnimateIn] = useState(false)
   const { data: mainCategories = [], isLoading: isMainCategories } = useMainCategories();
   const searchParams = useSearchParams();
 
@@ -86,12 +88,22 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
     [searchParams]
   );
 
+  const openPanel = () => {
+    setIsOpen(true)
+    document.dispatchEvent(new CustomEvent("leftMenuOpened"))
+  }
+
+  const closePanel = () => {
+    setIsOpen(false)
+    document.dispatchEvent(new CustomEvent("leftMenuClosed"))
+  }
+
   useEffect(() => {
     const open = () => {
-      setIsOpen(true)
+      openPanel()
       console.log('openLeftMenu');
     }
-    const close = () => setIsOpen(false)
+    const close = () => closePanel()
     const update = () => {
       const el = document.getElementById("app-navbar")
       if (el) setNavHeight(el.offsetHeight)
@@ -107,6 +119,14 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
       window.removeEventListener("resize", update)
     }
   }, [])
+
+  useEffect(() => {
+    if (isOpen) {
+      requestAnimationFrame(() => setAnimateIn(true))
+    } else {
+      setAnimateIn(false)
+    }
+  }, [isOpen])
 
   useEffect(() => {
     if (!categoryParam) return;
@@ -252,120 +272,185 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
   const renderContent = () => (
     <>
       <LogoLeft />
-      <div className="flex gap-3">
-        <Button
-          color="primary"
-          className="flex-1 rounded-full bg-gray-200 text-black"
-          startContent={<Plus className="w-4 h-4" />}
-          onPress={() => (onCreate ? onCreate() : document.dispatchEvent(new CustomEvent('openModeSelection')))}
-        >
-          {t('home.createCharacter')}
-        </Button>
-        <Button
-          color="primary"
-          className="flex-1 rounded-full bg-gray-200 text-black"
-          startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}
-          onPress={() => router.push("/database")}
-        >
-          {t("common.baziAnalysis")}
-        </Button>
-      </div>
-
-      <div className="my-4 h-px bg-gray-200" />
-      <div className="space-y-3">
-        {/* {mainCategories.map(category => renderCategory(category))} */}
-
-        {isMainCategories ? (
-          <CategorySkeleton />
-        ) : (<>
-          <Select
-            aria-label="Select a category"
-            placeholder=""
-            variant="bordered"
-            items={mainCategories}
-            selectedKeys={selectedParentId ? new Set([selectedParentId]) : new Set()}
-            disallowEmptySelection
-            classNames={{
-              trigger: "data-[focus=true]:border-[#EB7020] data-[open=true]:border-[#EB7020]",
-              value: "text-[#EB7020] group[data-has-value=true] group-data-[has-value=true]:text-[#EB7020]",
-              popoverContent: "border-[#EB7020]/20",
-            }}
-            onSelectionChange={(keys) => {
-              const selectedKey = Array.from(keys)[0] as string | undefined;
-              if (selectedKey) {
-                setSelectedParentId(selectedKey);
-                // Reset selectedTopic when parent category changes
-                setSelectedTopic(null);
-                router.push(`/more?mode=${selectedKey}`);
-              }
-            }}
+      <div className="hidden lg:block">
+        <div className="flex gap-3">
+          <Button
+            color="primary"
+            className="flex-1 rounded-full bg-gray-200 text-black"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={() => (onCreate ? onCreate() : document.dispatchEvent(new CustomEvent('openModeSelection')))}
           >
-            {(item: Category) => (
-              <SelectItem 
-                key={String(item.id)} 
-                textValue={item.display_name}
-                classNames={{
-                  base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
-                }}
-              >
-                {item.display_name}
-              </SelectItem>
-            )}
-          </Select>
+            {t('home.createCharacter')}
+          </Button>
+          <Button
+            color="primary"
+            className="flex-1 rounded-full bg-gray-200 text-black"
+            startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}
+            onPress={() => router.push("/database")}
+          >
+            {t("common.baziAnalysis")}
+          </Button>
+        </div>
 
-          {selectedParent?.children ? (
-            selectedParent.children.length > 0 ? (
-              <Select
-                aria-label="Select a subcategory"
-                placeholder=""
-                variant="bordered"
-                items={selectedParent.children}
-                selectedKeys={selectedTopic ? new Set([selectedTopic]) : new Set()}
-                classNames={{
-                  trigger: "data-[focus=true]:border-[#EB7020] data-[open=true]:border-[#EB7020]",
-                  value: "text-[#EB7020] group-data-[has-value=true]:text-[#EB7020]",
-                  popoverContent: "border-[#EB7020]/20",
-                }}
-                onSelectionChange={(keys) => {
-                  const selectedKey = Array.from(keys)[0] as string;
-                  if (selectedKey) {
-                    const selectedChild = selectedParent.children?.find(
-                      (c: Category) => String(c.id) === selectedKey
-                    );
-                    if (selectedChild) {
-                      setSelectedTopic(selectedKey);
-                      router.push(
-                        `/more?mode=${selectedChild.mode_id}&category=${selectedChild.id}`
+        <div className="my-4 h-px bg-gray-200" />
+        <div className="space-y-3">
+          {isMainCategories ? (
+            <CategorySkeleton />
+          ) : (<>
+            <Select
+              aria-label="Select a category"
+              placeholder=""
+              variant="bordered"
+              items={mainCategories}
+              selectedKeys={selectedParentId ? new Set([selectedParentId]) : new Set()}
+              disallowEmptySelection
+              classNames={{
+                trigger: "data-[focus=true]:border-[#EB7020] data-[open=true]:border-[#EB7020]",
+                value: "text-[#EB7020] group[data-has-value=true] group-data-[has-value=true]:text-[#EB7020]",
+                popoverContent: "border-[#EB7020]/20",
+              }}
+              onSelectionChange={(keys) => {
+                const selectedKey = Array.from(keys)[0] as string | undefined;
+                if (selectedKey) {
+                  setSelectedParentId(selectedKey);
+                  setSelectedTopic(null);
+                  router.push(`/more?mode=${selectedKey}`);
+                }
+              }}
+            >
+              {(item: Category) => (
+                <SelectItem 
+                  key={String(item.id)} 
+                  textValue={item.display_name}
+                  classNames={{
+                    base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
+                  }}
+                >
+                  {item.display_name}
+                </SelectItem>
+              )}
+            </Select>
+
+            {selectedParent?.children ? (
+              selectedParent.children.length > 0 ? (
+                <Select
+                  aria-label="Select a subcategory"
+                  placeholder=""
+                  variant="bordered"
+                  items={selectedParent.children}
+                  selectedKeys={selectedTopic ? new Set([selectedTopic]) : new Set()}
+                  classNames={{
+                    trigger: "data-[focus=true]:border-[#EB7020] data-[open=true]:border-[#EB7020]",
+                    value: "text-[#EB7020] group-data-[has-value=true]:text-[#EB7020]",
+                    popoverContent: "border-[#EB7020]/20",
+                  }}
+                  onSelectionChange={(keys) => {
+                    const selectedKey = Array.from(keys)[0] as string;
+                    if (selectedKey) {
+                      const selectedChild = selectedParent.children?.find(
+                        (c: Category) => String(c.id) === selectedKey
                       );
+                      if (selectedChild) {
+                        setSelectedTopic(selectedKey);
+                        router.push(
+                          `/more?mode=${selectedChild.mode_id}&category=${selectedChild.id}`
+                        );
+                      }
                     }
-                  }
-                }}
-              >
-                {(item: Category) => (
-                  <SelectItem 
-                    key={String(item.id)} 
-                    textValue={item.display_name || item.name}
-                    classNames={{
-                      base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
-                    }}
-                  >
-                    {item.display_name || item.name}
-                  </SelectItem>
-                )}
-              </Select>
-            ) : null
-          ) : (
-            <Skeleton className="h-10 w-full rounded-xl mt-3" />
-          )}
-        </>)}
+                  }}
+                >
+                  {(item: Category) => (
+                    <SelectItem 
+                      key={String(item.id)} 
+                      textValue={item.display_name || item.name}
+                      classNames={{
+                        base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
+                      }}
+                    >
+                      {item.display_name || item.name}
+                    </SelectItem>
+                  )}
+                </Select>
+              ) : null
+            ) : (
+              <Skeleton className="h-10 w-full rounded-xl mt-3" />
+            )}
+          </>)}
+        </div>
       </div>
     </>
   )
 
 
+  // Mobile inline panel (no overlay) - use PC search box structure
+  if (inlineHidden) {
+    return (
+      <div className="lg:hidden w-full px-4">
+        <div
+          className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-out ${isOpen ? "max-h-96 opacity-100 mt-2" : "max-h-0 opacity-0"}`}
+        >
+          <div className="overflow-hidden">
+            <div className="p-4 space-y-4">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={mobileSearch}
+                  onValueChange={setMobileSearch}
+                  placeholder={t("SEARCH")}
+                  radius="lg"
+                  variant="bordered"
+                  startContent={<SearchIcon className="w-5 h-5 text-[#4d4d4d]" />}
+                  classNames={{
+                    input: "text-black placeholder:text-[#4d4d4d] placeholder:opacity-80",
+                    inputWrapper: "bg-[#e2e2e5] border-gray-200 rounded-full",
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      const q = mobileSearch.trim()
+                      closePanel()
+                      router.push(q ? `/more?search=${encodeURIComponent(q)}` : "/more")
+                    }
+                  }}
+                />
+              </div>
+              <div className="h-px bg-[#e2e2e5]" />
+              <div className="flex gap-3">
+                <Button
+                  color="primary"
+                  className="flex-1 rounded-full bg-gray-200 text-black"
+                  startContent={<Plus className="w-4 h-4" />}
+                  onPress={() => {
+                    closePanel()
+                    if (onCreate) {
+                      onCreate()
+                    } else {
+                      document.dispatchEvent(new CustomEvent("openModeSelection"))
+                    }
+                  }}
+                >
+                  {t("home.createCharacter")}
+                </Button>
+                <Button
+                  color="primary"
+                  className="flex-1 rounded-full bg-gray-200 text-black"
+                  startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}
+                  onPress={() => {
+                    closePanel()
+                    router.push("/database")
+                  }}
+                >
+                  {t("common.baziAnalysis")}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="relative h-full flex flex-col py-4 lg:py-6 lg:px-8 px-3">
-      <div className={inlineHidden ? 'hidden' : 'flex flex-col h-full min-h-0 relative z-10'}>
+      <div className="flex flex-col h-full min-h-0 relative z-10">
         <div className="flex-1 min-h-0 overflow-y-auto">
           {renderContent()}
         </div>
@@ -373,29 +458,49 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
         {/* {renderFooter()} */}
       </div>
       {isOpen && (
-        <div className="fixed left-0 right-0 bottom-0 z-[9998] bg-black/30" style={{ top: navHeight }} onClick={() => setIsOpen(false)}>
-          <aside className="relative left-0 top-0 bottom-0 w-80 border-r border-gray-200 p-8 bg-white text-black flex flex-col" style={{ backgroundImage: 'url(/left-background.png)', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }} onClick={(e) => e.stopPropagation()}>
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/60 via-white/25 to-white/60 z-0" />
-            <div className="relative z-10 h-full flex flex-col">
-              <div className="flex-1 min-h-0 overflow-y-auto">
-                {/* Mobile menu specific header items */}
-                <div className="flex items-center gap-3 mb-6">
-                  <button aria-label="Tasks" className="p-1 rounded hover:bg-black/5 w-10" onClick={() => { setIsOpen(false); router.push("/database"); }}>
-                    <img src="/svg/tab/task.svg" alt="Tasks" className="w-auto h-full" />
-                  </button>
-                  <button aria-label="chat" className="p-1 rounded hover:bg-black/5 w-10" onClick={() => { setIsOpen(false); router.push("/chat"); }}>
-                    <img src="/svg/tab/chat.svg" alt="chat" className="w-auto h-full" />
-                  </button>
-                  <button aria-label="Settings" className="p-1 rounded hover:bg-black/5 w-10" onClick={() => { setIsOpen(false); router.push("/settings"); }}>
-                    <img src="/svg/tab/setting.svg" alt="Settings" className="w-auto h-full" />
-                  </button>
-                </div>
-                {renderContent()}
-              </div>
-              <FooterLeft />
-              {/* {renderFooter()} */}
+        <div
+          className={`fixed inset-0 z-[9998] bg-black/40 transition-opacity duration-300 ${animateIn ? "opacity-100" : "opacity-0"}`}
+          style={{ paddingTop: navHeight }}
+          onClick={() => closePanel()}
+        >
+          <div
+            className={`mx-4 mt-3 rounded-2xl bg-white text-black shadow-2xl border border-gray-200 overflow-hidden transform transition-all duration-300 ease-out ${animateIn ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 space-y-3">
+              <Input
+                value={mobileSearch}
+                onValueChange={setMobileSearch}
+                placeholder={t("home.searchPlaceholder")}
+                radius="lg"
+                variant="bordered"
+                startContent={<SearchIcon className="w-4 h-4 text-gray-500" />}
+                classNames={{
+                  input: "text-black placeholder:text-black placeholder:opacity-80",
+                  inputWrapper: "bg-gray-100 border-gray-200",
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const q = mobileSearch.trim()
+                    setIsOpen(false)
+                    router.push(q ? `/more?search=${encodeURIComponent(q)}` : "/more")
+                  }
+                }}
+              />
+              <Button
+                color="primary"
+                className="w-full"
+                onPress={() => {
+                  const q = mobileSearch.trim()
+                  setIsOpen(false)
+                  router.push(q ? `/more?search=${encodeURIComponent(q)}` : "/more")
+                }}
+                endContent={<SearchIcon className="w-4 h-4" />}
+              >
+                {t("home.searchPlaceholder")}
+              </Button>
             </div>
-          </aside>
+          </div>
         </div>
       )}
     </div>

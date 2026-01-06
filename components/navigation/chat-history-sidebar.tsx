@@ -4,6 +4,7 @@ import { useMemo, useEffect, useState } from "react";
 import { Card, CardBody, Button, Avatar, Chip } from "@heroui/react";
 import { MessageCircle, Plus, Sparkles } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import { useUserData } from "@/hooks/use-data-queries";
 import { getAvatarPublicUrl } from "@/lib/supabase/storage";
 import { formatTimeOnly } from "@/lib/utils/timeFormatter";
@@ -18,7 +19,7 @@ interface ChatHistorySidebarProps {
 export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHistorySidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { t } = useTranslation();
+  const { t, getLanguage } = useTranslation();
   const { characters, sessions } = useUserData();
   const [isOpen, setIsOpen] = useState(false);
   const [navHeight, setNavHeight] = useState(0);
@@ -83,13 +84,14 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
               startContent={<Plus className="w-4 h-4" />}
               onPress={() => (onCreate ? onCreate() : document.dispatchEvent(new CustomEvent('openModeSelection')))}
             >
-              创建角色
+              {t('home.createCharacter')}
             </Button>
             <Button
+              as={Link}
+              href="/database"
               color="primary"
               className="flex-1 rounded-full bg-gray-200 text-black w-full p-3"
               startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}
-              onPress={() => router.push("/database")}
             >
               {t("common.baziAnalysis")}
             </Button>
@@ -109,16 +111,16 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
                       <div className="flex items-center gap-3">
                         <Avatar
                           src={getAvatarPublicUrl(group.character?.avatar_id, group.character?.auth_id) || "/placeholder-user.jpg"}
-                          name={group.character?.name || "Unknown"}
+                          name={group.character?.name || t("chatEx.unknownCharacter")}
                           size="sm"
                         />
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-medium text-foreground truncate">
-                              {group.character?.name || "未关联角色"}
+                              {group.character?.name || t("chatEx.unlinkedCharacter")}
                             </p>
                             {group.character && group.character.is_report_ready === false && (
-                              <Chip size="sm" variant="flat" className="text-xs h-5 px-2 bg-gray-300 text-white">待生成</Chip>
+                              <Chip size="sm" variant="flat" className="text-xs h-5 px-2 bg-gray-300 text-white">{t("chatEx.pendingGeneration")}</Chip>
                             )}
                           </div>
                         </div>
@@ -131,25 +133,28 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
                     {group.sessions.slice(0, 3).map((s: any) => {
                       const isActive = !!activeSessionId && s.id === activeSessionId;
                       return (
-                        <Card
+                        <Link
                           key={s.id}
-                          isPressable
-                          onPress={() => router.push(`/chat/${s.id}`)}
-                          className={isActive ? " w-full rounded-xl bg-gray-200 shadow-sm" : " w-full rounded-xl bg-transparent shadow-none"}
+                          href={`/chat/${s.id}`}
+                          className={isActive ? " w-full rounded-xl bg-[#eb7020] shadow-sm block" : " w-full rounded-xl bg-transparent block"}
                         >
-                          <CardBody className="py-2 px-3">
-                            <div className="flex items-center gap-2">
-                              <MessageCircle
-                                className={isActive ? "w-4 h-4 text-foreground-500" : "w-4 h-4 text-foreground-400"}
-                              />
-                              <span
-                                className={isActive ? "text-sm text-black truncate" : "text-sm text-foreground-400 truncate"}
-                              >
-                                {s.title || `${group.character?.name || "会话"} ${formatTimeOnly(s.update_time, "zh-CN").replace(":", "")}`}
-                              </span>
-                            </div>
-                          </CardBody>
-                        </Card>
+                          <Card isPressable={false}
+                            className={isActive ? " w-full rounded-xl bg-[#eb7020] shadow-sm" : " w-full rounded-xl bg-transparent shadow-none"}
+                          >
+                            <CardBody className="py-2 px-3">
+                              <div className="flex items-center gap-2">
+                                <MessageCircle
+                                  className={isActive ? "w-4 h-4 text-foreground-500" : "w-4 h-4 text-foreground-400"}
+                                />
+                                <span
+                                  className={isActive ? "text-sm text-black truncate" : "text-sm text-foreground-400 truncate"}
+                                >
+                                  {s.title || `${group.character?.name || t("chatEx.session")} ${formatTimeOnly(s.update_time, getLanguage()).replace(":", "")}`}
+                                </span>
+                              </div>
+                            </CardBody>
+                          </Card>
+                        </Link>
                       );
                     })}
                   </div>
@@ -165,15 +170,10 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
           <aside className="absolute left-0 top-0 bottom-0 w-80 border-r border-gray-200 p-8 bg-white text-black overflow-y-auto" style={{ backgroundImage: 'url(/left-background.png)', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center' }} onClick={(e) => e.stopPropagation()}>
             <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/60 via-white/25 to-white/60 z-0" />
             <div className="relative z-10">
-              <div className="flex space-y-1 z-20 items-center max-h-24 mt-2" onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push("/"); }}>
-                <img src="/logo.svg" alt="Logo" className="h-12 w-auto rounded-md" />
-                <div className="text-6xl font-bold hidden lg:block" style={{ fontFamily: '"Novecento WideBold", sans-serif' }}>
-                  XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>AI</span>
-                </div>
-              </div>
+              <LogoLeft />
               <div className="flex flex-col gap-3 mt-5">
-                <Button color="primary" className="flex-1 rounded-full bg-gray-200 text-black w-full p-3" startContent={<Plus className="w-4 h-4" />} onPress={() => (onCreate ? onCreate() : document.dispatchEvent(new CustomEvent('openModeSelection')))}>创建角色</Button>
-                <Button color="primary" className="flex-1 rounded-full bg-gray-200 text-black w-full p-3" startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />} onPress={() => router.push("/database")}>命盘分析</Button>
+                <Button color="primary" className="flex-1 rounded-full bg-gray-200 text-black w-full p-3" startContent={<Plus className="w-4 h-4" />} onPress={() => (onCreate ? onCreate() : document.dispatchEvent(new CustomEvent('openModeSelection')))}>{t('home.createCharacter')}</Button>
+                <Button as={Link} href="/database" color="primary" className="flex-1 rounded-full bg-gray-200 text-black w-full p-3" startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}>{t("common.baziAnalysis")}</Button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {Object.entries(grouped).map(([cid, group]) => {
@@ -187,12 +187,12 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
                         <Card isPressable onPress={() => setOpenGroups((prev) => ({ ...prev, [cid]: !prev[cid] }))} className="rounded-2xl bg-gray-100 w-full">
                           <CardBody className="p-3">
                             <div className="flex items-center gap-3">
-                              <Avatar src={getAvatarPublicUrl(group.character?.avatar_id, group.character?.auth_id) || "/placeholder-user.jpg"} name={group.character?.name || "Unknown"} size="sm" />
+                              <Avatar src={getAvatarPublicUrl(group.character?.avatar_id, group.character?.auth_id) || "/placeholder-user.jpg"} name={group.character?.name || t("chatEx.unknownCharacter")} size="sm" />
                               <div className="flex-1">
                                 <div className="flex items-center justify-between">
-                                  <p className="text-sm font-medium text-foreground truncate">{group.character?.name || "未关联角色"}</p>
+                                  <p className="text-sm font-medium text-foreground truncate">{group.character?.name || t("chatEx.unlinkedCharacter")}</p>
                                   {group.character && group.character.is_report_ready === false && (
-                                    <Chip size="sm" variant="flat" className="text-xs h-5 px-2 bg-gray-300 text-white">待生成</Chip>
+                                    <Chip size="sm" variant="flat" className="text-xs h-5 px-2 bg-gray-300 text-white">{t("chatEx.pendingGeneration")}</Chip>
                                   )}
                                 </div>
                               </div>
@@ -205,16 +205,24 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
                           {group.sessions.slice(0, 3).map((s: any) => {
                             const isActive = !!activeSessionId && s.id === activeSessionId;
                             return (
-                              <Card key={s.id} isPressable onPress={() => router.push(`/chat/${s.id}`)} className={isActive ? " w-full rounded-xl bg-gray-200 shadow-sm" : " w-full rounded-xl bg-transparent shadow-none"}>
-                                <CardBody className="py-2 px-3">
-                                  <div className="flex items-center gap-2">
-                                    <MessageCircle className={isActive ? "w-4 h-4 text-foreground-500" : "w-4 h-4 text-foreground-400"} />
-                                    <span className={isActive ? "text-sm text-black truncate" : "text-sm text-foreground-400 truncate"}>
-                                      {s.title || `${group.character?.name || "会话"} ${formatTimeOnly(s.update_time, "zh-CN").replace(":", "")}`}
-                                    </span>
-                                  </div>
-                                </CardBody>
-                              </Card>
+                              <Link
+                                key={s.id}
+                                href={`/chat/${s.id}`}
+                                className={isActive ? " w-full rounded-xl bg-gray-200 shadow-sm block" : " w-full rounded-xl bg-transparent shadow-none block"}
+                              >
+                                <Card isPressable={false}
+                                  className={isActive ? " w-full rounded-xl bg-[#eb7020] shadow-sm" : " w-full rounded-xl bg-transparent shadow-none"}
+                                >
+                                  <CardBody className="py-2 px-3">
+                                    <div className="flex items-center gap-2">
+                                      <MessageCircle className={isActive ? "w-4 h-4 text-foreground-500" : "w-4 h-4 text-foreground-400"} />
+                                      <span className={isActive ? "text-sm text-black truncate" : "text-sm text-foreground-400 truncate"}>
+                                        {s.title || `${group.character?.name || t("chatEx.session")} ${formatTimeOnly(s.update_time, getLanguage()).replace(":", "")}`}
+                                      </span>
+                                    </div>
+                                  </CardBody>
+                                </Card>
+                              </Link>
                             );
                           })}
                         </div>

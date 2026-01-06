@@ -103,8 +103,8 @@ export default function ModeSelectionModalWrapper({
       }
     } catch (error: any) {
       // 🎯 解析配额限制错误并显示给用户
-      let errorMessage = "创建会话失败，请重试";
-      let errorTitle = "创建失败";
+      let errorMessage = t("modes.createSessionFailed");
+      let errorTitle = t("modes.createFailed");
       let variant: "destructive" | "warning" = "destructive";
       
       // APIError 将错误数据存储在 response 字段中
@@ -192,8 +192,8 @@ export default function ModeSelectionModalWrapper({
       }
     } catch (error: any) {
       // 🎯 解析配额限制错误并显示给用户
-      let errorMessage = "创建个人解读失败，请重试";
-      let errorTitle = "创建失败";
+      let errorMessage = t("modes.createPersonalReadingFailed");
+      let errorTitle = t("modes.createFailed");
       let variant: "destructive" | "warning" = "destructive";
       
       // APIError 将错误数据存储在 response 字段中

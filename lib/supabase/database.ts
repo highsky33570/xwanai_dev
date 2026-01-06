@@ -95,7 +95,6 @@ class DatabaseOperations {
         )
         return { data: [], error: result.error }
       }
-      console.log('getMainCategories: ', result.data);
 
       return { data: result.data || [], error: null }
     } catch (error) {
@@ -133,8 +132,6 @@ class DatabaseOperations {
         )
         return { data: [], error: result.error }
       }
-
-      console.log('getDimensionCategories: ', result.data);
 
       return { data: result.data || [], error: null }
     } catch (error) {
@@ -211,8 +208,6 @@ class DatabaseOperations {
         )
         return { data: [], error: result.error }
       }
-
-      console.log('getDimensionCategories: ', result.data);
 
       return { data: result.data || [], error: null }
     } catch (error) {

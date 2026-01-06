@@ -71,8 +71,8 @@ export function useCreateSession() {
     },
     onError: (error: any) => {
       // 🎯 解析配额限制错误
-      let errorMessage = "创建聊天会话失败，请重试";
-      let errorTitle = "创建失败";
+      let errorMessage = t("modes.createChatSessionFailed");
+      let errorTitle = t("modes.createFailed");
       let variant: "destructive" | "warning" = "destructive";
       
       // APIError 将错误数据存储在 response 字段中
@@ -155,8 +155,8 @@ export function useCreatePersonalSession() {
     },
     onError: (error: any) => {
       // 🎯 解析配额限制错误
-      let errorMessage = "创建个人解读失败，请重试";
-      let errorTitle = "创建失败";
+      let errorMessage = t("modes.createPersonalReadingFailed");
+      let errorTitle = t("modes.createFailed");
       let variant: "destructive" | "warning" = "destructive";
       
       // APIError 将错误数据存储在 response 字段中
@@ -259,8 +259,8 @@ export function useCreateCharacterChatSession() {
     onError: (error) => {
       console.error("🚨 [Character Chat Session Creation Failed]:", error);
       toast({
-        title: "创建失败",
-        description: "启动角色对话失败，请稍后再试",
+        title: t("modes.createFailed"),
+        description: t("modes.startCharacterChatFailed"),
         variant: "destructive",
       });
     },
@@ -334,8 +334,8 @@ export function useCreateHepanSession() {
     onError: (error: any) => {
       console.error("🚨 [Hepan Session Creation Failed]:", error);
       toast({
-        title: "创建失败",
-        description: error?.message || "创建合盘对话失败，请稍后再试",
+        title: t("modes.createFailed"),
+        description: error?.message || t("modes.createHepanChatFailed"),
         variant: "destructive",
       });
     },

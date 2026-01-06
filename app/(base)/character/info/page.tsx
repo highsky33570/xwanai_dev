@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCreateCharacterChatSession } from "@/hooks/use-session-mutations";
 import {
@@ -38,8 +38,9 @@ import {
   Sparkles,
   Share2,
   CheckCircle2,
+  Camera,
 } from "lucide-react";
-import { getAvatarPublicUrl } from "@/lib/supabase/storage";
+import { getAvatarPublicUrl, uploadAvatarToStorage } from "@/lib/supabase/storage";
 import { authOperations } from "@/lib/supabase/auth";
 import { databaseOperations as db } from "@/lib/supabase/database";
 import { chatAPI } from "@/lib/api/client";
@@ -79,6 +80,12 @@ export default function CharacterInfoPage() {
   const [selectedReports, setSelectedReports] = useState<string[]>([]); // 选中的报告
   const [selectedSoulSections, setSelectedSoulSections] = useState<string[]>([]); // 选中的灵魂档案模块
   const [isCreatingShare, setIsCreatingShare] = useState(false); // 正在创建分享
+
+  // 🖼️ 头像上传状态
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 🎭 使用 React Query mutation 创建角色对话 session
   const createCharacterChatSession = useCreateCharacterChatSession();
@@ -435,6 +442,73 @@ export default function CharacterInfoPage() {
     }
   };
 
+  // 🖼️ 头像上传处理函数
+  const handleAvatarSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // 验证文件类型 - 仅允许 PNG
+    if (file.type !== "image/png") {
+      sonnerToast.error(t("userEdit.errorNotPng"));
+      return;
+    }
+
+    // 检查文件大小 (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      sonnerToast.error(t("settings.errorFileTooLarge"));
+      return;
+    }
+
+    setAvatarFile(file);
+
+    // 创建预览
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const preview = e.target?.result as string;
+      setAvatarPreview(preview);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile || !character) return;
+
+    try {
+      setIsUploadingAvatar(true);
+
+      // 上传头像到存储
+      const { file_id } = await uploadAvatarToStorage(avatarFile);
+
+      // 更新角色数据
+      const { data: updatedCharacter, error } = await databaseOperations.updateCharacter(character.id, {
+        avatar_id: file_id,
+      });
+
+      if (error) {
+        throw new Error(error.message || t("characterInfo.avatarUpdateFailed"));
+      }
+
+      if (updatedCharacter) {
+        setCharacter(updatedCharacter);
+        setAvatarFile(null);
+        setAvatarPreview(null);
+        sonnerToast.success(t("characterInfo.avatarUpdated"));
+      }
+    } catch (error: any) {
+      logger.error(
+        {
+          module: "character-info",
+          operation: "uploadAvatar",
+          error,
+        },
+        "Failed to upload avatar"
+      );
+      sonnerToast.error(error?.message || t("characterInfo.avatarUploadFailed"));
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "Not specified";
     try {
@@ -450,7 +524,7 @@ export default function CharacterInfoPage() {
 
   if (loading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-content1">
+      <div className="h-screen w-full flex items-center justify-center">
         <div className="text-center space-y-4">
           <Spinner size="lg" color="primary" />
           <div className="text-foreground-600">
@@ -463,7 +537,7 @@ export default function CharacterInfoPage() {
 
   if (error || !character) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-content1">
+      <div className="h-screen w-full flex items-center justify-center">
         <div className="text-center space-y-4 max-w-md mx-auto px-4">
           <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-danger/20 to-warning/20 rounded-full flex items-center justify-center">
             <img
@@ -508,7 +582,7 @@ export default function CharacterInfoPage() {
               <div className="flex flex-col items-center gap-3 mb-4">
                 <div className="relative">
                   <Avatar
-                    src={getAvatarPublicUrl(character.avatar_id, character.auth_id) || "/info-leftbackground.png"}
+                    src={avatarPreview || getAvatarPublicUrl(character.avatar_id, character.auth_id) || "/info-leftbackground.png"}
                     className="w-16 h-16"
                     isBordered
                     color="primary"
@@ -516,7 +590,60 @@ export default function CharacterInfoPage() {
                   <span className="absolute -bottom-1 right-0 w-3 h-3 rounded-full bg-success ring-2 ring-white flex items-center justify-center">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#A9EBC5]" />
                   </span>
+                  {/* 上传头像按钮 - 仅拥有者可见 */}
+                  {isOwner && !character.original_source && (
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/png,.png"
+                        onChange={handleAvatarSelect}
+                        className="hidden"
+                        id="character-avatar-upload"
+                      />
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        color="primary"
+                        className="absolute -bottom-1 -right-1 w-6 h-6 min-w-0"
+                        onPress={() => fileInputRef.current?.click()}
+                        isDisabled={isUploadingAvatar}
+                      >
+                        {isUploadingAvatar ? (
+                          <Spinner size="sm" />
+                        ) : (
+                          <Camera className="w-3 h-3" />
+                        )}
+                      </Button>
+                    </>
+                  )}
                 </div>
+                {/* 如果有新头像预览，显示上传按钮 */}
+                {avatarPreview && avatarFile && isOwner && !character.original_source && (
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      color="primary"
+                      onPress={handleAvatarUpload}
+                      isLoading={isUploadingAvatar}
+                      className="text-xs"
+                    >
+                      {t("characterInfo.uploadAvatar")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="light"
+                      onPress={() => {
+                        setAvatarFile(null);
+                        setAvatarPreview(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                      className="text-xs"
+                    >
+                      {t("characterInfo.cancel")}
+                    </Button>
+                  </div>
+                )}
                 <h1 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight text-center">
                   {character.name}
                 </h1>

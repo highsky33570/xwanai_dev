@@ -110,13 +110,13 @@ const UserEditModal: FC<UserEditModalProps> = ({
         `选择的文件: ${file.name}, 大小: ${file.size} bytes, 类型: ${file.type}`
       );
 
-      // 检查文件类型
-      if (!file.type.startsWith("image/")) {
+      // 检查文件类型 - 仅允许 PNG
+      if (file.type !== "image/png") {
         logger.error(
           { module: "user-edit-modal", operation: "handleAvatarSelect" },
-          "文件类型不正确"
+          "文件类型不正确，仅允许 PNG"
         );
-        setError(t("userEdit.errorSelectImage"));
+        setError(t("userEdit.errorNotPng"));
         return;
       }
 
@@ -246,14 +246,8 @@ const UserEditModal: FC<UserEditModalProps> = ({
         // 构建头像URL，移除引号和其他格式化字符
         const cleanFileId = String(fileId).replace(/["{}\s]/g, "");
 
-        // 获取文件扩展名 - 使用实际的扩展名
-        const fileExtension = avatarFile.type.includes("jpeg")
-          ? "jpeg" // 修改为jpeg，保持与实际文件一致
-          : avatarFile.type.includes("png")
-          ? "png"
-          : avatarFile.type.includes("gif")
-          ? "gif"
-          : "jpeg";
+        // 获取文件扩展名 - 仅支持 PNG
+        const fileExtension = "png";
         // 使用Supabase官方方法获取公共URL
         const fileName = `${user.id}_${cleanFileId}.${fileExtension}`;
         const { data: urlData } = supabase.storage
@@ -289,7 +283,7 @@ const UserEditModal: FC<UserEditModalProps> = ({
               {
                 module: "user-edit-modal",
                 operation: "uploadAvatar",
-                status: testResponse.status,
+                data: { status: testResponse.status },
               },
               `头像URL不可访问: ${avatarUrl}`
             );
@@ -493,7 +487,7 @@ const UserEditModal: FC<UserEditModalProps> = ({
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/png,.png"
               onChange={handleAvatarSelect}
               className="hidden"
             />

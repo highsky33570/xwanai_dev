@@ -46,7 +46,7 @@ export function AppGlobalProvider({ children }: { children: React.ReactNode }) {
 
                 // Get user data
                 const { data: { user } } = await client.auth.getUser();
-
+                console.log("user: ", user);
                 if (user) {
                     setUser(user);
                 } else {

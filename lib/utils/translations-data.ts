@@ -132,6 +132,12 @@ export const translations = {
       characterNotReadyDesc: "This character is still being generated. Please wait.",
       createChatFailed: "Failed to Create Chat",
       createChatFailedDesc: "An error occurred. Please try again.",
+      createSessionFailed: "Failed to create session. Please try again.",
+      createPersonalReadingFailed: "Failed to create personal reading. Please try again.",
+      createChatSessionFailed: "Failed to create chat session. Please try again.",
+      createFailed: "Creation Failed",
+      startCharacterChatFailed: "Failed to start character chat. Please try again later.",
+      createHepanChatFailed: "Failed to create synastry chat. Please try again later.",
       pending: "Pending"
     },
     // SEO
@@ -221,6 +227,9 @@ export const translations = {
       selectTwoCharacters: "Please select 2 characters",
       selectOneMore: "Select 1 more",
       startSynastryReading: "Start Synastry Reading",
+      startMixing: "Start Mixing",
+      pleaseSelectTwoCharacters: "Please select 2 characters",
+      unknownCharacter: "Unknown Character",
       // Deletion
       deleteCharacters: "Delete {count} character(s)",
       selectCharactersToDelete: "Select characters to delete",
@@ -457,7 +466,8 @@ export const translations = {
       libraryFullDesc: "Character library is full.",
       upgradeForUnlimited: "Upgrade to premium to enjoy unlimited creation, unlimited storage, and more!",
       upgradeNow: "Upgrade Now",
-      usageLimitReached: "⚠️ Usage Limit Reached"
+      usageLimitReached: "⚠️ Usage Limit Reached",
+      createFailed: "Creation Failed",
     },
     // Additional Chat strings
     chatEx: {
@@ -510,6 +520,15 @@ export const translations = {
       missingBirthInfo: "Missing birth information",
       noBirthTimeData: "This character has no birth time data",
       close: "Close",
+      // Thinking process
+      thinkingProcess: "Thinking Process",
+      expandToView: "Expand to View",
+      collapse: "Collapse",
+      conversationLimitReached: "Conversation limit reached. Upgrade to continue.",
+      unknownCharacter: "Unknown",
+      unlinkedCharacter: "Unlinked Character",
+      pendingGeneration: "Pending Generation",
+      session: "Session",
       // Chat page empty state
       startNewReading: "Start a New Reading",
       chooseModeDescription: "Choose a mode to begin or continue an existing session from the left sidebar.",
@@ -538,6 +557,10 @@ export const translations = {
       mbti: "MBTI",
       characterTags: "Character Tags",
       destinyReport: "Destiny Report",
+      uploadAvatar: "Upload Avatar",
+      avatarUpdated: "Avatar updated successfully",
+      avatarUploadFailed: "Failed to upload avatar",
+      avatarUpdateFailed: "Failed to update avatar",
       completed: "Completed",
       pending: "Pending",
       coreProfile: "Core Profile",
@@ -724,7 +747,9 @@ export const translations = {
       cancel: "Cancel",
       uploading: "Uploading...",
       change: "Change",
-      maxFileSize: "Max 5MB, JPG/PNG only",
+      maxFileSize: "Max 5MB, PNG only",
+      errorNotPng: "Only PNG files are allowed",
+      errorFileTooLarge: "File size must be less than 5MB",
       username: "Username",
       usernamePlaceholder: "Enter your username",
       fullName: "Full Name",
@@ -746,6 +771,8 @@ export const translations = {
       usernameMinLength: "Username must be at least 3 characters",
       usernameInvalid: "Username can only contain letters, numbers, hyphens, and underscores",
       bioMaxLength: "Bio must be less than 500 characters",
+      loginToAccessSettings: "Please log in to access settings.",
+      goToLogin: "Go to Login",
     },
     // Register page
     authRegister: {
@@ -827,7 +854,8 @@ export const translations = {
       editProfile: "Edit Profile",
       uploadAvatar: "Upload Avatar",
       clickCameraIcon: "Click camera icon to change avatar",
-      supportedFormats: "Supports JPG, PNG, GIF formats, max 5MB",
+      supportedFormats: "Supports PNG format only, max 5MB",
+      errorNotPng: "Only PNG files are allowed",
       username: "Username",
       usernamePlaceholder: "Enter username",
       fullName: "Full Name",
@@ -845,6 +873,16 @@ export const translations = {
       errorProfileUpdate: "Failed to update user profile",
       errorUserNotLoggedIn: "User not logged in",
       errorSessionExpired: "User not logged in or session expired"
+    },
+    // User Profile Header
+    userProfile: {
+      totalCharacters: "Total Characters",
+      public: "Public",
+      private: "Private",
+      totalLikes: "Total Likes",
+      expires: "Expires: ",
+      daysLeft: "{days} days left",
+      viewDatabase: "View Database"
     },   
   },
   zh: {
@@ -978,6 +1016,12 @@ export const translations = {
       characterNotReadyDesc: "该角色仍在生成中，请稍候",
       createChatFailed: "创建对话失败",
       createChatFailedDesc: "发生错误，请重试",
+      createSessionFailed: "创建会话失败，请重试",
+      createPersonalReadingFailed: "创建个人解读失败，请重试",
+      createChatSessionFailed: "创建聊天会话失败，请重试",
+      createFailed: "创建失败",
+      startCharacterChatFailed: "启动角色对话失败，请稍后再试",
+      createHepanChatFailed: "创建合盘对话失败，请稍后再试",
       pending: "待生成"
     },
     // SEO
@@ -1066,6 +1110,9 @@ export const translations = {
       selectTwoCharacters: "请选择 2 个角色",
       selectOneMore: "再选择 1 个",
       startSynastryReading: "开始合盘对话",
+      startMixing: "开始混合",
+      pleaseSelectTwoCharacters: "请选择两个角色",
+      unknownCharacter: "未知角色",
       // Deletion
       deleteCharacters: "删除 {count} 个角色",
       selectCharactersToDelete: "请选择要删除的角色",
@@ -1168,7 +1215,9 @@ export const translations = {
       cancel: "取消",
       uploading: "上传中...",
       change: "更换",
-      maxFileSize: "最大 5MB，仅支持 JPG/PNG",
+      maxFileSize: "最大 5MB，仅支持 PNG",
+      errorNotPng: "仅允许 PNG 文件",
+      errorFileTooLarge: "文件大小不能超过 5MB",
       username: "用户名",
       usernamePlaceholder: "输入您的用户名",
       fullName: "全名",
@@ -1190,6 +1239,8 @@ export const translations = {
       usernameMinLength: "用户名至少需要3个字符",
       usernameInvalid: "用户名只能包含字母、数字、连字符和下划线",
       bioMaxLength: "个人简介不能超过500个字符",
+      loginToAccessSettings: "请先登录以访问设置。",
+      goToLogin: "前往登录",
     },
     // Subscription
     subscription: {
@@ -1354,7 +1405,8 @@ export const translations = {
       libraryFullDesc: "角色库已满。",
       upgradeForUnlimited: "升级会员即可享受无限创建、无限存储等特权！",
       upgradeNow: "立即升级",
-      usageLimitReached: "⚠️ 使用次数已达上限"
+      usageLimitReached: "⚠️ 使用次数已达上限",
+      createFailed: "创建失败"
     },
     // Additional Chat strings
     chatEx: {
@@ -1407,6 +1459,15 @@ export const translations = {
       missingBirthInfo: "缺少出生信息",
       noBirthTimeData: "该角色没有出生时间数据",
       close: "关闭",
+      // 思考过程
+      thinkingProcess: "思考过程",
+      expandToView: "展开查看",
+      collapse: "收起",
+      conversationLimitReached: "已达对话回合上限，升级会员可继续对话",
+      unknownCharacter: "未知",
+      unlinkedCharacter: "未关联角色",
+      pendingGeneration: "待生成",
+      session: "会话",
       // Chat page empty state
       startNewReading: "开始新的解读",
       chooseModeDescription: "选择一个模式开始，或从左侧边栏继续现有会话。",
@@ -1501,7 +1562,11 @@ export const translations = {
       clickToToggle: "点击选择/取消",
       selectAllReports: "全选命理档案",
       selectAllSoulSections: "全选灵魂档案",
-      shareEverything: "一键分享人物"
+      shareEverything: "一键分享人物",
+      uploadAvatar: "上传头像",
+      avatarUpdated: "头像更新成功",
+      avatarUploadFailed: "上传头像失败",
+      avatarUpdateFailed: "更新头像失败",
     },
     myShares: {
       title: "我的分享",
@@ -1675,7 +1740,8 @@ export const translations = {
       editProfile: "编辑资料",
       uploadAvatar: "上传头像",
       clickCameraIcon: "点击相机图标更换头像",
-      supportedFormats: "支持 JPG, PNG, GIF 格式，最大 5MB",
+      supportedFormats: "仅支持 PNG 格式，最大 5MB",
+      errorNotPng: "仅允许 PNG 文件",
       username: "用户名",
       usernamePlaceholder: "输入用户名",
       fullName: "全名",
@@ -1693,6 +1759,16 @@ export const translations = {
       errorProfileUpdate: "更新用户资料失败",
       errorUserNotLoggedIn: "用户未登录",
       errorSessionExpired: "用户未登录或session过期"
+    },
+    // User Profile Header
+    userProfile: {
+      totalCharacters: "角色总数",
+      public: "公开",
+      private: "私有",
+      totalLikes: "总点赞数",
+      expires: "到期：",
+      daysLeft: "剩余 {days} 天",
+      viewDatabase: "查看数据库"
     }
   }
 }

@@ -25,6 +25,7 @@ import {
   Spinner,
   Chip,
   Skeleton,
+  Link
 } from "@heroui/react";
 import {
   ArrowLeft,
@@ -47,6 +48,9 @@ import {
   Sparkles, // 🎯 添加 Sparkles 图标用于试用会员
   Info,
   Copy,
+  Clock,
+  Zap,
+  Check,
   // userRound,
 } from "lucide-react";
 import { authOperations } from "@/lib/supabase/auth";
@@ -59,6 +63,12 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { InvitationCard } from "@/components/invitation/invitation-card";
 import { useAppGlobal } from "@/lib/context/GlobalContext";
 import { useTranslation } from "@/lib/utils/translations";
+import { getAvatarPublicUrl } from "@/lib/supabase/storage";
+import { subscriptionAPI } from "@/lib/api/subscription";
+import { Store } from "@/store";
+import SubscriptionModal from "@/components/subscription/subscription-modal";
+import { invitationAPI } from "@/lib/api/client";
+import { toast } from "sonner";
 
 type Profile = Tables<"profiles">;
 
@@ -85,9 +95,7 @@ function ProfileSkeleton() {
 
         {/* Header */}
         <div className="flex items-center gap-4 my-8 justify-between">
-          <Button isIconOnly variant="light" onClick={() => router.back()}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
+       
           <div className="flex-grow flex items-center justify-center gap-2 ">
             <User className="w-4 h-4 text-foreground-400" />
             <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
@@ -167,12 +175,17 @@ function ProfileSkeleton() {
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, getLanguage } = useTranslation();
   const { subscription } = useSubscription();
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
     onOpenChange: onDeleteOpenChange,
+  } = useDisclosure();
+  const {
+    isOpen: isSubscriptionOpen,
+    onOpen: onSubscriptionOpen,
+    onOpenChange: onSubscriptionOpenChange,
   } = useDisclosure();
 
   const { user } = useAppGlobal();
@@ -194,13 +207,16 @@ export default function SettingsPage() {
   //   checkAuth();
   // }, [router]);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState("");
+  const [invitationCode, setInvitationCode] = useState<string | null>(null);
+  const [isLoadingInvitationCode, setIsLoadingInvitationCode] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     username: "",
@@ -220,9 +236,49 @@ export default function SettingsPage() {
 
   useEffect(() => {
     loadUserProfile();
+    loadInvitationCode();
   }, [user]);
 
+  const loadInvitationCode = async () => {
+    if (!user) return;
+    try {
+      setIsLoadingInvitationCode(true);
+      const { code } = await invitationAPI.getInvitationCode();
+      setInvitationCode(code);
+    } catch (error) {
+      logger.error(
+        { module: "settings-page", operation: "loadInvitationCode", error },
+        "Failed to load invitation code"
+      );
+      // Don't show error toast, just log it
+    } finally {
+      setIsLoadingInvitationCode(false);
+    }
+  };
+
+  const handleCopyInvitationCode = async () => {
+    if (!invitationCode) {
+      const { code } = await invitationAPI.getInvitationCode();
+      setInvitationCode(code);
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(code);
+        setCopied(true);
+        toast.success(t("settings.copied"));
+        setTimeout(() => setCopied(false), 2000);
+      }
+      return;
+    }
+
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(invitationCode);
+      setCopied(true);
+      toast.success(t("settings.copied"));
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   const loadUserProfile = async () => {
+    console.log("user: ", user);
     if (!user) return;
     try {
       setIsLoading(true);
@@ -231,7 +287,8 @@ export default function SettingsPage() {
       // Try to get profile from database first
       let userProfile: Profile | null = null;
       try {
-        userProfile = await databaseOperations.getUserProfile(user?.id ?? '');
+        userProfile = await databaseOperations.getUserProfile(user?.id ?? '').data || null;
+        console.log("userProfile: ", userProfile);
       } catch (dbError) {
         logger.error(
           {
@@ -243,6 +300,8 @@ export default function SettingsPage() {
           "Failed to load profile from database, falling back to auth metadata"
         );
       }
+
+      console.log("userProfile: ", userProfile);
 
       // If no profile in database, create one from auth metadata or defaults
       if (!userProfile) {
@@ -296,8 +355,8 @@ export default function SettingsPage() {
 
       // Populate form with existing data
       const populatedFormData: FormData = {
-        username: userProfile.username || "",
-        full_name: userProfile.full_name || "",
+        username: userProfile?.username || "",
+        full_name: userProfile?.full_name || "",
         bio: preferences.bio,
         location: preferences.location,
         birth_date: preferences.birth_date,
@@ -312,9 +371,9 @@ export default function SettingsPage() {
       setInitialFormData({ ...populatedFormData });
 
       // Set avatar preview if available
-      if (userProfile.avatar_url) {
-        setAvatarPreview(userProfile.avatar_url);
-        setInitialAvatarPreview(userProfile.avatar_url);
+      if (userProfile?.avatar_url) {
+        setAvatarPreview(getAvatarPublicUrl(userProfile?.avatar_url, user?.id || null) || null);
+        setInitialAvatarPreview(getAvatarPublicUrl(userProfile?.avatar_url, user?.id || null) || null);
       } else {
         setInitialAvatarPreview(null);
       }
@@ -413,14 +472,15 @@ export default function SettingsPage() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file
-    if (file.size > 5 * 1024 * 1024) {
-      setErrors({ avatar: "File size must be less than 5MB" });
+    // Validate file - only allow PNG
+    if (file.type !== "image/png") {
+      setErrors({ avatar: t("settings.errorNotPng") });
       return;
     }
 
-    if (!file.type.startsWith("image/")) {
-      setErrors({ avatar: "Please select an image file" });
+    // Check file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors({ avatar: t("settings.errorFileTooLarge") });
       return;
     }
 
@@ -604,16 +664,17 @@ export default function SettingsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-content1 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardBody className="text-center">
-            <p>Please log in to access settings.</p>
+            <p>{t("settings.loginToAccessSettings")}</p>
             <Button
               color="primary"
               className="mt-4"
-              onClick={() => router.push("/login")}
+              as={Link}
+              href="/login"
             >
-              Go to Login
+              {t("settings.goToLogin")}
             </Button>
           </CardBody>
         </Card>
@@ -626,11 +687,9 @@ export default function SettingsPage() {
       <div className="max-w-3xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center gap-4 my-8 justify-between">
-          <Button isIconOnly variant="light" onClick={() => router.back()}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
+          
           <div className="flex-grow flex items-center justify-center gap-2 ">
-            <User className="w-4 h-4 text-foreground-400" />
+            {/* <User className="w-4 h-4 text-foreground-400" /> */}
             <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
             {/* <p className="text-foreground-600">
               Manage your account and preferences
@@ -670,7 +729,7 @@ export default function SettingsPage() {
             <div className="flex-1">
               <input
                 type="file"
-                accept="image/*"
+                accept="image/png,.png"
                 onChange={handleAvatarChange}
                 className="hidden"
                 id="avatar-upload"
@@ -808,22 +867,21 @@ export default function SettingsPage() {
                   }
                   className="mt-1"
                 >
-                  {subscription?.subscription_tier === "yearly"
-                    ? t("settings.annualPremium")
-                    : subscription?.subscription_tier === "monthly"
-                      ? t("settings.monthlyPremium")
-                      : subscription?.subscription_tier === "premium"
-                        ? t("settings.trialPremium")
-                        : t("settings.freePlan")}
+                  {subscription?.subscription_tier
+                    ? subscriptionAPI.formatTierName(subscription.subscription_tier, getLanguage())
+                    : t("settings.freePlan")}
                 </Chip>
               </div>
               <Button
                 variant="light"
-                onPress={async () => {
-                }}
+                onPress={onSubscriptionOpen}
                 className="h-10 px-5 min-w-[120px] rounded-full bg-gradient-to-r from-gray-100 to-[#EB7020]/20 text-foreground shadow-sm hover:to-[#EB7020]/30 hover:shadow-md"
               >
-                {t("settings.upgrade")}
+                {subscription?.subscription_status === "expired" || subscription?.subscription_status === "cancelled"
+                  ? t("subscription.reactivate")
+                  : subscription?.subscription_status !== "free"
+                    ? t("subscription.renew")
+                    : t("settings.upgrade")}
               </Button>
             </div>
 
@@ -852,17 +910,23 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between gap-2">
               <div>
                 <p className="flex items-center gap-2">{t("settings.invitationCode")}<Info className="w-4 h-4" /></p>
-                <span className="text-[#EB7020] text-sm">GT3EM</span>
+                {isLoadingInvitationCode ? (
+                  <Spinner size="sm" className="mt-1" />
+                ) : (
+                  <span className="text-[#EB7020] text-sm font-mono">
+                    {invitationCode || "--------"}
+                  </span>
+                )}
               </div>
 
               <Button
                 variant="light"
-                onPress={async () => {
-                }}
-                startContent={<Copy className="w-4 h-4" />}
+                onPress={handleCopyInvitationCode}
+                isDisabled={isLoadingInvitationCode || !invitationCode}
+                startContent={copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 className="h-10 px-5 min-w-[120px] rounded-full bg-gradient-to-r from-gray-100 to-[#EB7020]/20 text-foreground shadow-sm hover:to-[#EB7020]/30 hover:shadow-md"
               >
-                {t("settings.copy")}
+                {copied ? t("settings.copied") : t("settings.copy")}
               </Button>
             </div>
 
@@ -930,6 +994,12 @@ export default function SettingsPage() {
           )}
         </div>
       </div>
+
+      {/* 订阅弹窗 */}
+      <SubscriptionModal
+        isOpen={isSubscriptionOpen}
+        onOpenChange={onSubscriptionOpenChange}
+      />
 
       {/* Delete Account Modal */}
       <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange}>

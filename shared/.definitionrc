@@ -139,6 +139,7 @@ CREATE TABLE public.characters (
   is_report_ready bool DEFAULT false NULL,
   character_metadata jsonb DEFAULT '{}'::jsonb NULL,
   category_id int8 NULL,
+  last_chat_at timestamptz NULL,
   CONSTRAINT characters_pkey PRIMARY KEY (id),
   CONSTRAINT check_access_level CHECK (
     (access_level)::text = ANY (ARRAY['public'::text, 'private'::text])
@@ -172,10 +173,13 @@ CREATE TABLE public.characters (
   )
 );
 
+COMMENT ON COLUMN public.characters.last_chat_at IS '最后一次与该角色聊天的时间（角色扮演模式）';
+
 -- Indexes for characters
 CREATE INDEX idx_characters_access_level ON public.characters USING btree (access_level);
 CREATE INDEX idx_characters_auth_access ON public.characters USING btree (auth_id, access_level);
 CREATE INDEX idx_characters_auth_id ON public.characters USING btree (auth_id);
+CREATE INDEX idx_characters_auth_last_chat ON public.characters USING btree (auth_id, last_chat_at DESC NULLS LAST) WHERE last_chat_at IS NOT NULL;
 CREATE INDEX idx_characters_auth_status_category ON public.characters USING btree (auth_id, processing_status, category) WHERE (processing_status)::text = 'completed'::text;
 CREATE INDEX idx_characters_available ON public.characters USING btree (processing_status, access_level) WHERE (processing_status)::text = 'completed'::text;
 CREATE INDEX idx_characters_avatar_id ON public.characters USING btree (avatar_id);
@@ -183,6 +187,7 @@ CREATE INDEX idx_characters_birth_time ON public.characters USING btree (birth_t
 CREATE INDEX idx_characters_category ON public.characters USING btree (category);
 CREATE INDEX idx_characters_created_at ON public.characters USING btree (created_at);
 CREATE INDEX idx_characters_gender ON public.characters USING btree (gender);
+CREATE INDEX idx_characters_last_chat_at ON public.characters USING btree (last_chat_at DESC NULLS LAST);
 CREATE INDEX idx_characters_longitude ON public.characters USING btree (longitude);
 CREATE INDEX idx_characters_mbti ON public.characters USING btree (mbti);
 CREATE INDEX idx_characters_metadata_ai_summary ON public.characters USING btree (((character_metadata -> 'ai_extracted'::text) ->> 'ai_summary'::text));

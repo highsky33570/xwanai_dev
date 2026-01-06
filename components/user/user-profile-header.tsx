@@ -130,27 +130,27 @@ const UserProfileHeader = observer(({
                   {stats.totalCharacters}
                 </div>
                 <div className="text-foreground-60/60 text-sm font-medium">
-                  Total Characters
+                  {t("userProfile.totalCharacters")}
                 </div>
               </div>
               <div className="text-center md:text-left bg-white/5 rounded-lg p-4">
                 <div className="font-bold text-success text-2xl">
                   {stats.publicCharacters}
                 </div>
-                <div className="text-foreground-60/60 text-sm font-medium">Public</div>
+                <div className="text-foreground-60/60 text-sm font-medium">{t("userProfile.public")}</div>
               </div>
               <div className="text-center md:text-left bg-white/5 rounded-lg p-4">
                 <div className="font-bold text-warning text-2xl">
                   {stats.privateCharacters}
                 </div>
-                <div className="text-foreground-60/60 text-sm font-medium">Private</div>
+                <div className="text-foreground-60/60 text-sm font-medium">{t("userProfile.private")}</div>
               </div>
               <div className="text-center md:text-left bg-white/5 rounded-lg p-4">
                 <div className="font-bold text-secondary text-2xl">
                   {stats.totalLikes}
                 </div>
                 <div className="text-foreground-60 text-sm font-medium">
-                  Total Likes
+                  {t("userProfile.totalLikes")}
                 </div>
               </div>
             </div>
@@ -177,15 +177,13 @@ const UserProfileHeader = observer(({
                       <div className="flex items-center gap-4 text-sm text-foreground-60 mt-1">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {getLanguage() === "zh" ? "到期：" : "Expires: "}
+                          {t("userProfile.expires")}
                           {formatDate(subscription.subscription_end_date)}
                         </span>
                         {subscription.days_remaining !== null && (
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {getLanguage() === "zh" 
-                              ? `剩余 ${subscription.days_remaining} 天` 
-                              : `${subscription.days_remaining} days left`}
+                            {t("userProfile.daysLeft").replace("{days}", String(subscription.days_remaining))}
                           </span>
                         )}
                       </div>
@@ -228,7 +226,7 @@ const UserProfileHeader = observer(({
                 size="lg"
                 className="font-semibold"
               >
-                View Database
+                {t("userProfile.viewDatabase")}
               </Button>
             </div>
           </div>

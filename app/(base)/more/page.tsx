@@ -24,6 +24,8 @@ import {
   CardBody,
   CardFooter,
   Pagination,
+  Select,
+  SelectItem,
 } from "@heroui/react";
 
 import {
@@ -130,6 +132,16 @@ export default function PersonalCharacterDatabase() {
     }
     return dims;
   }, [modeParam, dimensionCategories]);
+
+  const mobileMainSelected = useMemo(() => {
+    if (modeParam) return String(modeParam);
+    return mainCategories[0] ? String(mainCategories[0].id) : "";
+  }, [modeParam, mainCategories]);
+
+  const mobileSubOptions = useMemo(() => {
+    if (!mobileMainSelected) return [];
+    return mainCategories.find((c: any) => String(c.id) === mobileMainSelected)?.children ?? [];
+  }, [mobileMainSelected, mainCategories]);
 
   useEffect(() => {
     setSelectedTags({});
@@ -402,6 +414,77 @@ export default function PersonalCharacterDatabase() {
             )}
           </div>
 
+          {/* Mobile main/sub category selectors */}
+          <div className="sm:hidden flex grid grid-cols-2 sm:grid-cols-2 gap-2">
+            <Select
+              aria-label="Select main category"
+              placeholder=""
+              variant="bordered"
+              items={mainCategories}
+              selectedKeys={mobileMainSelected ? new Set([mobileMainSelected]) : new Set()}
+              classNames={{
+                trigger: "data-[focus=true]:border-[#EB7020] data-[open=true]:border-[#EB7020]",
+                value: "text-[#EB7020] group-data-[has-value=true]:text-[#EB7020]",
+                popoverContent: "border-[#EB7020]/20",
+              }}
+              onSelectionChange={(keys) => {
+                const selectedKey = Array.from(keys)[0] as string | undefined;
+                if (selectedKey) {
+                  router.push(`/more?mode=${selectedKey}`);
+                }
+              }}
+            >
+              {(item: any) => (
+                <SelectItem
+                  key={String(item.id)}
+                  textValue={item.display_name}
+                  classNames={{
+                    base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
+                  }}
+                >
+                  {item.display_name}
+                </SelectItem>
+              )}
+            </Select>
+
+            <Select
+              aria-label="Select subcategory"
+              placeholder=""
+              variant="bordered"
+              items={mobileSubOptions}
+              selectedKeys={
+                categoryParam
+                  ? new Set([categoryParam])
+                  : mobileSubOptions[0]
+                  ? new Set([String(mobileSubOptions[0].id)])
+                  : new Set()
+              }
+              classNames={{
+                trigger: "data-[focus=true]:border-[#EB7020] data-[open=true]:border-[#EB7020]",
+                value: "text-[#EB7020] group-data-[has-value=true]:text-[#EB7020]",
+                popoverContent: "border-[#EB7020]/20",
+              }}
+              onSelectionChange={(keys) => {
+                const selectedKey = Array.from(keys)[0] as string | undefined;
+                if (selectedKey && mobileMainSelected) {
+                  router.push(`/more?mode=${mobileMainSelected}&category=${selectedKey}`);
+                }
+              }}
+            >
+              {(item: any) => (
+                <SelectItem
+                  key={String(item.id)}
+                  textValue={item.display_name || item.name}
+                  classNames={{
+                    base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
+                  }}
+                >
+                  {item.display_name || item.name}
+                </SelectItem>
+              )}
+            </Select>
+          </div>
+
           <div className="flex flex-wrap items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="rounded-[10px]">
@@ -560,7 +643,7 @@ export default function PersonalCharacterDatabase() {
           </div>
         ) : (
           <>
-            <div className="h-fit grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+            <div className="h-fit grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
               {filteredCharacters.map((character) => (
                 <CharacterCard
                   key={character.id + uuidv4()}

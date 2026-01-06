@@ -33,6 +33,7 @@ import FeaturedCharacterCard from "@/components/character/featured-character-car
 import ModeSelectionModal from "@/components/modals/mode-selection-modal";
 import { useTranslation } from "@/lib/utils/translations";
 import { Search, Plus, X } from "lucide-react";
+import { useAppGlobal } from "@/lib/context/GlobalContext";
 
 type CharacterData = Tables<"characters">;
 
@@ -63,6 +64,7 @@ export default function PersonalCharacterDatabase() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useTranslation();
+  const { user } = useAppGlobal();
   const { data: categories = [] } = useCharacterCategories();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("recent");
@@ -71,7 +73,6 @@ export default function PersonalCharacterDatabase() {
   const [rawCharacters, setRawCharacters] = useState<CharacterData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
 
   // New filter bar states
   const [activeCategory, setActiveCategory] = useState<string>("");
@@ -135,9 +136,7 @@ export default function PersonalCharacterDatabase() {
       setLoading(true);
       setError(null);
 
-      const currentUser = await authOperations.getCurrentUser();
-
-      if (!currentUser) {
+      if (!user) {
         logger.warn(
           { module: "database", operation: "loadUserAndCharacters" },
           "No authenticated user found, redirecting to login"
@@ -146,10 +145,8 @@ export default function PersonalCharacterDatabase() {
         return;
       }
 
-      setUser(currentUser);
-
       const { data: userCharacters, error: charactersError } =
-        await databaseOperations.getUserCharacters(currentUser.id);
+        await databaseOperations.getUserCharacters(user.id);
 
       if (charactersError) {
         logger.error(
@@ -158,7 +155,7 @@ export default function PersonalCharacterDatabase() {
             operation: "loadUserAndCharacters",
             error: charactersError,
             data: {
-              userId: currentUser.id,
+              userId: user.id,
               errorDetails: {
                 message: charactersError.message,
                 code: charactersError.code,
@@ -184,11 +181,12 @@ export default function PersonalCharacterDatabase() {
       // Transform Supabase data to component format
       const transformedCharacters: DisplayCharacterData[] = charactersArray.map(
         (char, index) => {
+          const dataType = (char as any).data_type;
           const transformed = {
             id: char.id,
             username:
-              currentUser.user_metadata?.username ||
-              currentUser.email?.split("@")[0] ||
+              user.user_metadata?.username ||
+              user.email?.split("@")[0] ||
               "You",
             updatedTime: formatRelativeTime(
               char.updated_at || char.created_at || ""
@@ -197,12 +195,12 @@ export default function PersonalCharacterDatabase() {
             description:
               char.description || t("database.noDescriptionProvided"),
             characterImage: getAvatarPublicUrl(char.avatar_id, char.auth_id),
-            userAvatar: currentUser.user_metadata?.avatar_url || undefined,
+            userAvatar: user.user_metadata?.avatar_url || undefined,
             starsign: undefined, // No birth date in characters table according to .definitionrc
             birthdate: undefined, // No birth date in characters table according to .definitionrc
             tags: char.tags || [],
             visibility: char.access_level as "public" | "private",
-            data_type: char.data_type,
+            data_type: dataType as "virtual" | "real",
             isFromFavorite: !!(char as any).character_metadata?.original_character_id, // ✅ 正确检查收藏标记
             processingStatus: char.is_report_ready, // 🎯 使用 is_report_ready 字段（true=完成，false=待生成）
             category_id: (char as any).category_id,
@@ -738,117 +736,26 @@ export default function PersonalCharacterDatabase() {
 
   return (
     <>
-      <div className="relative w-full h-full pr-10">
-        <div className="relative z-10 py-6">
+      <div className="relative w-full h-full px-4 sm:px-6 lg:px-10">
+        <div className="relative z-10 py-4 sm:py-6">
           <div className="rounded-3xl">
             <div className="py-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap justify-between items-center gap-2 w-full md:w-auto">
                   <Button
                     variant="solid"
                     className="bg-[#EB7020] text-white"
                     onPress={() => {
-                      if (isSelectionMode) {
-                        setIsSelectionMode(false);
-                        setSelectedCharacters([]);
+                      if (isSelectionMode && selectedCharacters.length === 2) {
+                        handleSynastryReading();
                       } else {
                         setIsSelectionMode(true);
                       }
                     }}
                   >
-                    {isSelectionMode ? "Disable Selection Mode" : t("database.enterSelectionMode")}
+                    {isSelectionMode ? selectedCharacters.length === 2 ? t("database.startMixing") : t("database.pleaseSelectTwoCharacters") : t("database.enterSelectionMode")}
                   </Button>
-                  <Button
-                    variant="flat"
-                    startContent={<Plus className="w-4 h-4" />}
-                    onPress={() => setShowCreateModal(true)}
-                    className="bg-black/5 text-black"
-                  >
-                    {t("database.createCharacter")}
-                  </Button>
-                </div>
-                {/* <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                  <Dropdown>
-                    <DropdownTrigger>
-                      <Button variant="bordered" className="rounded-lg border-[#EB7020] text-[#EB7020] bg-[#EB7020]/10 w-full md:w-auto">
-                        {categoryIcon && (
-                          <span
-                            className="inline-block w-4 h-4 mr-2"
-                            style={{
-                              WebkitMaskImage: `url(${categoryIcon})`,
-                              maskImage: `url(${categoryIcon})`,
-                              WebkitMaskSize: "contain",
-                              maskSize: "contain",
-                              WebkitMaskRepeat: "no-repeat",
-                              maskRepeat: "no-repeat",
-                              WebkitMaskPosition: "center",
-                              maskPosition: "center",
-                              backgroundColor: "#EB7020",
-                            }}
-                          />
-                        )}
-                        {categoryLabel}
-                        <ChevronDown className="w-4 h-4 ml-2" />
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu
-                      aria-label="Category"
-                      selectedKeys={[activeCategory]}
-                      selectionMode="single"
-                      onSelectionChange={(keys) => {
-                        const value = Array.from(keys as Set<string>)[0];
-                        if (value) setActiveCategory(value);
-                      }}
-                      className="bg-content1"
-                    >
-                      {categoryOptions.map((opt) => (
-                        <DropdownItem
-                          key={opt.key}
-                          className={opt.key === activeCategory ? "text-[#EB7020] font-semibold rounded-lg border-[#EB7020] bg-[#EB7020]/10" : "text-foreground"}
-                          startContent={
-                            <span
-                              className="inline-block w-4 h-4"
-                              style={{
-                                WebkitMaskImage: `url(${opt.icon})`,
-                                maskImage: `url(${opt.icon})`,
-                                WebkitMaskSize: "contain",
-                                maskSize: "contain",
-                                WebkitMaskRepeat: "no-repeat",
-                                maskRepeat: "no-repeat",
-                                WebkitMaskPosition: "center",
-                                maskPosition: "center",
-                                backgroundColor: opt.key === activeCategory ? "#EB7020" : "#6b7280",
-                              }}
-                            />
-                          }
-                        >
-                          {opt.label}
-                        </DropdownItem>
-                      ))}
-                    </DropdownMenu>
-                  </Dropdown>
-
-                  <Dropdown>
-                    <DropdownTrigger>
-                      <Button variant="bordered" className="rounded-lg border-[#EB7020] text-[#EB7020] bg-[#EB7020]/10 w-full md:w-auto">
-                        ALL PROFILE LISTS
-                        <ChevronDown className="w-4 h-4 ml-2" />
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu aria-label="Lists" className="bg-content1">
-                      <DropdownItem key="pop_culture">POP CULTURE</DropdownItem>
-                      <DropdownItem key="the_arts">THE ARTS</DropdownItem>
-                      <DropdownItem key="musician">MUSICIAN</DropdownItem>
-                      <DropdownItem key="philosophy">PHILOSOPHY</DropdownItem>
-                      <DropdownItem key="science">SCIENCE</DropdownItem>
-                      <DropdownItem key="sports">SPORTS</DropdownItem>
-                      <DropdownItem key="business">BUSINESS</DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
-                </div> */}
-
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-3 w-full md:w-auto">
-                  <Button
+                  {/* <Button
                     variant="solid"
                     startContent={<Plus className="w-4 h-4" />}
                     onPress={() => {
@@ -861,17 +768,10 @@ export default function PersonalCharacterDatabase() {
                     className="rounded-full bg-[#EB7020] text-white w-full sm:w-auto"
                   >
                     {isSelectionMode 
-                      ? (selectedCharacters.length === 2 ? "开始混合" : "请选择两个角色")
-                      : "选择角色"}
-                  </Button>
-                  <Button
-                    variant="flat"
-                    startContent={<Plus className="w-4 h-4" />}
-                    onPress={() => setShowCreateModal(true)}
-                    className="rounded-full bg-black/10 text-black w-full sm:w-auto"
-                  >
-                    創建角色
-                  </Button>
+                      ? (selectedCharacters.length === 2 ? t("database.startMixing") : t("database.pleaseSelectTwoCharacters"))
+                      : t("database.enterSelectionMode")}
+                  </Button> */}
+                {isSelectionMode && (
                   <Button
                     isIconOnly
                     variant="flat"
@@ -880,6 +780,29 @@ export default function PersonalCharacterDatabase() {
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
+                )}
+                  {/* <Button
+                    variant="flat"
+                    startContent={<Plus className="w-4 h-4" />}
+                    onPress={() => setShowCreateModal(true)}
+                    className="bg-black/5 text-black"
+                  >
+                    {t("database.createCharacter")}
+                  </Button> */}
+                </div>
+               
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-3 w-full md:w-auto">
+                 
+                  <Button
+                    variant="flat"
+                    startContent={<Plus className="w-4 h-4" />}
+                    onPress={() => setShowCreateModal(true)}
+                    className="rounded-full bg-black/10 text-black w-full sm:w-auto"
+                  >
+                    {t("database.createCharacter")}
+                  </Button>
+                  
                 </div>
               </div>
 
@@ -901,7 +824,7 @@ export default function PersonalCharacterDatabase() {
             </div>
 
             <div className="pb-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div></div>
                 {/* <div className="flex items-center gap-2">
                   <Button
@@ -928,7 +851,7 @@ export default function PersonalCharacterDatabase() {
                   </Button>
                 </div> */}
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 justify-end">
                   {isSelectionMode && (
                     <Button
                       variant="flat"
@@ -1139,7 +1062,7 @@ export default function PersonalCharacterDatabase() {
                           >
                             <div className="w-2 h-2 rounded-full bg-danger"></div>
                             <span className="text-foreground">
-                              {character?.characterName || "未知角色"}
+                              {character?.characterName || t("database.unknownCharacter")}
                             </span>
                           </li>
                         );

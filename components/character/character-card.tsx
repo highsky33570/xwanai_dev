@@ -5,6 +5,8 @@ import { getAvatarPublicUrl } from "@/lib/supabase/storage";
 import type { Tables } from "@/lib/supabase/types";
 import { PlusCircle, BookImage } from "lucide-react";
 import { useCharacterCategories } from "@/hooks/use-data-queries";
+import Link from "next/link";
+import { useAppGlobal } from "@/lib/context/GlobalContext";
 
 type CharacterData = Tables<"characters"> & {
   profiles: {
@@ -24,7 +26,9 @@ interface CharacterCardProps {
 
 export default function CharacterCard({ data, character, onClick }: CharacterCardProps) {
   const source: any = data ?? character ?? {};
+  const { user } = useAppGlobal();
   const name: string = source.name ?? source.characterName ?? "";
+  const characterId: string = source.id ?? source.uuid ?? "";
   const avatar_id: string | null = source.avatar_id ?? null;
   const auth_id: string | null = source.auth_id ?? null;
   const profiles = source.profiles ?? (source.username || source.userAvatar
@@ -48,14 +52,21 @@ export default function CharacterCard({ data, character, onClick }: CharacterCar
   const category = categories.find((c: any) => c.id === categoryId);
   const categoryIcon = getCategoryIconUrl(category?.icon_url);
 
-  return (
-    <div className="space-y-1">
-      <Card
-        isPressable
-        shadow="sm"
-        className="rounded-2xl overflow-hidden hover:shadow-lg transition-shadow w-full"
-        onPress={() => onClick?.(source)}
-      >
+  const handleClick = (e: React.MouseEvent) => {
+    if (!user) {
+      e.preventDefault();
+      document.dispatchEvent(new CustomEvent("openLoginModal"));
+      return;
+    }
+    onClick?.(source);
+  };
+
+  const cardContent = (
+    <Card
+      isPressable={false}
+      shadow="sm"
+      className="rounded-2xl overflow-hidden hover:shadow-lg transition-shadow w-full"
+    >
         <CardBody className="p-0">
           <div className="relative w-full aspect-[3/4] bg-content3">
             {imageSrc ? (
@@ -122,7 +133,20 @@ export default function CharacterCard({ data, character, onClick }: CharacterCar
             </div>
           </div>
         </CardBody>
-      </Card>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-1">
+      {user ? (
+        <Link href={`/character/info?id=${characterId}`} onClick={handleClick}>
+          {cardContent}
+        </Link>
+      ) : (
+        <div onClick={handleClick} className="cursor-pointer">
+          {cardContent}
+        </div>
+      )}
       <div className="text-xs text-gray-500 px-3">By @{displayName}</div>
     </div>
   );

@@ -5,6 +5,8 @@ import { MessageCircle } from "lucide-react"
 import { getAvatarPublicUrl } from "@/lib/supabase/storage"
 import { Check } from "lucide-react"
 import { useTranslation } from "@/lib/utils/translations"
+import Link from "next/link"
+import { useAppGlobal } from "@/lib/context/GlobalContext"
 
 interface FeaturedCharacterCardProps {
   data: any
@@ -23,6 +25,8 @@ function formatCount(n: number) {
 
 export default function FeaturedCharacterCard({ data, onClick, isCheckable = false, isClickAble = true, isSelected: selectedProp, onToggleSelected }: FeaturedCharacterCardProps) {
   const { t } = useTranslation()
+  const { user } = useAppGlobal()
+  const characterId = data?.id ?? data?.uuid ?? ""
   const imageSrc = data?.avatar_id ? getAvatarPublicUrl(data.avatar_id, data.auth_id || null) : data?.characterImage
   const displayName = data?.profiles?.username || data?.username || "Unknown"
   const description = data?.description || ""
@@ -30,12 +34,22 @@ export default function FeaturedCharacterCard({ data, onClick, isCheckable = fal
   const isSelected = Boolean(selectedProp ?? data?.isSelected ?? data?.selected ?? data?.checked)
   const title = data?.name ?? data?.characterName ?? ""
 
-  return (
+  const handleClick = (e: React.MouseEvent) => {
+    if (!user && isClickAble) {
+      e.preventDefault();
+      document.dispatchEvent(new CustomEvent("openLoginModal"));
+      return;
+    }
+    if (isClickAble) {
+      onClick?.(data);
+    }
+  };
+
+  const cardContent = (
     <Card
-      isPressable={isClickAble}
+      isPressable={false}
       shadow="sm"
       className="rounded-2xl bg-gray-100 w-full"
-      onPress={isClickAble ? () => onClick?.(data) : undefined}
     >
       <CardBody className="p-3 relative">
         {isCheckable && isSelected && (
@@ -97,5 +111,23 @@ export default function FeaturedCharacterCard({ data, onClick, isCheckable = fal
         )}
       </CardBody>
     </Card>
+  )
+
+  if (!isClickAble) {
+    return cardContent;
+  }
+
+  return (
+    <>
+      {user ? (
+        <Link href={`/character/info?id=${characterId}`} onClick={handleClick}>
+          {cardContent}
+        </Link>
+      ) : (
+        <div onClick={handleClick} className="cursor-pointer">
+          {cardContent}
+        </div>
+      )}
+    </>
   )
 }
