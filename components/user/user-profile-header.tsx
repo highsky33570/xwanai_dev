@@ -11,6 +11,7 @@ import { useTranslation } from "@/lib/utils/translations";
 import { subscriptionAPI } from "@/lib/api/subscription";
 import { Store } from "@/store";
 import { observer } from "mobx-react-lite";
+import { getAvatarPublicUrl } from "@/lib/supabase/storage";
 
 interface UserStats {
   totalCharacters: number;
@@ -43,7 +44,7 @@ const UserProfileHeader = observer(({
   const username =
     profile?.user_metadata?.username || profile?.email?.split("@")[0] || "User";
   const email = profile?.email || "";
-  const avatar = profile?.user_metadata?.avatar_url || "";
+  const avatar = getAvatarPublicUrl(profile?.user_metadata?.avatar_url || "", profile?.id || "") || "";
   const joinDate = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString()
     : "Unknown";

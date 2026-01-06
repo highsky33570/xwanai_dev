@@ -39,26 +39,26 @@ export default function ModeSelectionModalWrapper({
   const cards = [
     {
       key: "create_character_real_custom",
-      title: "凡尘映照",
-      desc: "输入真实人物的生辰信息），精准映照其人生蓝图。如缺少时辰，AI将结合生平智能推演。",
+      titleKey: "modes.realCustomTitleAlt",
+      descKey: "modes.realCustomDescAlt",
       image: "/charactor_create_modal/1.png",
     },
     {
       key: "create_character_real_guess",
-      title: "命运导航",
-      desc: "跟随AI的五步引导，从核心性格到人生终局，为你的原创角色在真实时间中锚定独一无二的命运时刻。",
+      titleKey: "modes.realGuessTitleAlt",
+      descKey: "modes.realGuessDescAlt",
       image: "/charactor_create_modal/2.png",
     },
     {
       key: "create_character_virtual_custom",
-      title: "虚空织命",
-      desc: "在你构想的虚构世界里，从一个概念、几个词出发，通过与AI对话，反向编织出角色的完整命理灵魂",
+      titleKey: "modes.virtualCustomTitleAlt",
+      descKey: "modes.virtualCustomDescAlt",
       image: "/charactor_create_modal/3.png",
     },
     {
       key: "create_character_virtual_search_or_guess",
-      title: "传说锻造",
-      desc: "指定已存在的虚拟角色，与AI达成解读共识，AI将为其逆向锻造出深度契合原作的命理档案与灵魂视角。",
+      titleKey: "modes.virtualGuessTitleAlt",
+      descKey: "modes.virtualGuessDescAlt",
       image: "/charactor_create_modal/4.png",
     },
   ];
@@ -254,6 +254,7 @@ export default function ModeSelectionModalWrapper({
         backdrop: "bg-black/60",
         base: "bg-white text-black border border-gray-200",
         closeButton: isCreatingSession ? "hidden" : "z-50",
+        body: "overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-none",
       }}
       // hideCloseButton={true}
       isDismissable={!isCreatingSession}
@@ -332,14 +333,14 @@ export default function ModeSelectionModalWrapper({
             )}
             <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none" />
             <ModalHeader className="relative z-10 flex flex-col gap-1 items-center text-center">
-              <div className="text-4xl font-semibold">选择您的角色创建模式</div>
-              <div className="text-md text-gray-500">选择一种类型以继续。每种模式都提供了与角色互动的独特方式。</div>
+              <div className="text-4xl font-semibold">{t("modes.chooseCharacterMode")}</div>
+              <div className="text-md text-gray-500">{t("modes.selectType")}</div>
             </ModalHeader>
-            <ModalBody className="relative z-10">
+            <ModalBody className="relative z-10 overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-none">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mx-auto">
                 {cards.map((c, idx) => (
                   <div key={c.key} className="flex flex-col items-center gap-2 max-w-[180px]">
-                    <div className="text-black text-xl">{c.title}</div>
+                    <div className="text-black text-xl">{t(c.titleKey)}</div>
                     <button
                       className={`relative w-full rounded-2xl overflow-hidden group text-left border ${selectedKey === c.key ? "border-[#EB7020] shadow-[0_0_0_2px_#EB7020]" : "border-gray-200"}
                       hover:shadow-lg hover:border-[#EB7020] transition-all`}
@@ -350,7 +351,7 @@ export default function ModeSelectionModalWrapper({
                         <img src={c.image} alt="" className="absolute inset-0 w-[180px] h-[180px] object-cover " />
                         <div className="pointer-events-none absolute inset-x-0 top-0 h-[180px] bg-gradient-to-b from-transparent via-white/20 to-white"></div>
                         <div className="text-black text-md leading-relaxed px-4 pb-4">
-                          {c.desc}
+                          {t(c.descKey)}
                         </div>
                       </div>
                     </button>

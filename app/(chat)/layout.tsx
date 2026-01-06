@@ -14,9 +14,7 @@ export default function ChatLayout({
 
   return (
     <div className="w-full h-full flex overflow-hidden max-h-screen" style={{ "--left-width": leftWidth } as React.CSSProperties}>
-      <aside className={`hidden lg:flex max-h-screen relative w-[var(--left-width)] shrink-0 flex-none flex-col h-screen px-3 bg-content1 z-10`}>
-        <ChatHistorySidebar></ChatHistorySidebar>
-      </aside>
+      <ChatHistorySidebar />
       <div className="flex flex-1 flex-col min-w-0 lg:max-w-[calc(100%-var(--left-width))] min-h-screen sm:pl-0 md:pl-0 xl:pl-24 lg:pl-20 2xl:pl-28">
         <Navbar />
         {children}

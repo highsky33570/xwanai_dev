@@ -46,7 +46,7 @@ export default function TagDropdownWithChild({ tags,
   // const [child, setChild] = useState<Tag | null>(null);
 
   return (
-    <div className="flex gap-3">
+    <div className="flex max-md:flex-col max-md:items-start gap-3">
       {/* ================= Parent Select ================= */}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger className="border border-[#EB7020] px-4 py-2 rounded min-w-[160px] flex justify-between items-center gap-2">
@@ -76,7 +76,7 @@ export default function TagDropdownWithChild({ tags,
       {/* ================= Child Select (hidden if no parent) ================= */}
       {selectedParent && selectedParent.child && selectedParent.child.length > 0 && (
         <DropdownMenu.Root>
-          <DropdownMenu.Trigger className="border border-[#EB7020] px-4 py-2 rounded min-w-[160px] flex items-center justify-between gap-2">
+          <DropdownMenu.Trigger className="border border-[#EB7020] px-4 py-2 rounded max-md:w-full min-w-[160px] flex items-center justify-between gap-2">
             <span>{selectedChild?.name ?? "全部"}</span>
 
             <ChevronDownIcon className="w-4 h-4 opacity-70" />

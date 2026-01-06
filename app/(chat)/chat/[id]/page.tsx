@@ -23,6 +23,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Skeleton,
 } from "@heroui/react";
 import {
   Menu,
@@ -1430,49 +1431,80 @@ const ChatPage = observer(() => {
   // Show loading state while checking session
   if (isLoadingSession) {
     return (
-      <div className="flex flex-col h-full w-full mx-15">
-        <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-[0.05] pointer-events-none" />
-        {/* Permanent Loading Bar for /chat/new */}
-        {chatId === "new" && (
-          <div className="fixed top-0 left-0 right-0 z-50 w-full bg-gradient-to-r from-primary/20 to-secondary/20 border-b border-primary/30">
-            <div className="max-w-4xl mx-auto px-6 py-3 flex items-center gap-3 text-primary-600">
-              <Spinner size="sm" className="animate-spin" />
-              <span className="text-sm font-medium">
-                {t("chatEx.initializing")}
-              </span>
-              <div className="ml-auto text-xs text-primary-500">
-                {t("chatEx.pleaseWait")}
-              </div>
+      <>
+        {/* Chat Header Skeleton - matching real component */}
+        <div className="py-4 z-10">
+          <div className="relative">
+            <div className="flex flex-col items-center gap-1">
+              <Skeleton className="rounded-full">
+                <Avatar size="md" className="w-12 h-12" />
+              </Skeleton>
+              <Skeleton className="rounded-lg">
+                <div className="h-4 w-32 bg-default-200"></div>
+              </Skeleton>
+              <Skeleton className="rounded-lg">
+                <div className="h-3 w-24 bg-default-200"></div>
+              </Skeleton>
+            </div>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <Skeleton className="rounded-2xl">
+                <div className="h-8 w-8 bg-default-200"></div>
+              </Skeleton>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Main Chat Area with Skeleton */}
-        <div className="flex h-full">
-          <div className="flex-1 flex flex-col h-full px-24 md:px-28 ">
-            <div className="w-full h-full flex flex-col px-3 md:px-6">
-              {/* Chat Header Skeleton */}
-              <ChatHeaderSkeleton />
+        {/* Messages Container Skeleton - matching real component structure */}
+        <div className="flex flex-col w-full h-full overflow-y-auto pl-5">
+          <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-[0.05] pointer-events-none" />
+          
+          {/* Permanent Loading Bar for /chat/new */}
+          {chatId === "new" && (
+            <div className="fixed top-0 left-0 right-0 z-50 w-full bg-gradient-to-r from-primary/20 to-secondary/20 border-b border-primary/30">
+              <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3 text-primary-600">
+                <Spinner size="sm" className="animate-spin" />
+                <span className="text-sm font-medium">
+                  {t("chatEx.initializing")}
+                </span>
+                <div className="ml-auto text-xs text-primary-500">
+                  {t("chatEx.pleaseWait")}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Main Chat Area */}
+          <div className="flex-1 flex flex-col">
+            {/* Content Container - matching real component padding */}
+            <div className="w-full flex flex-col max-sm:!pr-[12px] sm:!pr-[12px] md:!pr-[12px] max-xl:pr-[280px] 2xl:!pr-[320px] max-w-full h-full">
               {/* Messages Area Skeleton */}
-              <div className="flex-1 overflow-y-auto py-3 space-y-3">
+              <div className="flex-1 py-3 md:py-6 space-y-3 md:space-y-6">
                 <MessageSkeleton isUser={false} />
                 <MessageSkeleton isUser={true} />
+                <MessageSkeleton isUser={false} />
               </div>
-              {/* Input Area Skeleton */}
-              <div className="py-3 md:py-4 border-t border-foreground/10 bg-content1/70 backdrop-blur-sm">
-                <div className="flex items-end gap-2 md:gap-3">
-                  <div className="flex-1">
-                    <div className="min-h-[44px] md:min-h-[48px] bg-content2 border border-foreground/10 rounded-2xl p-3 animate-pulse"></div>
-                  </div>
-                  <div className="w-[44px] md:w-[60px] h-[44px] md:h-[48px] bg-primary/20 rounded-2xl animate-pulse flex items-center justify-center">
-                    <div className="w-4 h-4 bg-primary/40 rounded"></div>
+
+              {/* Input Area Skeleton - matching real component */}
+              <div className="py-3 md:py-4 backdrop-blur-sm sticky bottom-0 z-10">
+                <div className="px-3 md:px-4">
+                  {/* Empty space for potential attachments */}
+                </div>
+                <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 h-full max-w-[600px] mx-auto">
+                  <div className="flex-1 relative h-full">
+                    <Skeleton className="rounded-xl">
+                      <div className="min-h-[44px] md:min-h-[48px] bg-content2 border border-foreground/10 rounded-xl px-4 md:px-5 py-2 md:py-3"></div>
+                    </Skeleton>
+                    {/* Send button skeleton */}
+                    <Skeleton className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl">
+                      <div className="h-8 w-8 md:h-9 md:w-9 bg-content1/80 rounded-xl"></div>
+                    </Skeleton>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -1662,7 +1694,7 @@ const ChatPage = observer(() => {
           {/* Main Chat Area */}
           <div className="flex-1 flex flex-col">
             {/* 内容容器 - 大屏模式下充分利用空间，移动端取消padding */}
-            <div className="w-full flex flex-col sm:!pr-[12px] md:!pr-[12px] lg:!pr-[280px] xl:!pr-[320px] 2xl:!pr-[360px]  max-w-full h-full">
+            <div className="w-full flex flex-col max-sm:!pr-[12px] sm:!pr-[12px] md:!pr-[12px] max-xl:pr-[280px] 2xl:!pr-[320px]  max-w-full h-full">
               {/* Messages Area */}
               <div
                 className="flex-1 py-3 md:py-6 space-y-3 md:space-y-6"

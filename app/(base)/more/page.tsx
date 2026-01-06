@@ -487,7 +487,7 @@ export default function PersonalCharacterDatabase() {
 
           <div className="flex flex-wrap items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-[10px]">
+              <div className="rounded-[10px] max-md:w-full">
                 <TagDropdownWithChild tags={activeMainCategory?.tags ?? []}
                   onParentChange={setSelectedParentMain}
                   onChildChange={setSelectedChildMain}

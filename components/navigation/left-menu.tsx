@@ -1,9 +1,9 @@
 "use client"
 
-import { Button, Select, SelectItem, Input } from "@heroui/react"
+import { Button, Select, SelectItem, Input, Link } from "@heroui/react"
 import { useEffect, useMemo, useState, useRef } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Plus, ChevronRight, Search as SearchIcon } from "lucide-react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
+import { Plus, ChevronRight, Search as SearchIcon, X } from "lucide-react"
 import { useCharacterCategories, useDimensionCategories, useMainCategories } from "@/hooks/use-data-queries"
 import { Category } from "@/lib/app_interface"
 import { useTranslation } from "@/lib/utils/translations"
@@ -69,6 +69,7 @@ export function findParentCategory(
 
 export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { t } = useTranslation();
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
@@ -97,6 +98,50 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
     setIsOpen(false)
     document.dispatchEvent(new CustomEvent("leftMenuClosed"))
   }
+
+  // Build URL with search parameter while preserving existing query params
+  const buildMoreUrlWithSearch = (searchValue: string) => {
+    const params = new URLSearchParams();
+    
+    // Preserve existing query parameters from current URL if on /more page
+    if (pathname === "/more") {
+      searchParams.forEach((value, key) => {
+        if (key !== "search") {
+          params.set(key, value);
+        }
+      });
+    }
+    
+    // Add search parameter
+    if (searchValue.trim()) {
+      params.set("search", searchValue.trim());
+    }
+    
+    const queryString = params.toString();
+    return `/more${queryString ? `?${queryString}` : ""}`;
+  };
+
+  // Build URL without search parameter while preserving other params
+  const buildMoreUrlWithoutSearch = () => {
+    const params = new URLSearchParams();
+    
+    // Preserve existing query parameters except search
+    if (pathname === "/more") {
+      searchParams.forEach((value, key) => {
+        if (key !== "search") {
+          params.set(key, value);
+        }
+      });
+    }
+    
+    const queryString = params.toString();
+    return `/more${queryString ? `?${queryString}` : ""}`;
+  };
+
+  const handleNavigation = (href: string) => {
+    router.push(href);
+    closePanel();
+  };
 
   useEffect(() => {
     const open = () => {
@@ -284,9 +329,10 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
           </Button>
           <Button
             color="primary"
+            as={Link}
+            href="/database"
             className="flex-1 rounded-full bg-gray-200 text-black"
             startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}
-            onPress={() => router.push("/database")}
           >
             {t("common.baziAnalysis")}
           </Button>
@@ -399,15 +445,39 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
                   radius="lg"
                   variant="bordered"
                   startContent={<SearchIcon className="w-5 h-5 text-[#4d4d4d]" />}
+                  endContent={
+                    mobileSearch.trim() ? (
+                      pathname === "/more" && searchParams.get("search") === mobileSearch.trim() ? (
+                        <button
+                          onClick={() => {
+                            setMobileSearch("");
+                            handleNavigation(buildMoreUrlWithoutSearch());
+                          }}
+                          className="p-1 hover:bg-gray-300 rounded-full transition-colors"
+                          aria-label="Clear search"
+                        >
+                          <X className="w-4 h-4 text-gray-700" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            handleNavigation(buildMoreUrlWithSearch(mobileSearch));
+                          }}
+                          className="p-1 hover:bg-gray-300 rounded-full transition-colors"
+                          aria-label="Search"
+                        >
+                          <SearchIcon className="w-4 h-4 text-gray-700" />
+                        </button>
+                      )
+                    ) : null
+                  }
                   classNames={{
                     input: "text-black placeholder:text-[#4d4d4d] placeholder:opacity-80",
                     inputWrapper: "bg-[#e2e2e5] border-gray-200 rounded-full",
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      const q = mobileSearch.trim()
-                      closePanel()
-                      router.push(q ? `/more?search=${encodeURIComponent(q)}` : "/more")
+                    if (e.key === "Enter" && mobileSearch.trim()) {
+                      handleNavigation(buildMoreUrlWithSearch(mobileSearch));
                     }
                   }}
                 />

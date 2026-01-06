@@ -20,6 +20,7 @@ import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/utils/logger";
 import { useTranslation } from "@/lib/utils/translations";
 import type { User } from "@supabase/supabase-js";
+import { getAvatarPublicUrl } from "@/lib/supabase/storage";
 
 interface UserEditModalProps {
   isOpen: boolean;
@@ -44,7 +45,7 @@ const UserEditModal: FC<UserEditModalProps> = ({
   );
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>(
-    user?.user_metadata?.avatar_url || ""
+    getAvatarPublicUrl(user?.user_metadata?.avatar_url || "", user?.id || "") || ""
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,14 +54,14 @@ const UserEditModal: FC<UserEditModalProps> = ({
   // 当模态框打开或用户数据改变时，重置表单状态
   useEffect(() => {
     if (isOpen) {
-      const initialAvatarUrl = user?.user_metadata?.avatar_url || "";
+      const initialAvatarUrl = getAvatarPublicUrl(user?.user_metadata?.avatar_url || "", user?.id || "") || "";
       logger.info(
         {
           module: "user-edit-modal",
           operation: "useEffect",
           data: {
             isOpen,
-            userAvatarUrl: user?.user_metadata?.avatar_url,
+            userAvatarUrl: getAvatarPublicUrl(user?.user_metadata?.avatar_url || "", user?.id || ""),
             initialAvatarUrl,
           },
         },
@@ -201,7 +202,7 @@ const UserEditModal: FC<UserEditModalProps> = ({
         throw new Error(t("userEdit.errorSessionExpired"));
       }
 
-      let avatarUrl = user?.user_metadata?.avatar_url || "";
+      let avatarUrl = getAvatarPublicUrl(user?.user_metadata?.avatar_url || "", user?.id || "") || "";
 
       // 如果有新头像，先上传
       if (avatarFile) {
@@ -387,7 +388,7 @@ const UserEditModal: FC<UserEditModalProps> = ({
     );
     setFullName(user?.user_metadata?.full_name || "");
     setAvatarFile(null);
-    setAvatarPreview(user?.user_metadata?.avatar_url || "");
+    setAvatarPreview(getAvatarPublicUrl(user?.user_metadata?.avatar_url || "", user?.id || "") || "");
     setError(null);
     onClose();
   };

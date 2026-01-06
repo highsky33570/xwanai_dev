@@ -309,7 +309,7 @@ export default function MyInfoPage() {
   }
 
   return (
-    <div className="w-full h-full pr-10">
+    <div className="w-full h-full lg:pr-10 px-4">
       <div className="relative z-10 py-6">
         <div className="rounded-3xl">
           <div className="py-6">

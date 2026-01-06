@@ -346,6 +346,9 @@ const NavigationNavbar = observer(() => {
       case "tasks":
         handleNavigation("/database");
         break;
+      case "subscription":
+        onSubscriptionOpen();
+        break;
       case "chat":
         if (!user) {
           onLoginOpen();
@@ -577,7 +580,7 @@ const NavigationNavbar = observer(() => {
               <span className={`text-sm ${pathname === "/settings" ? "text-[#eb7020]" : ""}`}>{t("nav.settings")}</span>
             </Link>
           </div>
-          <div className="hidden sm:block w-full max-w-xl min-w-[200px]">
+          <div className="hidden lg:block w-full max-w-xl min-w-[200px]">
             <Input
               size="md"
               radius="lg"
@@ -647,10 +650,9 @@ const NavigationNavbar = observer(() => {
                       color="secondary"
                       name={user.user_metadata?.username || user.email}
                       size="sm"
-                      // src={user.user_metadata?.avatar_url || undefined}
                       src={getAvatarPublicUrl(
                         user.user_metadata?.avatar_url,
-                        user.user_metadata?.sub
+                        user.id
                       )}
                     />
                     <span className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4">
@@ -767,69 +769,6 @@ const NavigationNavbar = observer(() => {
             )}
           </NavbarItem>
         </NavbarContent>
-
-        {/* <NavbarMenu>
-          {menuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item.name}-${index}`}>
-              <Link
-                className={`w-full ${
-                  pathname === item.href
-                    ? "[&>*]:text-[#EFB778]"
-                    : "[&>*]:text-white/50 hover:[&>*]:text-white/70"
-                } flex flex-col py-3 transition-colors`}
-                href={item.href}
-                onClick={() => handleNavigation(item.href)}
-              >
-                <div className="flex items-center justify-between w-full">
-                <span className="text-base font-medium">{item.name}</span>
-                </div>
-                <span className="text-sm mt-1">{item.subtitle}</span>
-              </Link>
-            </NavbarMenuItem>
-          ))}
-
-          <NavbarMenuItem>
-            <button
-              className="w-full flex flex-col py-3 transition-colors text-white/50 hover:text-white/70"
-              onClick={() => { setShowCreateModal(true); setIsMenuOpen(false); }}
-            >
-              <span className="text-base font-medium">Create Character</span>
-              <span className="text-sm mt-1">Start a new session</span>
-            </button>
-          </NavbarMenuItem>
-
-          <NavbarMenuItem>
-            <Link
-              className="w-full [&>*]:text-white/50 hover:[&>*]:text-white/70 flex flex-col py-3 transition-colors"
-              href="/database?category=celebrity"
-              onClick={() => handleNavigation("/database?category=celebrity")}
-            >
-              <span className="text-base font-medium">CELEBRITY</span>
-              <span className="text-sm mt-1">Public figures</span>
-            </Link>
-          </NavbarMenuItem>
-
-          <NavbarMenuItem>
-            <Link
-              className="w-full [&>*]:text-white/50 hover:[&>*]:text-white/70 flex flex-col py-3 transition-colors"
-              href="/database?category=ocs"
-              onClick={() => handleNavigation("/database?category=ocs")}
-            >
-              <span className="text-base font-medium">OC</span>
-              <span className="text-sm mt-1">Original characters</span>
-            </Link>
-          </NavbarMenuItem>
-
-          <NavbarMenuItem>
-            <a
-              className="w-full flex flex-col py-3 transition-colors text-white/50 hover:text-white/70"
-              href="mailto:gjmb@hyper.com"
-            >
-              <span className="text-base font-medium">CONTACT</span>
-              <span className="text-sm mt-1">gjmb@hyper.com</span>
-            </a>
-          </NavbarMenuItem>
-        </NavbarMenu> */}
       </Navbar>
 
       <LoginModal

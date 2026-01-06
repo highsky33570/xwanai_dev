@@ -1135,46 +1135,40 @@ export default function PersonalCharacterDatabase() {
 
 export function DatabaseSkeleton() {
   return (
-    <div className="relative w-full h-full pr-10">
-      <div className="relative z-10 py-6">
+    <div className="relative w-full h-full px-4 sm:px-6 lg:px-10">
+      <div className="relative z-10 py-4 sm:py-6">
         <div className="rounded-3xl">
-          <div className="py-6 space-y-6">
-
-            {/* ===== Top action row ===== */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              {/* <div /> */}
-              <div className="flex gap-2">
+          <div className="py-6">
+            {/* ===== Top action row - matching real component ===== */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
+              <div className="flex flex-wrap justify-between items-center gap-2 w-full md:w-auto">
                 <Skeleton className="h-9 w-40 rounded-lg" />
-                <Skeleton className="h-9 w-36 rounded-lg" />
+                <Skeleton className="h-9 w-9 rounded-full" />
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                <Skeleton className="h-10 w-full sm:w-36 rounded-full" />
-                <Skeleton className="h-10 w-full sm:w-28 rounded-full" />
-                <Skeleton className="h-10 w-10 rounded-full" />
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-3 w-full md:w-auto">
+                <Skeleton className="h-10 w-full sm:w-auto rounded-full" />
               </div>
             </div>
 
-            {/* ===== Helper text ===== */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+            {/* ===== Helper text - matching real component ===== */}
+            <div className="mt-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-0 h-auto md:h-8">
               <Skeleton className="h-4 w-64 rounded-full" />
-              <Skeleton className="h-8 w-24 rounded-full" />
             </div>
-
           </div>
 
-          {/* ===== Secondary toolbar ===== */}
+          {/* ===== Secondary toolbar - matching real component ===== */}
           <div className="pb-6">
-            {/* <div className="flex items-center justify-between mb-4">
-              <div />
-
-              <div className="flex gap-2">
-                <Skeleton className="h-9 w-32 rounded-lg" />
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <div></div>
+              <div className="flex flex-wrap items-center gap-2 justify-end">
+                <Skeleton className="h-9 w-28 rounded-lg" />
                 <Skeleton className="h-9 w-20 rounded-lg" />
               </div>
-            </div> */}
+            </div>
 
-            {/* ===== Card grid ===== */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+            {/* ===== Card grid - matching real component ===== */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <CharacterGridSkeleton key={i} />
               ))}

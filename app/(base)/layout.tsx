@@ -16,12 +16,10 @@ export default function BaseLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname();
-  // const inVisibleLeft = pathname?.startsWith("/settings");
   const showInfoLeftImage = pathname?.startsWith("/character/info") || pathname?.startsWith("/database") || pathname?.startsWith("/settings") || pathname?.startsWith("/user/my-info");
   const leftWidth = showInfoLeftImage ? '400px' : '400px';
   const showBackground = pathname?.startsWith("/database");
-  // const [leftImageUrl, setLeftImageUrl] = useState<string>("/info-leftbackground.png");
-  // const fileInputRef = useRef<HTMLInputElement | null>(null);
+  
   return (
     <div 
       className="flex w-full h-full max-h-screen overflow-hidden" 
@@ -32,59 +30,15 @@ export default function BaseLayout({
         backgroundPosition: "center",
       } as React.CSSProperties}
     >
-      <aside className={`relative sm:hidden lg:flex flex-none flex-col px-3 shrink-0 max-h-screen min-h-screen w-[var(--left-width)]`} style={{ backgroundImage: showBackground ? 'url(/png/left-side.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', backgroundPosition: 'center' }}>
-        {/* {showBackground ? (<div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white via-white/25 to-white z-0" />) : null} */}
+      <aside className={`hidden lg:flex flex-none flex-col px-3 shrink-0 max-h-screen min-h-screen w-[var(--left-width)]`} style={{ backgroundImage: showBackground ? 'url(/png/left-side.png)' : 'none', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', backgroundPosition: 'center' }}>
         {showInfoLeftImage ? (
           <>
-            {/* <div className="relative z-10 flex space-y-1 items-center max-h-24 ml-8 cursor-pointer py-6" onClick={() => router.push("/")}>
-              <img
-                src="/logo.svg"
-                alt="Logo"
-                className="h-12 w-auto rounded-md"
-              />
-              <div className="text-6xl font-bold hidden lg:block pl-3" style={{ fontFamily: '"Novecento WideBold", sans-serif' }}>
-                XWAN.<span className="text-[#eb7020]" style={{ fontFamily: 'sans-serif' }}>AI</span>
-              </div>
-            </div> */}
             <div className="flex flex-col h-full justify-between px-4 lg:px-8 py-6 z-10" >
               <div className="flex-1">
                 <LogoLeft />
               </div>
               <FooterLeft />
             </div>
-
-            {/* <div className="relative z-10"> */}
-            {/* <img
-                src={leftImageUrl}
-                alt=""
-                className="inset-0 w-full h-auto object-cover z-1 t-0"
-              /> */}
-            {/* <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-transparent to-white/80 backdrop-blur-sm z-10" /> */}
-            {/* <div className="absolute bottom-3 left-10 z-20 pointer-events-auto">
-                <Button
-                  variant="flat"
-                  className="rounded-full px-4 py-2 bg-white/60 text-foreground-700 backdrop-blur-md border border-white/30 shadow-sm hover:bg-white/80 flex items-center gap-2"
-                  startContent={<ImageIcon className="w-4 h-4" />}
-                  onPress={() => fileInputRef.current?.click()}
-                >
-                  CHANGE
-                </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const url = URL.createObjectURL(file);
-                      setLeftImageUrl(url);
-                    }
-                  }}
-                />
-              </div> */}
-
-            {/* </div> */}
           </>
         ) : (<>
           <LeftMenu />
@@ -92,7 +46,6 @@ export default function BaseLayout({
       </aside>
       <div className="flex flex-1 flex-col min-w-0 lg:max-w-[calc(100%-var(--left-width))] sm:pl-0 md:pl-0 xl:pl-24 lg:pl-20 2xl:pl-28" >
         <Navbar />
-        {/* Mobile left menu overlay mount point */}
         <div className="lg:hidden">
           <LeftMenu inlineHidden />
         </div>
