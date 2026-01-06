@@ -510,11 +510,13 @@ export default function PersonalCharacterDatabase() {
             </div>
 
             {/* Right: Hot Sort (Asc/Desc) */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
               <Popover.Root open={isFilterPopoverOpen} onOpenChange={setIsFilterPopoverOpen} modal={false}>
                 <Popover.Trigger asChild>
-                  <Button isIconOnly aria-label="Like"
+                  <Button isIconOnly aria-label="Filter"
                     color={hasFilter ? "primary" : "default"}
+                    size="sm"
+                    className="w-8 h-8 sm:w-10 sm:h-10"
                     onPress={(e) => {
                       setEnableFilter(!enableFilter);
                     }}>
@@ -522,24 +524,29 @@ export default function PersonalCharacterDatabase() {
                   </Button>
                 </Popover.Trigger>
                 <Popover.Portal>
-                  <Popover.Content side="bottom" align="start" sideOffset={13} onInteractOutside={(e) => {
-                    e.preventDefault();
-                  }}>
-                    <Card>
-                      <CardBody className="px-3 py-0">
-                        <div className="items-start gap-4 p-4 pt-4 pb-0 m-4 mt-0 mb-0">
+                  <Popover.Content 
+                    side="bottom" 
+                    align="center" 
+                    sideOffset={12}
+                    className="max-lg:w-auto max-lg:max-w-full"
+                    onInteractOutside={(e) => {
+                      e.preventDefault();
+                    }}>
+                    <Card className="overflow-y-auto ">
+                      <CardBody className="px-2 sm:px-3 py-0">
+                        <div className="items-start gap-2 md:gap-4 p-2 md:p-4 pt-2 md:pt-4 pb-0 m-2 md:m-4 mt-0 mb-0 max-h-[calc(100vh-400px)] md:max-h-[40%] ">
                           {dimensions.map((dimension) => {
                             if ((dimension?.children ?? []).length == 0) return <div key={uuidv4()}></div>
                             return (
                               <div className="items-center p-2 pr-0 border-b-1 border-b-solid border-[#EB7020]" key={dimension.id}>
-                                <span className="pr-1"> {dimension.display_name}:</span>
-                                <div className="justify-start ml-10 grid grid-cols-2 gap-x-6 gap-y-4">
+                                <span className="pr-1 text-sm md:text-base"> {dimension.display_name}:</span>
+                                <div className="justify-start ml-0 md:ml-10 grid grid-cols-1 md:grid-cols-2 gap-x-3 md:gap-x-6 gap-y-3 md:gap-y-4">
                                   {(dimension?.children ?? []).map((c: Category) => {
                                     // const dropdownKey = `dim-${dimension.id}-cat-${c.id}`;
                                     const dropdownKey = `${c.id}`;
                                     return (
-                                      <div className="grid grid-cols-[180px_1fr] items-center ml-2 " key={dropdownKey + "div"}>
-                                        <span className="text-right pr-2 whitespace-nowrap">
+                                      <div className="grid grid-cols-[100px_1fr] md:grid-cols-[180px_1fr] items-center ml-0 md:ml-2 gap-1 md:gap-0" key={dropdownKey + "div"}>
+                                        <span className="text-right pr-1 md:pr-2 whitespace-nowrap text-xs md:text-sm">
                                           {c.display_name}:
                                         </span>
                                         <TagDropdown
@@ -577,8 +584,8 @@ export default function PersonalCharacterDatabase() {
                           })}
                         </div>
                       </CardBody>
-                      <CardFooter className="flex justify-end">
-                        <Button onPress={handleFilteringCharacter} className="mr-8">Search</Button>
+                      <CardFooter className="flex justify-end px-2 sm:px-4 py-2 sm:py-3">
+                        <Button onPress={handleFilteringCharacter} size="sm" className="mr-0 sm:mr-8 w-full sm:w-auto">Search</Button>
                       </CardFooter>
                     </Card>
                   </Popover.Content>
@@ -589,6 +596,8 @@ export default function PersonalCharacterDatabase() {
                   isIconOnly
                   aria-label="Clear filters"
                   color="danger"
+                  size="sm"
+                  className="w-8 h-8 sm:w-10 sm:h-10"
                   onPress={async () => {
                     setSelectedTags({});
                     setEnableFilter(false);
@@ -606,9 +615,9 @@ export default function PersonalCharacterDatabase() {
                   variant={sortBy === "oldest" ? "solid" : "light"}
                   color={sortBy === "oldest" ? "primary" : "default"}
                   onPress={() => handleSortChange("oldest")}
-                  className="w-8 h-8"
+                  className="w-7 h-7 sm:w-8 sm:h-8"
                 >
-                  <ArrowUp size={16} />
+                  <ArrowUp size={14} className="sm:w-4 sm:h-4" />
                 </Button>
                 <Button
                   isIconOnly
@@ -616,9 +625,9 @@ export default function PersonalCharacterDatabase() {
                   variant={sortBy === "recent" ? "solid" : "light"}
                   color={sortBy === "recent" ? "primary" : "default"}
                   onPress={() => handleSortChange("recent")}
-                  className="w-8 h-8"
+                  className="w-7 h-7 sm:w-8 sm:h-8"
                 >
-                  <ArrowDown size={16} />
+                  <ArrowDown size={14} className="sm:w-4 sm:h-4" />
                 </Button>
               </div>
             </div>
