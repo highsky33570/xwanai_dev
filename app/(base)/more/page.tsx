@@ -404,7 +404,8 @@ export default function PersonalCharacterDatabase() {
           {/* Title */}
           <div className="border-b border-b-dashed border-[#EB7020] pb-2">
             <h3 className="text-4xl font-bold tracking-tight">
-              {activeMainCategory?.display_name ?? ''}
+              {/* {activeMainCategory?.display_name ?? ''} */}
+             { activeMainCategory?.display_name ? t(`categories.${activeMainCategory?.display_name}`) : ''}
             </h3>
             {searchParam && (
               <div className="mt-2 text-sm text-gray-500 flex items-center gap-2">

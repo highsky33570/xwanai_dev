@@ -892,6 +892,32 @@ export const translations = {
       expires: "Expires: ",
       daysLeft: "{days} days left",
       viewDatabase: "View Database"
+    },
+    // Categories
+    categories: {
+      // Main categories (modes)
+      "领域与职业": "Field & Profession",
+      "世界观 / 题材": "Worldview / Genre",
+      "作品归属": "Work Attribution",
+      // Children categories
+      "文化艺术": "Culture & Arts",
+      "学术思想": "Academia & Philosophy",
+      "商业经济": "Business & Economics",
+      "工程技术": "Engineering & Technology",
+      "社会政治": "Society & Politics",
+      "体育运动": "Sports",
+      "其他人物": "Other Figures",
+      "幻想类": "Fantasy",
+      "科幻类": "Sci-Fi",
+      "东方题材": "Eastern Themes",
+      "现实 / 悬疑类": "Realistic / Suspense",
+      "架空 / 特殊类": "Alternate / Special",
+      "电子游戏": "Video Games",
+      "动漫 / 漫画": "Anime / Manga",
+      "影视剧集": "Film & TV",
+      "文学作品": "Literature",
+      "漫画 / 漫画书": "Comics / Graphic Novels",
+      "神话 / 传说": "Mythology / Legends"
     },   
   },
   zh: {
@@ -1787,6 +1813,32 @@ export const translations = {
       expires: "到期：",
       daysLeft: "剩余 {days} 天",
       viewDatabase: "查看数据库"
+    },
+    // Categories
+    categories: {
+      // Main categories (modes)
+      "领域与职业": "领域与职业",
+      "世界观 / 题材": "世界观 / 题材",
+      "作品归属": "作品归属",
+      // Children categories
+      "文化艺术": "文化艺术",
+      "学术思想": "学术思想",
+      "商业经济": "商业经济",
+      "工程技术": "工程技术",
+      "社会政治": "社会政治",
+      "体育运动": "体育运动",
+      "其他人物": "其他人物",
+      "幻想类": "幻想类",
+      "科幻类": "科幻类",
+      "东方题材": "东方题材",
+      "现实 / 悬疑类": "现实 / 悬疑类",
+      "架空 / 特殊类": "架空 / 特殊类",
+      "电子游戏": "电子游戏",
+      "动漫 / 漫画": "动漫 / 漫画",
+      "影视剧集": "影视剧集",
+      "文学作品": "文学作品",
+      "漫画 / 漫画书": "漫画 / 漫画书",
+      "神话 / 传说": "神话 / 传说"
     }
   }
 }

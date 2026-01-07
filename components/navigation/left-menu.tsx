@@ -72,11 +72,26 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
   const pathname = usePathname()
   const { t } = useTranslation();
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
+  const [, forceUpdate] = useState(0)
+  
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const [isOpen, setIsOpen] = useState(false)
   const [navHeight, setNavHeight] = useState(0)
   const [mobileSearch, setMobileSearch] = useState("")
   const [animateIn, setAnimateIn] = useState(false)
+  
+  // Listen for language changes to force re-render
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      forceUpdate((prev) => prev + 1)
+    }
+    
+    window.addEventListener("languageChange", handleLanguageChange)
+    return () => {
+      window.removeEventListener("languageChange", handleLanguageChange)
+    }
+  }, [])
+  
   const { data: mainCategories = [], isLoading: isMainCategories } = useMainCategories();
   const searchParams = useSearchParams();
 
@@ -189,89 +204,6 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
     }
   }, [selectedTopic])
 
-  const toggleCategory = (id: string) => {
-    setExpandedCategories(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
-      return next
-    })
-  }
-
-  const renderCategory = (category: Category, level: number = 0) => {
-    const isExpanded = expandedCategories.has(String(category.id))
-    const hasChildren = category.children && category.children.length > 0
-    const isActive = selectedTopic === String(category.id)
-
-    // Root level items (like CELEBRITY in the old design, but now generic)
-    if (level === 0) {
-      return (
-        <div key={category.id} className="space-y-2">
-          <Button
-            variant="bordered"
-            className={`w-full justify-between border ${isExpanded ? "border-[#EB7020] text-[#EB7020]" : "border-gray-300"}`}
-            endContent={hasChildren ? <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : "rotate-0"}`} /> : null}
-            onPress={() => {
-              if (hasChildren) {
-                toggleCategory(String(category.id))
-              } else {
-                setSelectedTopic(String(category.id))
-                router.push(`/more?category=${category.id}`)
-              }
-            }}
-          >
-            {category.name}
-          </Button>
-          {isExpanded && hasChildren && (
-            <div className="rounded-xl border border-gray-300 bg-white text-black p-3 space-y-2">
-              <div className="flex flex-col">
-                {category.children?.map(child => renderCategory(child, level + 1))}
-              </div>
-            </div>
-          )}
-        </div>
-      )
-    }
-
-    // Child items
-    const baseClass = (isActive ? 'inline-flex items-center gap-2 px-2 py-1 rounded bg-[#EB7020]/20 text-[#EB7020] font-semibold' : 'inline-flex items-center gap-2 px-2 py-1 rounded text-gray-700 hover:text-gray-900')
-    const iconUrl = getCategoryIconUrl(category.icon_url)
-
-    return (
-      <button
-        key={category.id}
-        className={baseClass}
-        onClick={() => {
-          setSelectedTopic(String(category.id))
-          router.push(`/more?mode=${category.mode_id}&category=${category.id}`)
-        }}
-      >
-        {iconUrl ? (
-          <span
-            className="inline-block w-4 h-4"
-            style={{
-              WebkitMaskImage: `url(${iconUrl})`,
-              maskImage: `url(${iconUrl})`,
-              WebkitMaskSize: 'contain',
-              maskSize: 'contain',
-              WebkitMaskRepeat: 'no-repeat',
-              maskRepeat: 'no-repeat',
-              WebkitMaskPosition: 'center',
-              maskPosition: 'center',
-              backgroundColor: isActive ? '#EB7020' : '#6b7280',
-            }}
-          />
-        ) : (
-          // Default icon if none provided
-          <span className="w-4 h-4 bg-gray-400 rounded-full" />
-        )}
-        {category.name}
-      </button>
-    )
-  }
 
   // 🔥 selected parent (select box value)
   // Initialize with null to ensure consistent SSR/hydration
@@ -364,17 +296,20 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
                 }
               }}
             >
-              {(item: Category) => (
-                <SelectItem 
-                  key={String(item.id)} 
-                  textValue={item.display_name}
-                  classNames={{
-                    base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
-                  }}
-                >
-                  {item.display_name}
-                </SelectItem>
-              )}
+              {(item: Category) => {
+                // const translatedName = getCategoryTranslation(item)
+                return (
+                  <SelectItem 
+                    key={String(item.id)} 
+                    textValue={t(`categories.${item.display_name}`)}
+                    classNames={{
+                      base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
+                    }}
+                  >
+                    {t(`categories.${item.display_name}`)}
+                  </SelectItem>
+                )
+              }}
             </Select>
 
             {selectedParent?.children ? (
@@ -405,17 +340,20 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
                     }
                   }}
                 >
-                  {(item: Category) => (
-                    <SelectItem 
-                      key={String(item.id)} 
-                      textValue={item.display_name || item.name}
-                      classNames={{
-                        base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
-                      }}
-                    >
-                      {item.display_name || item.name}
-                    </SelectItem>
-                  )}
+                  {(item: Category) => {
+                    // const translatedName = getCategoryTranslation(item)
+                    return (
+                      <SelectItem 
+                        key={String(item.id)} 
+                        textValue={t(`categories.${item.display_name}`)}
+                        classNames={{
+                          base: "data-[selected=true]:bg-[#EB7020]/10 data-[selected=true]:text-[#EB7020]",
+                        }}
+                      >
+                        {t(`categories.${item.display_name}`)}
+                      </SelectItem>
+                    )
+                  }}
                 </Select>
               ) : null
             ) : (
