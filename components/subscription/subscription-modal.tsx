@@ -163,52 +163,55 @@ export default function SubscriptionModal({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       size="2xl"
+      scrollBehavior="inside"
       classNames={{
         base: "bg-content1",
         backdrop: "bg-black/50 backdrop-blur-sm",
+        body: "overflow-y-auto",
       }}
     >
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1">
+            <ModalHeader className="flex flex-col gap-1 px-4 sm:px-6 pt-4 sm:pt-6">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-primary" />
-                <h2 className="text-2xl font-bold">{t("subscription.title")}</h2>
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                <h2 className="text-xl sm:text-2xl font-bold">{t("subscription.title")}</h2>
               </div>
-              <p className="text-sm text-foreground-600 font-normal">
+              <p className="text-xs sm:text-sm text-foreground-600 font-normal">
                 {t("subscription.subtitle")}
               </p>
             </ModalHeader>
 
-            <ModalBody className="gap-6">
+            <ModalBody className="gap-4 sm:gap-6 px-4 sm:px-6">
               {/* 当前订阅状态 */}
-              {subscription && subscription.subscription_status !== "free" && (
+              {/* {subscription && subscription.subscription_status !== "free" && (
                 <Card className="bg-gradient-to-r from-warning/10 to-primary/10 border-2 border-warning/30">
-                  <CardBody className="p-4">
+                  <CardBody className="p-3 sm:p-4">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                         {subscription.subscription_tier === "yearly" ? (
-                          <Crown className="w-8 h-8 text-warning" />
+                          <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-warning flex-shrink-0" />
                         ) : (
-                          <Sparkles className="w-8 h-8 text-warning" />
+                          <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-warning flex-shrink-0" />
                         )}
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-bold text-lg">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-bold text-base sm:text-lg">
                               {subscriptionAPI.formatTierName(subscription.subscription_tier, getLanguage())}
                             </p>
                             <Chip
                               size="sm"
                               color={subscription.subscription_status === "active" ? "success" : "default"}
                               variant="flat"
+                              className="text-xs"
                             >
                               {subscriptionAPI.formatStatusName(subscription.subscription_status, getLanguage())}
                             </Chip>
                           </div>
-                          <div className="flex items-center gap-2 mt-1 text-sm text-foreground-600">
-                            <Calendar className="w-4 h-4" />
-                            <span>
+                          <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-foreground-600">
+                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                            <span className="truncate">
                               {subscription.subscription_end_date && (
                                 <>
                                   {getLanguage() === "zh" ? "到期时间：" : "Expires: "}
@@ -229,18 +232,18 @@ export default function SubscriptionModal({
                     </div>
                   </CardBody>
                 </Card>
-              )}
+              )} */}
               
               {/* 订阅周期选择 */}
               <div>
-                <h3 className="text-lg font-semibold mb-3">
+                <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">
                   {t("subscription.choosePlan")}
                 </h3>
                 <RadioGroup
                   value={plan}
                   onValueChange={(value) => setPlan(value as SubscriptionPlan)}
                   classNames={{
-                    wrapper: "gap-3",
+                    wrapper: "gap-2 sm:gap-3",
                   }}
                 >
                   <Card
@@ -252,20 +255,20 @@ export default function SubscriptionModal({
                         : "border-2 border-default-200"
                     } transition-all`}
                   >
-                    <CardBody className="flex-row items-center justify-between p-4">
-                      <div className="flex items-center gap-3">
-                        <Radio value="yearly" />
-                        <div>
-                          <p className="font-semibold">
+                    <CardBody className="flex-row items-center justify-between p-3 sm:p-4 gap-2">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                        <Radio value="yearly" className="flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm sm:text-base">
                             {t("subscription.yearlyPlan")}
                           </p>
-                          <p className="text-sm text-success">
+                          <p className="text-xs sm:text-sm text-success">
                             {t("subscription.save20")}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xl font-bold text-primary">
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-lg sm:text-xl font-bold text-primary">
                           {currency === "usd" ? "$117.99" : "¥599.99"}
                         </p>
                         <p className="text-xs text-foreground-500">
@@ -284,20 +287,20 @@ export default function SubscriptionModal({
                         : "border-2 border-default-200"
                     } transition-all`}
                   >
-                    <CardBody className="flex-row items-center justify-between p-4">
-                      <div className="flex items-center gap-3">
-                        <Radio value="monthly" />
-                        <div>
-                          <p className="font-semibold">
+                    <CardBody className="flex-row items-center justify-between p-3 sm:p-4 gap-2">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                        <Radio value="monthly" className="flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm sm:text-base">
                             {t("subscription.monthlyPlan")}
                           </p>
-                          <p className="text-sm text-foreground-500">
+                          <p className="text-xs sm:text-sm text-foreground-500">
                             {t("subscription.flexible")}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xl font-bold">
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-lg sm:text-xl font-bold">
                           {currency === "usd" ? "$11.99" : "¥59.99"}
                         </p>
                         <p className="text-xs text-foreground-500">
@@ -311,7 +314,7 @@ export default function SubscriptionModal({
 
               {/* 货币选择 */}
               <div>
-                <h3 className="text-lg font-semibold mb-3">
+                <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">
                   {t("subscription.chooseCurrency")}
                 </h3>
                 <RadioGroup
@@ -319,7 +322,7 @@ export default function SubscriptionModal({
                   onValueChange={(value) => setCurrency(value as Currency)}
                   orientation="horizontal"
                   classNames={{
-                    wrapper: "gap-3",
+                    wrapper: "gap-2 sm:gap-3",
                   }}
                 >
                   <Card
@@ -331,10 +334,10 @@ export default function SubscriptionModal({
                         : "border-2 border-default-200"
                     } transition-all flex-1`}
                   >
-                    <CardBody className="flex-row items-center gap-2 p-4">
-                      <Radio value="usd" />
-                      <CreditCard className="w-5 h-5" />
-                      <span className="font-semibold">USD ($)</span>
+                    <CardBody className="flex-row items-center gap-2 p-3 sm:p-4">
+                      <Radio value="usd" className="flex-shrink-0" />
+                      <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                      <span className="font-semibold text-sm sm:text-base">USD ($)</span>
                     </CardBody>
                   </Card>
 
@@ -347,10 +350,10 @@ export default function SubscriptionModal({
                         : "border-2 border-default-200"
                     } transition-all flex-1`}
                   >
-                    <CardBody className="flex-row items-center gap-2 p-4">
-                      <Radio value="cny" />
-                      <CreditCard className="w-5 h-5" />
-                      <span className="font-semibold">CNY (¥)</span>
+                    <CardBody className="flex-row items-center gap-2 p-3 sm:p-4">
+                      <Radio value="cny" className="flex-shrink-0" />
+                      <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                      <span className="font-semibold text-sm sm:text-base">CNY (¥)</span>
                     </CardBody>
                   </Card>
                 </RadioGroup>
@@ -362,28 +365,33 @@ export default function SubscriptionModal({
               </div>
 
               {/* 功能列表 */}
-              <div className="bg-content2 rounded-lg p-4">
-                <h3 className="text-lg font-semibold mb-3">
+              <div className="bg-content2 rounded-lg p-3 sm:p-4">
+                <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">
                   {t("subscription.features")}
                 </h3>
-                <ul className="space-y-2">
+                <ul className="space-y-1.5 sm:space-y-2">
                   {[
                     t("subscription.feature1"),
                     t("subscription.feature2"),
                     t("subscription.feature3"),
                     t("subscription.feature4"),
                   ].map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <Check className="w-5 h-5 text-success flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
+                    <li key={index} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 sm:w-5 sm:h-5 text-success flex-shrink-0 mt-0.5" />
+                      <span className="text-xs sm:text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             </ModalBody>
 
-            <ModalFooter>
-              <Button variant="light" onPress={onClose} isDisabled={isProcessing}>
+            <ModalFooter className="px-4 sm:px-6 pb-4 sm:pb-6 gap-2 sm:gap-3 flex-col sm:flex-row">
+              <Button 
+                variant="light" 
+                onPress={onClose} 
+                isDisabled={isProcessing}
+                className="w-full sm:w-auto order-2 sm:order-1"
+              >
                 {t("common.cancel")}
               </Button>
               <Button
@@ -393,6 +401,7 @@ export default function SubscriptionModal({
                 startContent={
                   !isProcessing && <Sparkles className="w-4 h-4" />
                 }
+                className="w-full sm:w-auto order-1 sm:order-2"
               >
                 {isProcessing
                   ? t("subscription.processing")

@@ -249,7 +249,6 @@ export default function ModeSelectionModalWrapper({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       size="5xl"
-      scrollBehavior="inside"
       classNames={{
         backdrop: "bg-black/60",
         base: "bg-white text-black border border-gray-200",
@@ -262,17 +261,17 @@ export default function ModeSelectionModalWrapper({
     >
       <ModalContent>
         {(onClose) => (
-          <div className="relative overflow-hidden rounded-2xl p-10">
+          <div className="relative overflow-hidden rounded-2xl p-4 sm:p-6 md:p-10">
             {/* Session Creation Loading Overlay */}
             {isCreatingSession && (
               <div className="absolute inset-0 z-50 bg-gradient-to-br from-background/95 via-background/90 to-background/95 backdrop-blur-xl flex items-center justify-center">
-                <div className="text-center space-y-8 p-8 max-w-md mx-auto">
+                <div className="text-center space-y-4 sm:space-y-6 md:space-y-8 p-4 sm:p-6 md:p-8 max-w-md mx-auto">
                   <div className="relative flex items-center justify-center">
-                    <div className="absolute w-20 h-20 border-4 border-primary/20 rounded-full animate-spin">
+                    <div className="absolute w-16 h-16 sm:w-20 sm:h-20 border-4 border-primary/20 rounded-full animate-spin">
                       <div className="absolute top-0 left-1/2 w-2 h-2 bg-primary rounded-full transform -translate-x-1/2 -translate-y-1"></div>
                     </div>
                     <div
-                      className="absolute w-14 h-14 border-3 border-secondary/30 rounded-full animate-spin"
+                      className="absolute w-12 h-12 sm:w-14 sm:h-14 border-3 border-secondary/30 rounded-full animate-spin"
                       style={{
                         animationDirection: "reverse",
                         animationDuration: "2s",
@@ -280,35 +279,35 @@ export default function ModeSelectionModalWrapper({
                     >
                       <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-secondary rounded-full transform -translate-x-1/2 -translate-y-0.5"></div>
                     </div>
-                    <div className="w-4 h-4 bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse shadow-lg shadow-primary/50"></div>
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse shadow-lg shadow-primary/50"></div>
                   </div>
 
-                  <div className="space-y-4">
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  <div className="space-y-3 sm:space-y-4">
+                    <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                       {sessionCreationStep || t("modes.creatingSession")}
                     </h3>
 
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-center gap-3 text-foreground-600">
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex items-center justify-center gap-2 sm:gap-3 text-foreground-600">
                         <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-primary to-secondary animate-pulse shadow-sm"></div>
-                          <span className="text-sm font-medium">
+                          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-gradient-to-r from-primary to-secondary animate-pulse shadow-sm"></div>
+                          <span className="text-xs sm:text-sm font-medium">
                             {t("modes.initializingAI")}
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center justify-center gap-3 text-foreground-600">
+                      <div className="flex items-center justify-center gap-2 sm:gap-3 text-foreground-600">
                         <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-primary/70 to-secondary/70 animate-pulse delay-300 shadow-sm"></div>
-                          <span className="text-sm font-medium">
+                          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-gradient-to-r from-primary/70 to-secondary/70 animate-pulse delay-300 shadow-sm"></div>
+                          <span className="text-xs sm:text-sm font-medium">
                             {t("modes.creatingSession")}
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center justify-center gap-3 text-foreground-600">
+                      <div className="flex items-center justify-center gap-2 sm:gap-3 text-foreground-600">
                         <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-primary/50 to-secondary/50 animate-pulse delay-500 shadow-sm"></div>
-                          <span className="text-sm font-medium">
+                          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-gradient-to-r from-primary/50 to-secondary/50 animate-pulse delay-500 shadow-sm"></div>
+                          <span className="text-xs sm:text-sm font-medium">
                             {t("modes.sessionComplete")}
                           </span>
                         </div>
@@ -316,7 +315,7 @@ export default function ModeSelectionModalWrapper({
                     </div>
 
                     <div className="pt-2">
-                      <p className="text-sm text-foreground-500 font-light">
+                      <p className="text-xs sm:text-sm text-foreground-500 font-light">
                         {t("modes.preparingReading")}
                       </p>
                     </div>
@@ -332,25 +331,29 @@ export default function ModeSelectionModalWrapper({
               </div>
             )}
             <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none" />
-            <ModalHeader className="relative z-10 flex flex-col gap-1 items-center text-center">
-              <div className="text-4xl font-semibold">{t("modes.chooseCharacterMode")}</div>
-              <div className="text-md text-gray-500">{t("modes.selectType")}</div>
+            <ModalHeader className="relative z-10 flex flex-col gap-1 items-center text-center px-4 sm:px-6 pt-4 sm:pt-6">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-semibold">{t("modes.chooseCharacterMode")}</div>
+              <div className="text-sm sm:text-md text-gray-500">{t("modes.selectType")}</div>
             </ModalHeader>
-            <ModalBody className="relative z-10 overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-none">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mx-auto">
+            <ModalBody className="relative z-10 overflow-y-auto max-h-[calc(100vh-200px)] sm:max-h-none px-4 sm:px-6 pb-4 sm:pb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mx-auto pb-2">
                 {cards.map((c, idx) => (
-                  <div key={c.key} className="flex flex-col items-center gap-2 max-w-[180px]">
-                    <div className="text-black text-xl">{t(c.titleKey)}</div>
+                  <div key={c.key} className="flex flex-col items-center gap-2 w-full max-w-[180px] mx-auto">
+                    <div className="text-black text-base sm:text-lg md:text-xl font-semibold text-center">{t(c.titleKey)}</div>
                     <button
                       className={`relative w-full rounded-2xl overflow-hidden group text-left border ${selectedKey === c.key ? "border-[#EB7020] shadow-[0_0_0_2px_#EB7020]" : "border-gray-200"}
                       hover:shadow-lg hover:border-[#EB7020] transition-all`}
                       onClick={() => handleModeSelect(c.key)}
-                      style={{ height: "300px" }}
+                      style={{ height: "280px", minHeight: "280px" }}
                     >
                       <div className="relative z-10 h-full flex flex-col justify-end bg-white">
-                        <img src={c.image} alt="" className="absolute inset-0 w-[180px] h-[180px] object-cover " />
-                        <div className="pointer-events-none absolute inset-x-0 top-0 h-[180px] bg-gradient-to-b from-transparent via-white/20 to-white"></div>
-                        <div className="text-black text-md leading-relaxed px-4 pb-4">
+                        <img 
+                          src={c.image} 
+                          alt="" 
+                          className="absolute inset-0 w-full h-[140px] sm:h-[160px] md:h-[180px] object-cover" 
+                        />
+                        <div className="pointer-events-none absolute inset-x-0 top-0 h-[140px] sm:h-[160px] md:h-[180px] bg-gradient-to-b from-transparent via-white/20 to-white"></div>
+                        <div className="text-black text-xs sm:text-sm md:text-md leading-relaxed px-3 sm:px-4 pb-3 sm:pb-4">
                           {t(c.descKey)}
                         </div>
                       </div>

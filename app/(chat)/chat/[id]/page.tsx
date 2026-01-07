@@ -1455,7 +1455,7 @@ const ChatPage = observer(() => {
         </div>
 
         {/* Messages Container Skeleton - matching real component structure */}
-        <div className="flex flex-col w-full h-full overflow-y-auto pl-5">
+        <div className="flex flex-col w-full h-full overflow-y-auto pl-4">
           <div className="absolute inset-0 bg-[url('/charactor_create_modal/background-modal.png')] bg-cover opacity-[0.05] pointer-events-none" />
           
           {/* Permanent Loading Bar for /chat/new */}
@@ -1715,7 +1715,7 @@ const ChatPage = observer(() => {
                       color="primary"
                       className="flex-shrink-0 mt-1"
                     />
-                    <div className="max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-[#F0F0F0] border border-foreground/10 text-foreground shadow-sm break-words">
+                    <div className="max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2 md:py-3 bg-[#F0F0F0] border border-foreground/10 text-foreground shadow-sm break-words z-10">
                       {/* Assistant Name */}
                       <div className="text-sm font-medium mb-1 text-foreground-600">
                         {sessionInfo?.mode === "hepan"
@@ -1728,7 +1728,6 @@ const ChatPage = observer(() => {
                       {/* 打字机效果内容 */}
                       <div className="prose prose-invert max-w-none text-sm leading-relaxed break-words">
                         <MarkdownWithSources
-                          timestamp={new Date().toISOString()}
                           content={
                             typewriter.isTyping
                               ? `${typewriter.displayText}<typing-cursor></typing-cursor>`

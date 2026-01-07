@@ -163,7 +163,9 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
             <div className="relative z-10">
               <LogoLeft />
               <div className="flex flex-col gap-3 mt-5">
-                <Button color="primary" className="flex-1 rounded-full bg-gray-200 text-black w-full p-3" startContent={<Plus className="w-4 h-4" />} onPress={() => (onCreate ? onCreate() : document.dispatchEvent(new CustomEvent('openModeSelection')))}>{t('home.createCharacter')}</Button>
+                <Button color="primary" className="flex-1 rounded-full bg-gray-200 text-black w-full p-3" startContent={<Plus className="w-4 h-4" />} onPress={() => {
+                  onCreate ? onCreate() : document.dispatchEvent(new CustomEvent('openModeSelection'));
+                  setIsOpen(false) }}>{t('home.createCharacter')}</Button>
                 <Button as={Link} href="/database" color="primary" className="flex-1 rounded-full bg-gray-200 text-black w-full p-3" startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}>{t("common.baziAnalysis")}</Button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
