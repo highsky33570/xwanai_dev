@@ -45,6 +45,7 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { Tables } from "@/lib/supabase/types";
 import { Store } from "@/store";
 import ModeSelectionModal from "@/components/modals/mode-selection-modal";
+import PersonalInfoSelectionModal from "@/components/modals/personal-info-selection-modal";
 import SubscriptionModal from "@/components/subscription/subscription-modal";
 import { SubscriptionBadge } from "@/components/subscription/subscription-badge";
 import { observer } from "mobx-react-lite";
@@ -89,6 +90,7 @@ const NavigationNavbar = observer(() => {
 
   const [, forceUpdate] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showPersonalInfoModal, setShowPersonalInfoModal] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -162,6 +164,13 @@ const NavigationNavbar = observer(() => {
     };
     document.addEventListener("openModeSelection", handleOpenModeSelection);
 
+    const handleOpenPersonalInfoSelection = () => {
+      try {
+        setShowPersonalInfoModal(true);
+      } catch { }
+    };
+    document.addEventListener("openPersonalInfoSelection", handleOpenPersonalInfoSelection);
+
     const handleScroll = () => {
       try {
         setIsScrolled(window.scrollY > 0);
@@ -175,6 +184,7 @@ const NavigationNavbar = observer(() => {
       window.removeEventListener("languageChange", handleLanguageChange);
       document.removeEventListener("openLoginModal", handleOpenLoginModal);
       document.removeEventListener("openModeSelection", handleOpenModeSelection);
+      document.removeEventListener("openPersonalInfoSelection", handleOpenPersonalInfoSelection);
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
@@ -788,6 +798,16 @@ const NavigationNavbar = observer(() => {
           // 延迟关闭modal，确保跳转已开始
           setTimeout(() => setShowCreateModal(false), 100);
         }}
+      />
+      <PersonalInfoSelectionModal
+        isOpen={showPersonalInfoModal}
+        onOpenChange={setShowPersonalInfoModal}
+        // onSessionCreated={(sessionId) => {
+        //   // 🎯 先跳转，让loading保持显示直到新页面加载
+        //   // router.push(`/chat/${sessionId}?just_created=true`);
+        //   // 延迟关闭modal，确保跳转已开始
+        //   setTimeout(() => setShowPersonalInfoModal(false), 100);
+        // }}
       />
 
       {/* 订阅弹窗 */}

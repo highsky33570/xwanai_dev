@@ -77,8 +77,9 @@ export default function ChatHistorySidebar({ onCreate, inlineHidden }: ChatHisto
                 {t('home.createCharacter')}
               </Button>
               <Button
-                as={Link}
-                href="/database"
+                // as={Link}
+                // href="/database"
+                onPress={() => document.dispatchEvent(new CustomEvent('openPersonalInfoSelection'))}
                 color="primary"
                 className="flex-1 rounded-full bg-gray-200 text-black w-full p-3"
                 startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}

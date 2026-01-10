@@ -262,7 +262,10 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
           <Button
             color="primary"
             as={Link}
-            href="/database"
+            // href="/database"
+            onPress={() => {
+              document.dispatchEvent(new CustomEvent("openPersonalInfoSelection"))
+            }}
             className="flex-1 rounded-full bg-gray-200 text-black"
             startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}
           >
@@ -443,7 +446,8 @@ export default function LeftMenu({ onCreate, inlineHidden }: LeftMenuProps) {
                   startContent={<img src="/yin-yang-octagon.png" alt="" className="w-4 h-4" />}
                   onPress={() => {
                     closePanel()
-                    router.push("/database")
+                    // router.push("/database")
+                    document.dispatchEvent(new CustomEvent("openPersonalInfoSelection"))
                   }}
                 >
                   {t("common.baziAnalysis")}
