@@ -640,7 +640,7 @@ const NavigationNavbar = observer(() => {
           )}
 
           <NavbarItem>
-            {user && user.user_metadata?.avatar_url ? (
+            {user ? (
               <Dropdown placement="bottom-end" className="bg-white">
                 <DropdownTrigger>
                   <button className="relative inline-flex outline-none">
