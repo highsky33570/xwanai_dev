@@ -8,6 +8,7 @@ import { AppGlobalProvider } from "@/lib/context/GlobalContext"
 import { Averia_Serif_Libre } from "next/font/google"
 import { Suspense } from "react"
 import { generateMetadata } from "@/lib/utils/seo"
+import { AuthCallbackHandler } from "@/components/auth/auth-callback-handler"
 
 export const metadata: Metadata = generateMetadata({
   language: "en",
@@ -39,6 +40,7 @@ export default function RootLayout({
         <Providers>
           <AppGlobalProvider>
             <Suspense>
+              <AuthCallbackHandler />
               {children}
             </Suspense>
           </AppGlobalProvider>

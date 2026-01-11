@@ -215,6 +215,29 @@ class AuthOperations {
     }
   }
 
+  async signInWithToken(accessToken: string, refreshToken?: string): Promise<{ user: User | null; error: any }> {
+    try {
+      // Set session with the provided tokens
+      const { data, error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken || '',
+      })
+
+      if (error) {
+        logger.error({ module: "auth", operation: "signInWithToken", error }, "Sign in with token failed")
+        return { user: null, error }
+      }
+
+      // Refresh authentication cache on successful login
+      await refreshAuthCache()
+
+      return { user: data.user, error: null }
+    } catch (error) {
+      logger.error({ module: "auth", operation: "signInWithToken", error }, "Unexpected error during sign in with token")
+      return { user: null, error }
+    }
+  }
+
   onAuthStateChange(callback: (event: string, session: any) => void) {
     return supabase.auth.onAuthStateChange(callback)
   }
